@@ -13,6 +13,8 @@ I'm going to call those combos using java.
 public class Example{
 	private Example(){}
 	
+	TODO put BinaryOperator<fn> in some of these.
+	
 	private static fn cons;
 	public static fn cons(){
 		if(cons == null){
@@ -119,5 +121,135 @@ public class Example{
 		}
 		return mapPair;
 	}
+	
+	/** curry 2 cbt bitstrings each of size 64, return 1 of those */
+	private static fn doubleMult;
+	public static fn doubleMult(){
+		if(doubleMult == null){
+			TODO
+		}
+		return doubleMult;
+	}
+	
+	/** curry 2 cbt bitstrings each of size 64, return 1 of those */
+	private static fn doubleAdd;
+	public static fn doubleAdd(){
+		if(doubleAdd == null){
+			TODO
+		}
+		return doubleAdd;
+	}
+	
+	/** curry 2 cbt bitstrings each of size 32, return 1 of those */
+	private static fn floatAdd;
+	public static fn floatAdd(){
+		if(floatAdd == null){
+			TODO
+		}
+		return floatAdd;
+	}
+	
+	/** see Opcode.acyclicFlow and .acyclicFlowN in other fork of occamsfuncer.
+	This is where to hook in the int[] acyclicFlow music tool optimization.
+	*/
+	private static fn acyclicFlow;
+	public static fn acyclicFlow(){
+		if(acyclicFlow == null){
+			TODO
+		}
+		return acyclicFlow;
+	}
+	
+	/** see Opcode.acyclicFlow and .acyclicFlowN in other fork of occamsfuncer.
+	This is where to hook in the int[] acyclicFlow music tool optimization.
+	*/
+	private static fn acyclicFlowN;
+	public static fn acyclicFlowN(){
+		if(acyclicFlowN == null){
+			TODO
+		}
+		return acyclicFlowN;
+	}
+	
+	/** a digsig (digital signature) algorithm for signing and verifying
+	cbt bitstring, which has small signatures, publicKeys, privateKeys,
+	and deterministicly generates key pairs without need for salt.
+	*/
+	private static fn ed25519sha512;
+	public static fn ed25519sha512(){
+		if(ed25519sha512 == null){
+			TODO
+		}
+		return ed25519sha512;
+	}
+	
+	/** Example uses: opencl optimized LSTM or RBM neuralnets, matrix multiply,
+	hashing many things at once, many ed25519 digsigs at once, etc.
+	<br><br>
+	This is where ForestOp.java and OpenclUtil.java and Javassist hook in,
+	though its not the only place Javassist could optimize things,
+	it is probably the only place Opencl ndrange kernels need to hook in
+	(opencl image/convolutional would hook in maybe somewhere else).
+	This is not specific to opencl or javassist as it could be
+	implemented efficiently by any parallel number crunching system.
+	<br><br>
+	Its a forest of ForestOp where each ForestOp has n ForestOp childs
+	the lowest of which is a func to GET a literal array from param passed
+	in at each of the top ForestOps (s and curry style).
+	Each ForestOp returns 1 array thats an integer multiple size
+	of number of opencl get_global_id(0)
+	such as blocks of 5 float32s or blocks of 1 int32
+	or blocks of 8 int32s representing a bigint each.
+	It cant return multiple arrays from each ForestOp
+	since you would use multiple ForestOp for that,
+	which is a design sacrifice to keep it simple
+	but technically could be implemented as those share some code
+	within a single opencl kernel that returns multiple arrays.
+	Occamsfuncer does not know the difference between primitive types
+	at the cbt level but can know the difference at the function level
+	which processes cbts as for example ieee754 strictfp float32 math
+	or in Op.nondetGet you could use non-strictfp math or any
+	nondeterministic op you want at your own risk of inconsistent behaviors
+	but not at risk of anything escaping sandbox or infiniteLooping
+	as its still protected by Gas.top etc (inTheory).
+	This will do multiple forExample opencl kernels in a single call,
+	which can be ordered async with dependnet (by multiple CLQueue) order.
+	The recommended opencl implementation is LWJGL
+	cuz of its low lag and compatibility with lots of desktop/laptop OSes,
+	as will be used in the prototype, but thats NOT part of
+	the occamsfuncer spec
+	as the spec is ONLY the definition of the universal lambda function
+	and everything other than that is just optimizations of it.
+	Mobile phone implementations will probably implement this numCrunch fn
+	using a different number crunching API specialized in their
+	kind of hardware, similar to opencl.
+	CUDA might be implemented in some systems
+	as long as it follows the occamsfuncer spec
+	and is therefore emulating occamsfuncer and just optimizing it
+	and does not put anyone at the mercy and dependence on
+	proprietary software since all its behaviors are known
+	and formal-verifiable and challenge-response-able
+	and replacable and redundantly implementable in
+	multiple systems at once that can be hotSwapped
+	andOr used together even as parts of the same function call
+	across the internet at gaming-low-lag.
+	Hadoop, number crunching clouds, quantum optimized clouds, etc,
+	lots of possible ways to implement optimizations of this,
+	though quantum optimizations might better have their own
+	fn designed for their kind of statistics
+	and maybe hook it in through op.nondetGet?
+	*/
+	private static fn numCrunch;
+	public static fn numCrunch(){
+		if(numCrunch == null){
+			TODO
+		}
+		return numCrunch;
+	}
+	
+	TODO ops for the loop optimizations that avoid directly
+	calculating maps but abstractly represent looping vars etc
+	as puts of maps, and if/else that works with those,
+	and progn-like ops (the p(...) syntax), etc.
 
 }
