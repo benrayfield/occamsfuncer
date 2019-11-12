@@ -686,3 +686,73 @@ public class Boot{
 	}
 
 }
+
+
+
+Occamsfuncer booted.
+Starting testSTLR
+cur=2 this=(ST)
+test pass: st.L()==S
+test pass: st.R()==T
+Starting testIdentityFuncs
+cur=1 this=((ST)T)
+test pass: leaf.L()==I
+test pass: leaf.R()==leaf
+cur=1 this=(TI)
+test pass: stt.f(I)==I
+cur=1 this=(TT)
+test pass: stt.f(T)==T
+cur=1 this=(TF)
+test pass: stt.f(F)==F
+test pass: I.f(stt)==stt
+test pass: I.f(T)==T
+Starting testSCurryList
+cur=2 this=(PG)
+cur=1 this=((PG)C)
+cur=1 this=(TG)
+test pass: pair.f(getp).f(curry).f(T)==getp
+cur=1 this=(FG)
+test pass: pair.f(getp).f(curry).f(F)==curry
+test pass: t(getp)==T.f(getp)
+test pass: T.f(getp).f(curry)==getp
+cur=1 this=(T0)
+cur=1 this=(T1)
+cur=2 this=(S(T0))
+cur=1 this=((S(T0))(T1))
+S( [(T0), (T1)] ) returning ((S(T0))(T1))
+cur=0 this=(01)
+cbt01: (01)
+cbt01__2: (01)
+test pass
+cur=1 this=(TP)
+cur=1 this=(TC)
+cur=2 this=(S(TP))
+cur=1 this=((S(TP))(TG))
+cur=2 this=(S((S(TP))(TG)))
+cur=1 this=((S((S(TP))(TG)))(TC))
+S( [(TP), (TG), (TC)] ) returning ((S((S(TP))(TG)))(TC))
+SCurryA: ((S((S(TP))(TG)))(TC))
+pair_getp_curry: ((PG)C)
+test pass
+cur=2 this=(S(TT))
+cur=1 this=((S(TT))(TG))
+cur=2 this=(S((S(TT))(TG)))
+cur=1 this=((S((S(TT))(TG)))(TC))
+S( [(TT), (TG), (TC)] ) returning ((S((S(TT))(TG)))(TC))
+SCurryB: ((S((S(TT))(TG)))(TC))
+test pass: f(S(t(T), t(getp), t(curry)),leaf)==getp
+test pass: F.f(getp).f(curry)==getp
+cur=2 this=(S(TF))
+cur=1 this=((S(TF))(TG))
+cur=2 this=(S((S(TF))(TG)))
+cur=1 this=((S((S(TF))(TG)))(TC))
+S( [(TF), (TG), (TC)] ) returning ((S((S(TF))(TG)))(TC))
+test pass: f(S(t(F), t(getp), t(curry)),leaf)==curry
+Starting testAnd
+cur=0 this=(11)
+cur=-1 this=((11)(11))
+cur=-2 this=(((11)(11))((11)(11)))
+cur=-3 this=((((11)(11))((11)(11)))(((11)(11))((11)(11))))
+cur=-4 this=(((((11)(11))((11)(11)))(((11)(11))((11)(11))))((((11)(11))((11)(11)))(((11)(11))((11)(11)))))
+cur=2 this=(ZC)
+cur=1 this=((ZC)(((((11)(11))((11)(11)))(((11)(11))((11)(11))))((((11)(11))((11)(11)))(((11)(11))((11)(11))))))
