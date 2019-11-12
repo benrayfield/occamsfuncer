@@ -5,7 +5,7 @@ If height is 1, then its 2 bits. Height goes up to 6 for 64 bits.
 cbtHeight is 4 more than fn height since cbt0 and cbt1 are
 both at height 4.
 */
-public class SmallCbt implements fn{
+public class SmallCbt /*TODO implements fn*/{
 	
 	public final byte height;
 	

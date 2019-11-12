@@ -4,6 +4,7 @@ import static immutableexceptgas.occamsfuncer.ImportStatic.*;
 import java.lang.reflect.Array;
 import java.util.function.BinaryOperator;
 
+import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.fn;
 
 /** optimization of completeBinaryTree of Op.cbt0 and Op.cbt1,
@@ -164,11 +165,11 @@ public class ArrayCbt<T> implements fn{
 		throw new Error("TODO");
 	}
 
-	public BinaryOperator<fn> compiled(){
+	public Compiled compiled(){
 		throw new Error("TODO");
 	}
 
-	public void setCompiled(BinaryOperator<fn> c){
+	public void setCompiled(Compiled c){
 		throw new Error("TODO");
 	}
 
@@ -210,6 +211,10 @@ public class ArrayCbt<T> implements fn{
 
 	public fn op(){
 		throw new Error("TODO this would be the leftmost either cbt0 or cbt1, but thats not the most efficient way to use cbt so might need some redesign in Call.f(fn)");
+	}
+
+	public fn fIgnoreConstraint(fn param){
+		return f(param);
 	}
 	
 	

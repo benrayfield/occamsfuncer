@@ -10,7 +10,7 @@ import immutableexceptgas.occamsfuncer.fn;
 
 public class Call implements fn{
 	
-	public final fn L, R;
+	public final fn myL, myR;
 	
 	/** There are only 16 nontrivial ops,
 	but everything up to depth4 is considered an op.
@@ -47,19 +47,27 @@ public class Call implements fn{
 	*/
 	protected Compiled compiledOrNull;
 	
-	public Call(fn L, fn R){
-		this.L = L;
-		this.R = R;
-		int h = Math.max(L.height(),R.height());
+	//protected boolean fChecksConstraint;
+	
+	public Call(fn myL, fn myR){
+		this.myL = myL;
+		this.myR = myR;
+		int h = Math.max(myL.height(),myR.height());
 		//height()==Integer.MAX_VALUE means doesnt fit in int and use heightBig() instead.
+		//TODO optimize. use long for height? Or limit height?
 		height = h==Integer.MAX_VALUE ? Integer.MAX_VALUE : h+1;
-		op = height<5 ? this : L.op();
-		//If L is Op.curry then next param is cbtAsUnary (or might redesign it as later param?)
-		//The -4 is cuz Op.cbt1 is at height 4, and cbtAsUnary is exponential number of cbt1s.
-		//That exponential number of them is at worst linear cost cuz of sharing branches,
-		//and for small sizes that fit in a primitive is constant cost.
-		//FIXME might be offBy1 etc in R.height()-...
-		cur = L==curry ? R.height()-4 : L.cur()-1;
+		if(myL == curry){ //then height must be at least 5 cuz Op.curry height is 4
+			cur = cbtToNonnegInt(myR);
+			op = curry;
+		}else if(height > 4){ //this happens most often
+			cur = myL.cur()-1;
+			op = myL.op();
+		}else{ //height <= 4. Part of boot process.
+			//If its 1 of the 16 in Op enum, get cur from there. Else cur is 1.
+			cur = Boot.bootCur(this);
+			op = this;
+		}
+		lg("cur="+cur+" this="+this);
 	}
 	
 	public fn f(fn param){
@@ -67,6 +75,8 @@ public class Call implements fn{
 		if(ret != null) return ret;
 		if(1 < cur){
 			if(cur == 2){
+			//TODO may be optimizable with fChecksConstraint but only if done in op.compiled() instead of this.compiled()
+			//if(fChecksConstraint){
 				BinaryOperator<fn> constraint = op.compiled().constraintOrNull;
 				if(constraint != null){ //null means Op.T which matches everything
 					//Most calls dont have a constraint, but for example derived MapPair does.
@@ -105,21 +115,25 @@ public class Call implements fn{
 		Cache.putFuncParamReturn(this, param, ret);
 		return ret;
 	}
+	
+	public fn fIgnoreConstraint(fn param){
+		throw new Error("TODO copy most of the code from f(fn) except the part that does constraint");
+	}
 
 	public boolean isLeaf(){
 		return false;
 	}
 
 	public fn L(){
-		return L;
+		return myL;
 	}
 
 	public fn R(){
-		return R;
+		return myR;
 	}
 
 	public int cur(){
-		throw new Error("TODO");
+		return cur;
 	}
 
 	public fn curBig(){
@@ -142,8 +156,11 @@ public class Call implements fn{
 		return compiledOrNull;
 	}
 	
-	public void setCompiled(BinaryOperator<fn> c){
+	public void setCompiled(Compiled c){
+		if(cur != c.cur) throw new Error("cur differs. Its set in Op enum for 16 of the fns at height 4, and for all those at most height 4. this="+this+" Compiled="+c+" this.cur="+this.cur+" Compiled.cur="+c.cur);
 		compiledOrNull = c;
+		//FIXME this would only work if it happened here instead of in op.compiled()
+		//fChecksConstraint = cur == 2 && c != null && c.constraintOrNull != null;
 	}
 
 	public boolean isCbt(){
@@ -192,6 +209,12 @@ public class Call implements fn{
 	
 	public fn op(){
 		return op;
+	}
+	
+	public String toString(){
+		String s = Boot.tempNames.get(this);
+		if(s != null) return s;
+		return "("+L()+R()+")";
 	}
 
 }

@@ -155,10 +155,12 @@ public strictfp interface fn{
 	using ImportStatic.wr first
 	*/
 	public default fn f(Object param){
-		return f(wr(param));
+		return f(ImportStatic.f(param));
 	}
 	
-	public boolean isLeaf();
+	public default boolean isLeaf(){
+		return height()==0;
+	}
 	
 	public fn L();
 	
@@ -223,7 +225,7 @@ public strictfp interface fn{
 	public Compiled compiled(); //cuz has 2 BinaryOperator<fn>: constraint and funcBody.
 	
 	/** This is only to be called by trusted code. */
-	public void setCompiled(BinaryOperator<fn> c);
+	public void setCompiled(Compiled c);
 	
 	/** efficient bitstrings. If isCbt but not isBitstring then is all cbt0. */
 	public boolean isCbt();

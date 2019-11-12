@@ -2,8 +2,10 @@
 package immutableexceptgas.occamsfuncer;
 import java.util.function.BinaryOperator;
 
-/** Example: compile a certain fn that does iee754 double multiply on
-2 cbts of 64 bits each, compile that to a BinaryOperator with cur=2
+/** Example: compile a certain fn that does ieee754 double multiply on
+2 cbts of 64 bits each
+(TODO bitstring cbt or without the trailing cbt1 and cbt0s?),
+compile that to a BinaryOperator with cur=2
 to use java strictfp double*double,
 or a similar fn could do that in 1 cbt of 128 bits and 64 bits out.
 */

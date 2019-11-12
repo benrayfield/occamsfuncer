@@ -2,18 +2,63 @@
 package immutableexceptgas.occamsfuncer;
 import static immutableexceptgas.occamsfuncer.ImportStatic.*;
 import static immutableexceptgas.occamsfuncer.Gas.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 
 import immutableexceptgas.occamsfuncer.impl.fns.Call;
 import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
-import sun.jvm.hotspot.runtime.Bytes;
 
 public class Boot{
 	
 	/** in order of height recursively (TODO verify) */
 	public static List<fn> upToDepthN(int n){
-		throw new Error("TODO return immutable");
+		fn leaf = Leaf.instance;
+		Set<fn> nodesSet = Collections.newSetFromMap(new IdentityHashMap()); 
+		List<fn> nodesList = new ArrayList();
+		//Map<String,String> display = new HashMap();
+		Map<fn,Integer> height = new IdentityHashMap();
+		for(int i=0; i<=n; i++){
+			if(i==0){ 
+				nodesSet.add(leaf);
+				nodesList.add(leaf);
+				//display.put(leaf, "0");
+				//display.put(leaf, "0.");
+				height.put(leaf,0);
+				//lg(display.get(leaf)+" <0>");
+			}else{
+				int j=0;
+				fn[] nodesArray = nodesList.toArray(new fn[0]);
+				for(fn nodeX : nodesArray){
+					for(fn nodeY : nodesArray){
+						//String newPair = pair(nodeX,nodeY);
+						fn newPair = cp(nodeX,nodeY);
+						int h = Math.max(height.get(nodeX),height.get(nodeY))+1;
+						//String disp = h+"`"+display.get(nodeX)+display.get(nodeY);
+						//String disp = h+display.get(nodeX)+display.get(nodeY);
+						//String disp = h+"("+display.get(nodeX)+","+display.get(nodeY)+")";
+						if(!nodesSet.contains(newPair)){
+							nodesSet.add(newPair);
+							nodesList.add(newPair);
+							height.put(newPair, h);
+							//display.put(newPair, disp);
+							//lg(disp+" <"+(j++)+">");
+						}else{
+							//lg(disp+" <dup>");
+						}
+					}
+				}
+			}
+			lg("Level"+i+" has "+nodesList.size()+" binary forest shapes.");
+		}
+		return Collections.unmodifiableList(nodesList);
 	}
 	
 	private static fn[] ops;
@@ -37,6 +82,7 @@ public class Boot{
 				//These are arbitrarily chosen combos of the one leaf,
 				//and they are given meaning by Boot and Leaf.L() and Leaf.R().
 				ops[j] = cp(cp(digitA,digitB),cp(digitC,digitD));
+				tempNames.put(ops[j], ""+e[j].abbrev);
 			}
 		}
 		return ops[i];
@@ -51,6 +97,8 @@ public class Boot{
 	private static void infLoop(){
 		throw Gas.instance;
 	}*/
+	
+	private static boolean booted;
 	
 	/** call this once when system starts to define the behaviors
 	of a universal lambda function, other than what leaf returns
@@ -71,19 +119,47 @@ public class Boot{
 	which is a shortcut to some of those combos.
 	*/
 	public static void boot(){
+		if(booted) throw new Error("Already booted");
 		List<fn> fns = upToDepthN(4);
-		BinaryOperator<fn> other = (fn l, fn r)->{
-			throw new Error("TODO");
+		Compiled other = new Compiled(
+			1,
+			null,
+			(BinaryOperator<fn>)(fn l, fn r)->{
+				//Return same as if had infinite curries, even though its just 1 curry.
+				//FIXME that might be inconsistent logic
+				//since ((..).) returning ((..).) is an infiniteLoop
+				//unless its defined as a constraint and the actual number of
+				//curries is always 1 more than where the constraint is checked
+				//which would be 2 in this case, but need more than 2
+				//cus these have to reach to height4.
+				//These arent useful for anything except building the
+				//16 ops at height4. I just want them to build up to that
+				//and if anything else is called just be consistent logic.
+				//It might be better if in all possible cases other
+				//than building up to those ops they acted like identityFunc,
+				//but that would complicate it.
+				//Trying this simple thing first, just create the pair.			
+				//Its maybe consistent to say its a halted state,
+				//even if its not consistent by the strictest rules of lambda.
+				//This can be adjusted later without affecting the ops.
+				return cp(l,r);
+			}
+		);
+		BinaryOperator<fn> cbtFuncBody = (fn l, fn r)->{
+			$();
+			//TODO optimize for efficient bitstrings
+			return cp(l,r);
 		};
 		for(fn f : fns){
-			if(!f.isLeaf()){
+			int i = bootOpIndexAtHeight4(f);
+			if(i == -1 && !f.isLeaf()){ //skip leaf and the 16 Ops
 				f.setCompiled(other);
 			}
 		}
 		fn T = op(Op.T.ordinal());
 		fn F = op(Op.F.ordinal());
 		fn pair = op(Op.pair.ordinal());
-		for(Op op : Op.class.getEnumConstants()){
+		for(Op op : Op.class.getEnumConstants()){ //the 16 Ops
 			fn f = op(op.ordinal()); //these are among the upToDepthN(4)
 			int cur = -1;
 			BinaryOperator<fn> constraintOrNull = null; //null means Op.T
@@ -91,21 +167,14 @@ public class Boot{
 			switch(op){
 			case cbt0:
 				cur = 1;
-				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
-					$();
-					//TODO optimize for efficient bitstrings
-					throw new Error("TODO");
-				};
+				funcBody = cbtFuncBody;
 			break;
 			case cbt1:
 				cur = 1;
-				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
-					$();
-					//TODO optimize for efficient bitstrings
-					throw new Error("TODO");
-				};
+				funcBody = cbtFuncBody;
 			break;
 			case R:
+				//(f x) returns x.R()
 				cur = 1;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
@@ -113,6 +182,7 @@ public class Boot{
 				};
 			break;
 			case L:
+				//(f x) returns x.L() 
 				cur = 1;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
@@ -120,11 +190,11 @@ public class Boot{
 				};
 			break;
 			case F:
-				//(f x y) returns y
+				//(f x r) returns r
 				cur = 2;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
-					throw new Error("TODO");
+					return r;
 				};
 			break;
 			case T:
@@ -132,7 +202,7 @@ public class Boot{
 				cur = 2;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
-					throw new Error("TODO");
+					return l.R();
 				};
 			break;
 			case I:
@@ -154,6 +224,7 @@ public class Boot{
 				};
 			break;
 			case isLeaf:
+				//(isLeaf x) returns T if x is the leaf else returns F
 				cur = 1;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
@@ -162,6 +233,9 @@ public class Boot{
 			break;
 			case pair:
 				//(pair x y r) returns (r x y)
+				//(pair x y) is used as a cons pair
+				//and (TODO) is optimized so car and cdr dont run this code
+				//but get the value from inside it.
 				cur = 3;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
@@ -197,32 +271,6 @@ public class Boot{
 					fn x = l.L().R();
 					fn y = l.R();
 					return x.f(y).f(r);
-				};
-			break;
-			case getParam:
-				//(getParam comment cbtAsUnaryHeight thingNormallyMadeByCurry)
-				//thingNormallyMadeByCurry is (lazyEval currysL currysR)
-				//currysR is the last param.
-				//currysL is var size currylist and its leftmost is curry.
-				//curry is at height 4.
-				//works in either constraint or funcBody generated by Curry
-				//and cbtAsUnaryHeight counts ascending despite the
-				//datastruct being ordered descending.
-				cur = 3;
-				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
-					$();
-					//first is 0 (cbt1).
-					//second param is 1 (cbt1 cbt1).
-					//third pram is 2 ((cbt1 cbt1)(cbt1 cbt1)), and so on.
-					fn cbtAsUnaryHeight = l.R();
-					int whichParam = cbtAsUnaryHeight.height()-4;
-					//r is thingNormallyMadeByCurry
-					return getParam(whichParam, r);
-					
-					//FIXME this doesnt account for if params make it higher,
-					//so want only 
-					//int lHeight = l.height(); //(l r) is 1 higher
-					
 				};
 			break;
 			case curry:
@@ -339,14 +387,73 @@ public class Boot{
 					return itsFuncBody.f(viewOfVarargCall);
 				};
 			break;
-			case nondetInfloopIf:
+			case getp:
+				//(getParam comment cbtAsUnaryHeight thingNormallyMadeByCurry)
+				//thingNormallyMadeByCurry is (lazyEval currysL currysR)
+				//currysR is the last param.
+				//currysL is var size currylist and its leftmost is curry.
+				//curry is at height 4.
+				//works in either constraint or funcBody generated by Curry
+				//and cbtAsUnaryHeight counts ascending despite the
+				//datastruct being ordered descending.
+				cur = 3;
+				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
+					$();
+					//first is 0 (cbt1).
+					//second param is 1 (cbt1 cbt1).
+					//third pram is 2 ((cbt1 cbt1)(cbt1 cbt1)), and so on.
+					fn cbtAsUnaryHeight = l.R();
+					int whichParam = cbtAsUnaryHeight.height()-4;
+					//r is thingNormallyMadeByCurry
+					return getParam(whichParam, r);
+					
+					//FIXME this doesnt account for if params make it higher,
+					//so want only 
+					//int lHeight = l.height(); //(l r) is 1 higher
+					
+				};
+			break;
+			case recur:
+				//given what Op.curry generates (to be param of constraint or funcBody),
+				//returns L().L().L()... until R() is funcBody then returns
+				//(curry cbtAsUnary constraint funcBody)
+				//which already existed in the param and this just finds it.
+				//See Example.equals() for how to use this since its a recursive func,
+				//and its also (TODO) optimized by BinaryOperator<fn> that uses id
+				//so when that BinaryOperator<fn> is there it bypasses Op.recurse.
+				cur = 1;
+				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
+					$();
+					//r is what curry generates
+					return getNthCurry(3,r);
+				};
+			break;
+			case nondet:
+				cur = 2;
+				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
+					//TODO sub-op for Gas.infLoop() IF doesnt have enough Gas.top
+					//See comments in Op.nondet for what these 2 params are for
+					//and how to wrap the older type:content kind of occamsfuncer in
+					//this by the type:content being the cbt bitstring of firstParam,
+					//or it can be anything you want to hook in nondeterministicly here.
+					//$();
+					//fn firstParam = l.R();
+					//fn secondParam = r;
+					//return Leaf.instance;
+					
+					//does $(...), but FIXME??? is there a danger of infloop just by calling l.R() before nondet? Probably not.
+					return Nondet.nondet(l.R(), r);
+					//return Nondet.nondet(l.L().R(), l.R(), r);
+				};
+			break;
+			/*case nondetInfloopIf:
 				cur = 1;
 				funcBody = Nondet.nondetInfloopIf; //TODO or call that, in case add cbt first params it responds to at runtime?
 				/*func = (BinaryOperator<fn>)(fn l, fn r)->{
 					//TODO sub-op for Gas.infLoop() IF doesnt have enough Gas.top
 					$();
 					return Leaf.instance;
-				};*/
+				};*
 			break;
 			case nondetGet:
 				//TODO sub-ops for Spend and Wallet,
@@ -357,11 +464,78 @@ public class Boot{
 				/*func = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
 					return infLoop();
-				};*/
+				};*
 			break;
+			*/
 			}
-			f.setCompiled(func);
+			f.setCompiled(new Compiled(cur, constraintOrNull, funcBody));
 		}
+		for(int i=0; i<fns.size(); i++){
+			fn f = fns.get(i);
+			lg("fn"+i+": "+f);
+		}
+		booted = true;
 	}
+	
+	/** Slow. Returns 0 if (.(..)) or 1 if ((..).), else -1 if its not part of an Op */
+	public static int bootOpChildIndexAtHeight2(fn f){
+		//Theres 1 fn at height0 and 1 fn at height1 and 3 fn at height2
+		int ret;
+		if(f.height() != 2){
+			return -1;
+		}else if(f.L().height()==0){
+			ret = 0; //f is (.(..))
+		}else{ //f.L().height()==1
+			if(f.R().height()==0) ret = 1; //f is ((..).)
+			else ret = -1; //f is ((..)(..))
+		}
+		lg("bootOpChildIndexAtHeight2 of "+f+" is "+ret);
+		return ret;
+	}
+	
+	/** Slow. Returns 0..3, else -1 if its not part of an Op */
+	public static int bootOpChildIndexAtHeight3(fn f){
+		int ret;
+		if(f.height() != 3){
+			return -1;
+		}
+		int l = bootOpChildIndexAtHeight2(f.L());
+		int r = bootOpChildIndexAtHeight2(f.R());
+		ret = l == -1 || r == -1 ? -1 : l*2+r;
+		lg("bootOpChildIndexAtHeight3 of "+f+" is "+ret);
+		return ret;
+	}
+	
+	/** Slow. Returns 0..15, else -1 if its not part of an Op */
+	public static int bootOpIndexAtHeight4(fn f){
+		int ret;
+		if(f.height() != 4){
+			return -1;
+		}
+		int l = bootOpChildIndexAtHeight3(f.L());
+		int r = bootOpChildIndexAtHeight3(f.R());
+		ret = l == -1 || r == -1 ? -1 : l*4+r;
+		lg("bootOpIndexAtHeight4 of "+f+" is "+ret);
+		return ret;
+	}
+	
+	/** Slow. Returns what Call.cur (number of remaining curries)
+	should be during Call constructor for any fn of height()<5. This only
+	happens once per each of those 677 funcs cuz after that they are reused.
+	*/
+	public static int bootCur(fn f){
+		int o = bootOpIndexAtHeight4(f);
+		if(o == -1) return 1;
+		return Op.atIndex(o).cur;
+		/*
+		if(f.height()>4) throw new Error("This is only for booting height0..4");
+		if(f.height()!=4) return 1;
+		return bootIsHeight3ChildOfOp(f.L());
+		TODO
+		*/
+	}
+	
+	/** these names dont affect id, for any possible id generator */
+	public static Map<fn,String> tempNames = new HashMap();
 
 }

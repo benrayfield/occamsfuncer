@@ -1,6 +1,7 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutableexceptgas.occamsfuncer.util;
 import immutableexceptgas.occamsfuncer.fn;
+import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
 
 /** used as a java.util.Map key for caching <func,param,return>.
 does not trigger lazyHash cuz is by == and hashCode.
@@ -49,6 +50,7 @@ public class CallAsKey{
 	*/
 	
 	public CallAsKey(fn haltedLR){
+		if(haltedLR == Leaf.instance) throw new Error("Cant cache leaf cuz thats where fractal wraps around");
 		this.retIsThisPair = true;
 		this.L = haltedLR.L();
 		this.R = haltedLR.R();
@@ -70,6 +72,10 @@ public class CallAsKey{
 		//this would call id() since hashCode is derived from it:  return func.hashCode()+param.hashCode();
 		return System.identityHashCode(L)+System.identityHashCode(R);
 		//throw new Error("TODO??? salt the hashes of the 2 childs, like probably did in other ocfn code in CacheFuncParamReturn class");
+	}
+	
+	public String toString(){
+		return "<"+L+","+R+">";
 	}
 
 }

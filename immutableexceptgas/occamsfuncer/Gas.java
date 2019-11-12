@@ -36,6 +36,11 @@ public class Gas extends RuntimeException{
 	*/
 	public static boolean deterministicSoFar = true;
 	
+	/** TODO Spend or some permission call changes this similar to Spend call.
+	Only affects Op.nondet and anything that may lead to it being called.
+	*/
+	public static boolean forceDeterminism = false;
+	
 	/** instance field and instance() since it must start null cuz of some java limit (or java bug?) that wont let a throwable be static final in its own class */
 	private static Gas instance;
 	

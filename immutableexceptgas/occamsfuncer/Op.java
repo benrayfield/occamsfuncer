@@ -59,6 +59,56 @@ occamsfuncer
 */
 public enum Op{
 	
+	
+	
+	
+	
+	
+	
+	
+	/*TODO copy the rest of the comments from
+	choosingListOfOccamsfuncerOpsFromWhichMapPairConsCarCdrEtcWillBeDerived2019-10-23+
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*FIXME rename this to a subtype of occamsfuncer?
+	like i did for the others
+	occamsfuncer_typecontent and occamsfuncerbycoretype etc,
+	Maybe something like occamsfuncer_01rlftis (not describing all 16 ops)
+	...
+	Maybe I need to play with this most direct form of occamsfuncer
+	before I'm able to redesign its datastructs to have
+	less callpairs and moreimportantly to not have to
+	<func,param,return> cache as many things.
+	*/
+	
 	/*TODO define the first depth n of binForest shapes
 	mapping to/from integer, at least up to depth 4 (where leaf is depth 0),
 	and define it for some of the shallower cbts.
@@ -96,36 +146,36 @@ public enum Op{
 	and by various datastructs representing small binForests
 	with pointers and literals as leafs.
 	*/
-	cbt0('0'),
+	cbt0(1,'0'),
 
 	/** see cbt0 */
-	cbt1('1'),
+	cbt1(1,'1'),
 	
 	/** get right child, as in ((l x)(r x)).equals(x) for all x,
 	and (l leaf) is i (identityFunc) and (r leaf) is leaf.
 	*/
-	R('R'),
+	R(1,'R'),
 	
 	/** get left child, as in ((l x)(r x)).equals(x) for all x,
 	and (l leaf) is i (identityFunc) and (r leaf) is leaf.
 	*/
-	L('L'),
+	L(1,'L'),
 	
 	/** Lx.Ly.y aka getSecondOf2 aka (k i) */
-	F('F'),
+	F(2,'F'),
 	
 	////////
 	
 	/** k aka t aka getFirstOf2. Lx.Ly.x */
-	T('T'),
+	T(2,'T'),
 	
 	/** identityFunc aka same behaviors as (s k k) other than its forest shape.
 	(L theLeaf) returns I.
 	*/
-	I('I'),
+	I(1,'I'),
 	
 	/** Lx.Ly.Lz.xz(yz) */
-	S('S'),
+	S(3,'S'),
 	
 	////////
 	
@@ -136,35 +186,43 @@ public enum Op{
 	The equals func will be optimized by secureHash comparing.
 	All optimizations go in BinaryOperator<fn> fn.compiled().
 	*/
-	isLeaf('Y'),
+	isLeaf(1,'Y'),
 	
 	/** Lx.Ly.Lz.zxy.
 	(pair x y F) returnx x.
 	(pair x y T) returns y.
 	(pair x y) is halted, of course.
 	*/
-	pair('P'),
+	pair(3,'P'),
 	
 	/** forkJump by binheap indexing, using cbt (complete binary tree) as bitstring
 	suffixed by the last cbt1, and before that the cbt0 is L and cbt1 is R.
 	This is an urbit-like op.
 	*/
-	bh('J'),
+	bh(2,'J'),
 	
 	/** (lazyEval x y z) aka (((lazyEval x) y) z) returns (x y z) aka ((x y) z).
 	(lazyeval x y) is halted.
 	*/
-	lazyEval('Z'),
+	lazyEval(3,'Z'),
 	
 	////////
 	
-	/** (curry cbtAsUnary constraint/k funcBody ...params...)
+	/** (curry cbtAsUnary constraint/T funcBody ...params...)
 	I chose that order of params so Call constructor
 	will know its number of curries right away other than if its Op.curry
 	whose number of curries is 0 (vararg).
 	The BinaryOperator<fn> of Op.curry (in Boot) will check for
 	BinaryOperator<fn> fn.compiled() in both constraint/k and funcBody params
 	unless somehow I design that to happen when it calls them.
+	<br><br>
+	TODO create Compiled for each of
+	(curry cbtAsUnary1 T) to (curry cbtAsUnary7 T)
+	so theres no need to redesign as (curry T) having a Compiled.
+	Most calls of curry have T as constraint. MapPair for example
+	has a custom constraint. A constraint is a fn run at curry's fn.cur()-1,
+	similar to funcBody is run at curry's fn.cur(),
+	in both cases using a lazyEval to join currysL and currysR. 
 	<br><br>
 	OLD...
 	<br><br>
@@ -245,7 +303,7 @@ public enum Op{
 	is param0, and ((cbt1 cbt1)(cbt1 cbt1)) is param2. Efficiently shares branches.
 	This fits well with bitstrings being suffixed by cbt1 so is a powOf2-1 len bitstring.
 	*/
-	curry('C'),
+	curry(0,'C'),
 	
 	/** THIS IS INCOMPLETELY DEFINED cuz Op.curry is incompletely defined:
 	(getParam comment cbtAsUnary structureMadeByCurryInFuncbodyOrConstraintCall).
@@ -256,9 +314,48 @@ public enum Op{
 	is param0, and ((cbt1 cbt1)(cbt1 cbt1)) is param2. Efficiently shares branches.
 	This fits well with bitstrings being suffixed by cbt1 so is a powOf2-1 len bitstring.
 	*/
-	getParam('G'),
+	getp(3,'G'),
 	
-	/** Always returns the leaf unless error (in its param)
+	/** same logic as ImportStatic.recurse which uses .getNthCurry,
+	TODO explain more directly.
+	*/
+	recur(1,'E'),
+	
+	/** First param is normally a cbt thats either an arbitrary
+	bitstring or maybe a type:content bitstring or whatever you want it
+	to be, and second param is the param of that func (nondet someCbt),
+	so if you wanted to wrap the type:content kind of occamsfuncer
+	in this kind, at some cost of extra memory maybe,
+	you could wrap forExample (nondet "image/jpeg:bytesOfJpgFile")
+	in an Op.curry for however many params it takes (if a jpg file would
+	somehow act like a function, for example.
+	Or that first param could be a list or other datastruct,
+	which contains namespace subnamespace funcname,
+	or however people like to organize Op.nondet,
+	always with the option of pure determinism mode
+	in which case Op.nondet always returns leaf or always infloops
+	or things between that involving Spend and Wallet
+	and infloopIfWalletLessThan etc.
+	<br><br>
+	This nondet op is a redesign merging
+	the nondetGet and nondetInfloopIf ops.
+	Its still considered deterministic when it returns leaf,
+	as explained in the comments below of nondetInfloopIf,
+	and considered nondeterministic when its nonhalting or if it
+	returns anything other than leaf.
+	The Spend and Wallet calls will be nondeterministic,
+	and there will be another kind of call that returns leaf
+	if a param meaning amount of Gas.top, is at most that amount
+	meaning theres enough compute resources.
+	Ocfnplug (static java funcs etc whose name starts with ocfnplug,
+	excluding package.a.b.className) will be nondeterministic
+	since their code can be changed without changing the func name.
+	Even if they are nondeterministic, its important
+	for them to still obey Gas.top and Gas.memToComRatio etc.
+	<br><br>
+	OLD...
+	<br><br>
+	Always returns the leaf unless error (in its param)
 	in which case it infiniteLoops,
 	and if you're in a nondet call that limits compute resources recursively
 	that would jump to the outermost spend call,
@@ -279,9 +376,9 @@ public enum Op{
 	of Wallet left, but without reading Wallet as that would be nondeterministic.
 	This op may be repeated from a previous state
 	until it gives the deterministic result then continue.
-	*/
+	*
 	nondetInfloopIf('q'),
-	
+	...
 	/** There are only 2 ops related to nondeterminism, one ifFail and one always.
 	"occamsfuncerNdAntiop".
 	If in pure deterministic mode, evals to (s s s s) aka infinite loop
@@ -298,15 +395,33 @@ public enum Op{
 	if thats even possible once this is called,
 	but if you must, this is where to put it, as how this reacts
 	to different possible params.
-	*/
+	*
 	nondetGet('Q');
+	*/
+	nondet(2,'Q');
+	/*TODO update comments. like explained in Nondet.java,
+	the first param of nondet is always a type:content
+	such as "image/jpeg:...bytesOfJpgFile..."
+	and such as "ocfnplug:package.a.b.name.func"
+	and including types for few wallet related ops (Wallet Spend InfloopIf).
+	but must still use op.curry if want it to have more than 1 param (after the type:content fijrst param)
+	*/
+	
+	private static final Op[] vals = Op.values();
+	
+	public static Op atIndex(int i){
+		return vals[i];
+	}
+			
+	public final int cur;
 	
 	/** the abbrev of leaf is '.' but its not one of the 16 ops
 	since those are all at depth4.
 	*/
 	public final char abbrev;
 	
-	private Op(char abbrev){
+	private Op(int cur, char abbrev){
+		this.cur = cur;
 		this.abbrev = abbrev;
 	}
 

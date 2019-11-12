@@ -2,6 +2,8 @@
 package immutableexceptgas.occamsfuncer.impl.fns;
 import java.util.function.BinaryOperator;
 import immutableexceptgas.occamsfuncer.Boot;
+import immutableexceptgas.occamsfuncer.Compiled;
+
 import static immutableexceptgas.occamsfuncer.ImportStatic.*;
 import immutableexceptgas.occamsfuncer.Op;
 import immutableexceptgas.occamsfuncer.fn;
@@ -55,8 +57,12 @@ public class Leaf implements fn{
 	and must have a compiled? Could make that height1 to height4,
 	but the behaviors are only nontrivial for 16 of those at heigh4.
 	*/
-	public BinaryOperator<fn> compiled(){
+	public Compiled compiled(){
 		return null;
+	}
+	
+	public void setCompiled(Compiled c){
+		throw new UnsupportedOperationException("Leaf doesnt need a compiled form since its behaviors are very simple");
 	}
 
 	public boolean isCbt(){
@@ -108,8 +114,12 @@ public class Leaf implements fn{
 		return I;
 	}
 
-	public void setCompiled(BinaryOperator<fn> c){
-		throw new UnsupportedOperationException("Leaf doesnt need a compiled form since its behaviors are very simple");
+	public fn fIgnoreConstraint(fn param){
+		return f(param);
+	}
+	
+	public String toString(){
+		return ".";
 	}
 
 }
