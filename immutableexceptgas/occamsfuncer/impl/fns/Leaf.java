@@ -8,6 +8,15 @@ import static immutableexceptgas.occamsfuncer.ImportStatic.*;
 import immutableexceptgas.occamsfuncer.Op;
 import immutableexceptgas.occamsfuncer.fn;
 
+/** leaf.f(anything) is the halted state (leaf anything).
+x.L().f(x.R()).equals(x) for all x.
+leaf.L() is I (aka identityFunc). leaf.R()==leaf. I.f(leaf)==leaf.
+Therefore the L and R paths are infinitely deep and consistent.
+L and R of anything else is simply its left and right childs.
+All L and R paths eventually lead to leaf, such as I is
+a certain binary forest shape (see Boot class) made of
+calling leaf on itself in various combos.
+*/
 public class Leaf implements fn{
 	
 	public static final fn instance = new Leaf();

@@ -91,7 +91,7 @@ public class Boot{
 	/** Use Gas.infLoop() instead.
 	will not actually infloop but this means avoid running out of
 	compute resources by ending whatever you're doing, same as would
-	happen if there were any actual infinite loop such as (s s s s)
+	happen if there were any actual infinite loop such as (s s s s) [FIXME thats not actually an infinite loop]
 	except this doesnt consume those resources.
 	*
 	private static void infLoop(){
@@ -146,6 +146,7 @@ public class Boot{
 			}
 		);
 		BinaryOperator<fn> cbtFuncBody = (fn l, fn r)->{
+			lg("cbtFuncBody of l="+l+" r="+r);
 			$();
 			//TODO optimize for efficient bitstrings
 			return cp(l,r);
@@ -524,6 +525,8 @@ public class Boot{
 	happens once per each of those 677 funcs cuz after that they are reused.
 	*/
 	public static int bootCur(fn f){
+		//FIXME if f is a cbt (but maybe cant use fn.isCbt() cuz this is before
+		//Call constructor finishes.
 		int o = bootOpIndexAtHeight4(f);
 		if(o == -1) return 1;
 		return Op.atIndex(o).cur;
@@ -533,6 +536,14 @@ public class Boot{
 		return bootIsHeight3ChildOfOp(f.L());
 		TODO
 		*/
+	}
+	
+	public static boolean bootIsCbt(fn f){
+		int height = f.height();
+		if(height < 4) return false;
+		if(height != 4) throw new Error("height is too big to be part of boot: "+height);
+		int o = bootOpIndexAtHeight4(f);
+		return o == Op.cbt0.ordinal() || o == Op.cbt1.ordinal();
 	}
 	
 	/** these names dont affect id, for any possible id generator */

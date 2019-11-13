@@ -195,7 +195,14 @@ public enum Op{
 	*/
 	pair(3,'P'),
 	
-	/** forkJump by binheap indexing, using cbt (complete binary tree) as bitstring
+	/** FIXME choose which end of cbtBitstring, bigEndian or littleEndian,
+	considering that one of the cbtBitstring ends is efficiently forkAppendable.
+	Or should bh take an extra param thats T or F to choose which of those
+	2 behaviors (that seems wasteful). Or should I derive a reverse cbtBitstring
+	fn and somehow optimize combos of it and this op.bh (not sure if I
+	can optimize it as well)?
+	OLD...
+	forkJump by binheap indexing, using cbt (complete binary tree) as bitstring
 	suffixed by the last cbt1, and before that the cbt0 is L and cbt1 is R.
 	This is an urbit-like op.
 	*/
@@ -313,6 +320,8 @@ public enum Op{
 	curry and getParam use completeBinaryTree's height to count in unary, so cbt1
 	is param0, and ((cbt1 cbt1)(cbt1 cbt1)) is param2. Efficiently shares branches.
 	This fits well with bitstrings being suffixed by cbt1 so is a powOf2-1 len bitstring.
+	<br><br>
+	Returns leaf if the requested param index is out of range.
 	*/
 	getp(3,'G'),
 	
@@ -381,7 +390,7 @@ public enum Op{
 	...
 	/** There are only 2 ops related to nondeterminism, one ifFail and one always.
 	"occamsfuncerNdAntiop".
-	If in pure deterministic mode, evals to (s s s s) aka infinite loop
+	If in pure deterministic mode, evals to (s s s s) [FIXME thats not actually an infinite loop] aka infinite loop
 	which is deterministic, else counts as nondeterministic
 	as soon as its used nomatter the result. Is used for things
 	like Wallet op and Spend op, to measure and recursively

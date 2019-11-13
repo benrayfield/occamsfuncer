@@ -5,6 +5,7 @@ import static immutableexceptgas.occamsfuncer.ImportStatic.*;
 
 import immutableexceptgas.occamsfuncer.Boot;
 import immutableexceptgas.occamsfuncer.Example;
+import immutableexceptgas.occamsfuncer.Gas;
 import immutableexceptgas.occamsfuncer.fn;
 import immutableexceptgas.occamsfuncer.impl.fns.Call;
 
@@ -21,8 +22,22 @@ public class TestBasics{
 	}
 	
 	public static void testEqq(String name, Object a, Object b){
-		if(a != b) throw new Error("Test failed: "+name+" a["+a+"] b["+b+"]");
+		if(a != b){
+			throw new Error("Test failed: "+name+" a["+a+"] b["+b+"]");
+		}
 		lg("test pass: "+name);
+	}
+	
+	/** WARNING: modifies Gas.top without conserving Gas */
+	public static void testInfiniteLoopEndsCuzRunsOutOfGas(){
+		lg("Starting testInfiniteLoopEndsCuzRunsOutOfGas");
+		Gas.top = 1000;
+		try{
+			fn returned = fnThatInfiniteLoopsForEveryPossibleParam().f(leaf);
+			throw new Error("testInfiniteLoopEndsCuzRunsOutOfGas failed. What should have infinite looped (until reach its resource limit) returned "+returned);
+		}catch(Gas g){
+			lg("testInfiniteLoopEndsCuzRunsOutOfGas passed by ending early"); 
+		}
 	}
 	
 	public static void testSTLR(){
@@ -73,6 +88,21 @@ public class TestBasics{
 		//FIXME undecided what S(...1thing...)returns test("S(t(I), getp)==getp", S(t(I), getp)==getp);
 	}
 	
+	public static void testIsUnaryCbt(){
+		lg("Starting testIsUnaryCbt");
+		for(int i=0; i<6; i++){
+			test("unary"+i, isUnaryCbt(unary(i)));
+		}
+		test(!isUnaryCbt(leaf));
+		test(!isUnaryCbt(leaf.f(leaf)));
+		test(!isUnaryCbt(cbt0));
+		test(!isUnaryCbt(cbt1.f(cbt0)));
+		test(!isUnaryCbt(cbt0.f(cbt1)));
+		test(!isUnaryCbt(cbt1.f(cbt1.f(cbt1))));
+		test(!isUnaryCbt(S));
+		test(!isUnaryCbt(T));
+	}
+	
 	public static void testIdentityFuncs(){
 		lg("Starting testIdentityFuncs");
 		fn stt = f(S,T,T);
@@ -85,12 +115,40 @@ public class TestBasics{
 		test("I.f(T)==T", I.f(T)==T);
 	}
 	
+	public static void testGetp(){
+		lg("Starting testGetp");
+		fn funcBody = T; //return madeByCurry
+		//cbt0 and cbt1 are the params of funcBody.
+		//curry is still waiting since we lazyEvaled here
+		//instead of letting curry create the lazyEval.
+		fn x = f(curry,unary(6),T,funcBody);
+		lg("x: "+x);
+		fn madeByCurryForConstraint = f(lazyEval,x,cbt0);
+		lg("madeByCurryForConstraint: "+madeByCurryForConstraint);;
+		fn y = f(curry,unary(6),T,funcBody,cbt0);
+		lg("y: "+y);
+		fn madeByCurryForFuncBody = f(lazyEval,y,cbt1);
+		lg("madeByCurryForFuncBody: "+madeByCurryForFuncBody);;
+		
+		testEqq("constraintGetsSecondLastParam", getParam(4,madeByCurryForConstraint), cbt0);
+		testEqq("funcBodyGetsLastParam", getParam(5,madeByCurryForFuncBody), cbt1);
+		testEqq("funcBodyGetsSecondLastParam", getParam(4,madeByCurryForFuncBody), cbt0);
+		
+		fn getpLeaf = getp.f(leaf); //first param is comment. leaf means no comment.
+		testEqq("constraint_getpunary4_is_cbt0", getpLeaf.f(unary(4)).f(madeByCurryForConstraint), cbt0);
+		testEqq("constraint_getpunary5_is_leaf_cuzParamIndexDoesntExist", getpLeaf.f(unary(5)).f(madeByCurryForConstraint), leaf);
+		testEqq("constraint_getpunary6_is_leaf_cuzParamIndexDoesntExist", getpLeaf.f(unary(6)).f(madeByCurryForConstraint), leaf);
+		testEqq("funcBody_getpunary4_is_cbt0", getpLeaf.f(unary(4)).f(madeByCurryForFuncBody), cbt0);
+		testEqq("funcBody_getpunary5_is_cbt1", getpLeaf.f(unary(5)).f(madeByCurryForFuncBody), cbt1);
+	}
+	
 	public static void testAnd(){
 		lg("Starting testAnd");
-		test(and().f(F).f(F)==F);
-		test(and().f(F).f(T)==F);
-		test(and().f(T).f(F)==F);
-		test(and().f(T).f(T)==T);
+		lg("and="+and());
+		testEqq("and_F_F", and().f(F).f(F), F);
+		testEqq("and_F_T", and().f(F).f(T), F);
+		testEqq("and_T_F", and().f(T).f(F), F);
+		testEqq("and_T_T", and().f(T).f(T), T);
 	}
 	
 	/** Test the fn returned by Example.equals()
@@ -111,10 +169,38 @@ public class TestBasics{
 		fn firstOp = Boot.op(0);
 		fn secondOp = Boot.op(1);
 		fn equals = Example.equals();
-		test("equalsA", equals.f(firstOp).f(copyOfFirstOp)==T);
-		test("equalsB", equals.f(copyOfFirstOp).f(firstOp)==T);
-		test("equalsC", equals.f(secondOp).f(copyOfFirstOp)==F);
-		test("equalsD", equals.f(copyOfFirstOp).f(secondOp)==F);
+		lg("equals="+equals);
+		fn equalsLeaf = equals.f(leaf);
+		lg("equalsLeaf="+equalsLeaf);
+		testEqq("equals_leaf_leaf", equalsLeaf.f(leaf), T);
+		testEqq("equals_leafLeaf_leafLeaf", equals.f(leafLeaf).f(leafLeaf), T);
+		testEqq("equals_leafLeaf_copyOfLeafLeaf", equals.f(leafLeaf).f(leaf.f(leaf)), T);
+		testEqq("equals_leaf_leafLeaf", equals.f(leaf).f(leafLeaf), F);
+		testEqq("equalsA", equals.f(firstOp).f(copyOfFirstOp), T);
+		testEqq("equalsB", equals.f(copyOfFirstOp).f(firstOp), T);
+		testEqq("equalsC", equals.f(secondOp).f(copyOfFirstOp), F);
+		testEqq("equalsD", equals.f(copyOfFirstOp).f(secondOp), F);
+		fn sii = CP(CP(S,I),I);
+		fn copyOf_lazyEval_sii_sii = CP(CP(lazyEval,sii),sii);
+		test(
+			"somethingLambdaFuncsCantDoCuzItWouldInfiniteLoop",
+			T == equals
+				.f(fnThatInfiniteLoopsForEveryPossibleParam())
+				.f(copyOf_lazyEval_sii_sii)
+		);
+		test("equals(equals,equals)==T", equals.f(equals).f(equals)==T);
+		//Unless optimizations have been turned on (shouldnt be yet, TODO verify),
+		//none of these fns use java == or .equals and are running
+		//only as combos of a universal lambda func,
+		//which can still detect equality between a lambda and itself
+		//even if the lambda its asked about infinite loops for every
+		//possible param. It can detect this cuz of the
+		//ability to see left and right childs
+		//where (equals ((L x)(R x))) is T for every x,
+		//and at the java level so is x.L().f(x.R()).equals(x) for every x,
+		//and if you're deduping using a hashtable
+		//(which is normally disabled for cbt bitstring optimizations)
+		//then also x.L().f(x.R())==x for every x.
 	}
 	
 	/** tests ImportStatic.L(...) which is s-lambda-level 1 (s is level 0).
@@ -174,10 +260,16 @@ public class TestBasics{
 	}*/
 	
 	public static void main(String... args){
+		testInfiniteLoopEndsCuzRunsOutOfGas();
+		Gas.top = 1e6;
 		testSTLR();
 		testIdentityFuncs();
 		testSCurryList();
+		testIsUnaryCbt();
+		testGetp();
 		testAnd();
+		//TODO test (curry cbtAsUnary5 T).setCompiled(...) for
+		//1-7 params after the standard curry params
 		testEqualsWithoutOptimizationsOrDedup();
 		testSLinkedList();
 		lg("All tests passed (TODO write harder tests)");

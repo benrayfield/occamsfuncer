@@ -18,6 +18,19 @@ I'm going to call those combos using java.
 public class Example{
 	private Example(){}
 	
+	/** TODO port the older version of https://github.com/benrayfield/smartblob
+	to occamsfuncer, as a proof of concept of opencl and javassist optimization
+	of that amount of complexity. It must be the triangle kind of smartblob
+	instead of the circles kind, cuz circles are not a good proof of concept.
+	*/
+	private static fn bouncingSpringy2dPolygonsLikeInSmartblobGame;
+	public static fn bouncingSpringy2dPolygonsLikeInSmartblobGame(){
+		if(bouncingSpringy2dPolygonsLikeInSmartblobGame == null){
+			throw new Error("TODO");
+		}
+		return bouncingSpringy2dPolygonsLikeInSmartblobGame;
+	}
+	
 	
 	
 	/** TODO use "Op.nondetGet cbtAsStringPlug (ocfnplug)"
@@ -54,6 +67,23 @@ public class Example{
 		return iota;
 	}
 	
+	private static fn callParamOnItself;
+	public static fn callParamOnItself(){
+		if(callParamOnItself == null){
+			callParamOnItself = S.f(I).f(I);
+		}
+		return callParamOnItself;
+	}
+	
+	private static fn fnThatInfiniteLoopsForEveryPossibleParam;
+	public static fn fnThatInfiniteLoopsForEveryPossibleParam(){
+		if(fnThatInfiniteLoopsForEveryPossibleParam == null){
+			fnThatInfiniteLoopsForEveryPossibleParam =
+				lazyEval.f(callParamOnItself()).f(callParamOnItself());
+		}
+		return fnThatInfiniteLoopsForEveryPossibleParam;
+	}
+	
 	//TODO put BinaryOperator<fn> in some of these.
 	
 	/*Use Op.pair instead
@@ -65,13 +95,28 @@ public class Example{
 		return cons;
 	}*/
 	
+	private static fn c;
+	/** curry 2 without constraint. funcBody then its params are next. */
+	public static fn c(){
+		if(cc == null){
+			c = f(
+				curry,
+				//cuz (curry cbtAsUnary constraint funcBody params...)
+				unary(5),
+				T //no constraint
+			);
+		}
+		return c;
+	}
+	
 	private static fn cc;
 	/** curry 2 without constraint. funcBody then its params are next. */
 	public static fn cc(){
 		if(cc == null){
-			cc = f( //curry 2 after the standard params of curry
+			cc = f(
 				curry,
-				paramIndex(2),
+				//cuz (curry cbtAsUnary constraint funcBody params...)
+				unary(5),
 				T //no constraint
 			);
 		}
@@ -82,9 +127,10 @@ public class Example{
 	/** curry 3 without constraint. funcBody then its params are next. */
 	public static fn ccc(){
 		if(ccc == null){
-			ccc = f( //curry 2 after the standard params of curry
+			ccc = f(
 				curry,
-				paramIndex(3),
+				//cuz (curry cbtAsUnary constraint funcBody params...)
+				unary(6),
 				T //no constraint
 			);
 		}
@@ -97,14 +143,12 @@ public class Example{
 	*/
 	public static fn and(){
 		if(and == null){
-			fn getP0 = getpCommentNonnegint(leaf,0);
-			fn getP1 = getpCommentNonnegint(leaf,1);
 			and = f(
 				cc(),
 				S(
-					getP0,
-					getP1, //if P0 is T
-					t(F) //if P0 is F
+					p(4),
+					p(5), //if p4 is T
+					t(F) //if p4 is F
 				)
 			);
 		}
@@ -115,14 +159,12 @@ public class Example{
 	/** OR of 2 params which are each T or F. Returns T or F. */
 	public static fn or(){
 		if(and == null){
-			fn getP0 = getpCommentNonnegint(leaf,0);
-			fn getP1 = getpCommentNonnegint(leaf,1);
-			and = f(
+		and = f(
 				cc(),
 				S(
-					getP0,
-					t(F), //if P0 is T
-					getP1 //if P0 is F
+					p(4),
+					t(F), //if p4 is T
+					p(5) //if p4 is F
 				)
 			);
 		}
@@ -158,29 +200,31 @@ public class Example{
 			Do 3 if/elses (2 of which are used each time) and handle all 4 cases.
 			*/
 			
-			fn getP0 = getpCommentNonnegint(leaf,0);
-			fn getP1 = getpCommentNonnegint(leaf,1);
-			fn p1IsLeaf = S(t(isLeaf),getP1);
+			//p4 is first param cuz p0..p3 are standard parts of curry.
+			fn getP4 = p(4);
+			fn getP5 = p(5);
+			fn p5IsLeaf = S(t(isLeaf),getP5);
 			equals =
 				f(
 					cc,
 					S( //funcBody
-						S(t(isLeaf),getP0), //returns T or F for first param
-						S(
+						S(t(isLeaf),getP4), //returns T or F for first param
+						p5IsLeaf, //optimization of the commentedout S(...) below
+						/*S(
 							//FIXME verify if this is the right way to if/else inside if/else
-							p1IsLeaf,
+							p5IsLeaf,
 							t(T), //both leafs, equals return true
 							t(F) //1 is leaf and the other not, equals return false
-						),
+						),*/
 						S(
-							p1IsLeaf,
+							p5IsLeaf,
 							t(F), //1 is leaf and the other not, equals return false
 							S(
 								//Return AND of
 								//(recurse into 2 lefts) (recurse into 2 rights)
 								t(and()),
-								S( recurse(), S(t(L),getP0), S(t(L),getP1) ),
-								S( recurse(), S(t(R),getP0), S(t(R),getP1) )
+								S( recur, S(t(L),getP4), S(t(L),getP5) ),
+								S( recur, S(t(R),getP4), S(t(R),getP5) )
 							)
 						)
 					)
@@ -296,7 +340,7 @@ public class Example{
 	private static fn mapPair;
 	public static fn mapPair(){
 		if(mapPair == null){
-			fn unary7 = nonnegIntToUnaryCbt(7);
+			fn unary7 = unary(7);
 			//func that infloops if parent's fields dont fit with both child's fields together
 			fn mapPairConstraint = null;//FIXME TODO
 			//func that does GET

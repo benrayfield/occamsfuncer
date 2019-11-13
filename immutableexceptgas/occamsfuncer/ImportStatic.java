@@ -57,6 +57,8 @@ public class ImportStatic{
 	
 	public static final fn nondet = Boot.op(Op.nondet.ordinal());
 	
+	/////
+	
 	
 	
 	/** FIXME move this to mutable package */
@@ -88,6 +90,11 @@ public class ImportStatic{
 		return f;
 	}
 	
+	/** similar to cp(fn,fn) except doesnt dedup. just returns new Call */
+	public static fn CP(fn itsL, fn itsR){
+		return new Call(itsL, itsR);
+	}
+	
 	/** optimization of $(1) */
 	public static void $() throws Gas{
 		double newTopGas = Gas.top-1;
@@ -105,13 +112,75 @@ public class ImportStatic{
 		throw Gas.instance();
 	}
 	
+	/** TODO optimize by caching int in Call, like explained in getParam(int,fn).
+	A madebycurry is (lazyEval (curry ... paramN) param<n+1>)
+	where n is either the number of params of curry (for funcBody)
+	or 1 less than that (for constraint).
+	This func will be unnecessary once that optimization exists
+	and the optimized code can be moved into getParam(int,fn) instead.
+	(which can be further optimized by Compiled not even calling these funcs every time).
+	*
+	public static int numParamsInMadebycurry(fn thingNormallyMadeByCurry){
+		fn x = thingNormallyMadeByCurry.L().R(); //starts as curryL
+		int params = 1; //counting curryR
+		while(x.height() > 4){ //until x is curry or detect error as the leftmost op is not curry
+			x = x.L();
+			params++;
+		}
+		return params;
+	}*/
+	
 	/** Explained in comments in the switch statement for Op.getParam in Boot.
 	For efficiency does not add to Cache or call Op.getp.
 	This is called in the implementation of Op.getp and Op.curry.
+	Returns leaf if the requested param index is out of range, as in Op.getp spec.
 	*/
 	public static fn getParam(int whichParam, fn thingNormallyMadeByCurry){
-		if(whichParam == 0) return curry;
-		return getNthCurry(whichParam,thingNormallyMadeByCurry).R();
+		//TODO merge duplicate code between getParam(int,fn) and getNthCurry(int,fn)
+		
+		if(whichParam < 0){
+			if(whichParam != 0) return leaf;
+			//left end of currylist doesnt have nil like right end of linkedlist
+			return curry;
+		}
+		fn x = thingNormallyMadeByCurry.L().R(); //curryL in (lazyEval curryL curryR)
+		int p = x.curHeight()-curHeightOf_opCurry;
+		if(p < whichParam){
+			if(p+1 == whichParam){ //FIXME off by 1? Should it be p==whichParam?
+				//lastParam in (lazyEval (curry ... secondLastParam) lastParam),
+				//or thirdLastParam and secondLastParam if this is
+				//called by constraint instead of by funcBody
+				//since constraint is evaled at cur()-1 cuz its a constraint
+				//on a datastruct (such as Example.mapPair()), and funcBody
+				//is what happens when that datastruct is called on something.
+				return thingNormallyMadeByCurry.R();
+			}else{ //whichParam is bigger than last param
+				return leaf;
+			}
+		}
+		while(p != whichParam){
+			x = x.L(); //Example: x=(curry unary constraint) becomes x=(curry unary).
+			p--;
+		}
+		return x.R(); //if whichParam==0 then would return x here, but did that earlier
+		
+		
+		
+		/*if(whichParam == 0) return curry;
+		fn curryL = thingNormallyMadeByCurry.L().R();
+		boolean isLastParam = curryL.cur()==1;
+		*/
+		
+		/*
+		//curry is getParam 0 so dont subtract 1 here
+		boolean isLastParam = numParamsInMadebycurry(thingNormallyMadeByCurry) == whichParam;
+		if(isLastParam){
+			//lastParam in (lazyEval (curry ... secondLastParam) lastParam)
+			return thingNormallyMadeByCurry.R();
+		}
+		FIXME should this -1 be here?
+		return getNthCurry(whichParam-1,thingNormallyMadeByCurry).R();
+		*/
 	}
 	
 	/** getNthCurry(whichParam).R()==getParam(whichParam) except
@@ -121,25 +190,78 @@ public class ImportStatic{
 	cuz every fn is a halted state, and thats why lazyEval is used,
 	but if its a lazyEval its not exactly a curry as it was originally done
 	cuz (this) getNthCurry is only used on curries of Op.curry.
+	<br><br>
+	WARNING: may go into undetectable infinite loop if thingNormallyMadeByCurry
+	is not the right datastruct, so this must only be called by trusted code.
+	All possible nonhalting programs buildable at user level obey Gas (always halt),
+	if the VM correctly implements the occamsfuncer spec (TODO verify the spec). 
 	*/
 	public static fn getNthCurry(int n, fn thingNormallyMadeByCurry){
-		//TODO? optimize by Call.java caching depth since leftmost curry,
-		//which is a separate int than Call.cur.
-		if(n == 3){
-			//this is the only case I'm using so far:
-			//(curry cbtAsUnary constraint funcBody)
-			
-			//Get itsL in thingNormallyMadeByCurry=(lazyEval itsL itsR).
-			fn x = thingNormallyMadeByCurry.L().R();
-			while(x.L().L().L() != curry){ //TODO optimize by using fn.bh(int)
-				x = x.L();
-			}
-			return x;
+		//TODO merge duplicate code between getParam(int,fn) and getNthCurry(int,fn)
+		
+		//thingNormallyMadeByCurry=(lazyEval (curry ... y) z)
+		//where z is either the second last param (if this is called by constraint)
+		//or z is the last param (if this is called by funcBody),
+		//and either way y is the param just before z (or is funcBody if only 1 param).
+		fn x = thingNormallyMadeByCurry.L().R();
+		int xIsNth = x.curHeight()-curHeightOf_opCurry;
+		if(xIsNth+1==n) return thingNormallyMadeByCurry.R(); //FIXME off by 1?
+		while(xIsNth != n){ //crashes if 
+			x = x.L();
+			xIsNth--;
 		}
-		throw new Error("TODO");
+		return x;
+		/*
+		//TODO optimize by Call.java caching depth since leftmost curry,
+		//which is a separate int than Call.cur.
+		//Get itsL in thingNormallyMadeByCurry=(lazyEval itsL itsR).
+		fn x = thingNormallyMadeByCurry.L().R();
+		while(x.L().L().L() != curry){ //TODO optimize by using fn.bh(int)
+			x = x.L();
+		}
+		return x;
+		*/
 	}
 	
-	public static fn nonnegIntToUnaryCbt(int nonnegInt){
+	/** returns cbt of 2 exponent nonnegInt cbt1s, representing a unary number.
+	cbt1 is unary 0. (cbt1 cbt1) is unary 1. ((cbt1 cbt1)(cbt1 cbt1)) is unary 2,
+	and so on. TODO These are optimized to share branches,
+	and to only store it in a wrapper of a primitive if up to 64 bits so unary 6,
+	and maybe up to 256 bits depending on implementation of the VM,
+	and above than that it uses funcallPairs (Call). It has linear cost per height.
+	TODO optimize? maybe create a new javaclass that implements fn,
+	that wraps an int and represents unary up to 2^31-1 height
+	and its L() and R() are another of itself with 1 less height
+	or such a wrapper of a long if small enough,
+	BUT that might interfere with dedup optimizations, but large bitstrings
+	often interfere with dedup optimizations
+	but every fn guarantees collision-free dedup when using
+	any secureHash idFunc (such as doubleSha256 with some pre and post processing)
+	EXCEPT for the possibility that its not actually a secureHash
+	as a collision may be found eventually and for defense against that
+	you can use multiple idFuncs at once
+	as in abstract math an id is represented as a vector whose dims (dimensions)
+	are every possible fn and whose value at that dim are the fn returned
+	when call (anIdFunc anyFunc) which returns anId,
+	especially where anId is always a cbtBitstring,
+	so technically every possible content-addressable id generator function
+	is already part of the system and integrates seamlessly
+	so the ids of this system (though not any particular subset of them)
+	are perfectly unhackable in the abstract math
+	but may be hackable in the choice of a specific idFunc
+	but thats why you get to use multiple idFuncs at once
+	(except in sorting MapPair etc, but you could define an idFunc
+	as concat of what other idFuncs return so could do it in MapPair,
+	or you could derive a variant of MapPair that does it a different way) 
+	and why fn.id(fn idFunc) has a fn param instead of being fn.id(),
+	though in some VMs it might only be able to cache 1 idFunc at a time,
+	but if you want to cache multiple idFuncs at once
+	you could use an immutable linkedlist of key/value pairs.
+	<br><br>
+	TODO move the part of the comment above about idFuncs
+	to a more general place such as into the comments of fn.id(fn).
+	*/
+	public static fn unary(int nonnegInt){
 		if(nonnegInt < 0) throw new Error("is neg: "+nonnegInt);
 		//TODO optimize cuz cbt is wrapper of bitstring and
 		//for example 1..64 cbt1s fits in a primitive like SmallCbt.java
@@ -157,23 +279,39 @@ public class ImportStatic{
 		return cbt.height()-4;
 	}
 	
-	public static final int standardParamsOfCurry = 3;
+	//public static final int standardParamsOfCurry = 3;
 	
+	/*confusing cuz of the standardParamsOfCurry
 	public static fn paramIndex(int nonnegInt){
 		return nonnegIntToUnaryCbt(standardParamsOfCurry+nonnegInt);
+	}*/
+	
+	/** p4 is first param, and p5 is second param, and so on.
+	p0 gets curry. p1 gets cbtAsUnary. p2 gets constraint. p3 gets funcBody.
+	returns a func that
+	[gets param at nonnegative integer when given the structure op.curry creates]
+	There are 3 standard params of curry:
+	(curry cbtAsUnary constraint funcBody),
+	so p(0).f(structure curry creates)==curry,
+	and is curry and p(4).f(structure curry creates) returns first param,
+	and Op.recur calls (unless Compiled) getNthCurry.
+	*/
+	public static fn p(int paramIndex){
+		//TODO optimize by remembering (getp leaf) in Example.java
+		return getp.f(leaf).f(unary(paramIndex));
 	}
 	
 	/** a shortcut for Op.getp currying the first 2 params except
 	the second param is a nonnegInt translated to cbt as unary.
 	*/
-	public static fn getpCommentNonnegint(Object comment, int paramIndex){
-		return getp.f(comment).f(nonnegIntToUnaryCbt(paramIndex));
+	public static fn p(Object comment, int paramIndex){
+		return getp.f(comment).f(unary(paramIndex));
 	}
 	
 	/** wrap. If its primitive array, loses the type and dim sizes but keeps the bits. */
 	public static fn f(Object ob){
 		if(ob instanceof fn) return (fn)ob;
-		throw new Error("TODO if prim array wrap in cbt");
+		throw new Error("TODO if prim array wrap in cbt. param="+ob);
 	}
 	
 	public static fn f(Object... obs){
@@ -227,11 +365,12 @@ public class ImportStatic{
 		return T.f(param);
 	}
 	
+	/*
 	private static fn recurse;
 	/** given a thingNormallyMadeByCurry as its only param (get it by Op.I),
 	returns Op.curry with its first few params up to a funcBody
 	but without any params after funcBody.
-	*/
+	*
 	public static fn recurse(){
 		if(recurse == null){
 			recurse = null; //FIXME
@@ -239,10 +378,22 @@ public class ImportStatic{
 			//FIXME i want that call except with Op.I getting the thingNormallyMadeByCurry
 		}
 		return recurse;
+	}*/
+	
+	/** is this a complete binary tree of all cbt1s? */
+	public static boolean isUnaryCbt(fn f){
+		//TODO optimize by caching this in Call instead of recursing.
+		//Without that optimization, this is exponential cost. With it, constant cost.
+		//unless f.isCbt() is false then its constant cost.
+		return f.isCbt() && f.height()>=4 && (f==cbt1 || (isUnaryCbt(f.L()) && isUnaryCbt(f.R())));
+		
 	}
+	
+	public static final int curHeightOf_opCurry;
 	
 	static{
 		Boot.boot();
+		curHeightOf_opCurry = curry.curHeight();
 		lg("Occamsfuncer booted.");
 	}
 }

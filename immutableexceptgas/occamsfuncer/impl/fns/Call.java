@@ -6,6 +6,7 @@ import immutableexceptgas.occamsfuncer.Boot;
 import immutableexceptgas.occamsfuncer.Cache;
 import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.Op;
+import immutableexceptgas.occamsfuncer.TinyMap;
 import immutableexceptgas.occamsfuncer.fn;
 
 public class Call implements fn{
@@ -26,7 +27,15 @@ public class Call implements fn{
 	*/
 	public final int cur;
 	
+	public final int curHeight;
+	
 	public final int height;
+	
+	/** regardless of which javaclass represents it,
+	a binary forest of calls is a cbt if it is cbt0 or cbt1
+	or [if L() is a cbt and R() is a cbt].
+	*/
+	public final boolean isCbt;
 	
 	/** except if done by Boot, the Compiled must generate the same
 	fns as if was called in interpreted mode, same id would be generated
@@ -47,30 +56,63 @@ public class Call implements fn{
 	*/
 	protected Compiled compiledOrNull;
 	
+	/** most fns never have an id as its lazyEval, but even if they
+	are created later there is still instant global sync cuz derived from content.
+	*/
+	protected TinyMap ids;
+	
 	//protected boolean fChecksConstraint;
 	
 	public Call(fn myL, fn myR){
 		this.myL = myL;
 		this.myR = myR;
-		int h = Math.max(myL.height(),myR.height());
+		curHeight = myL.curHeight()+1;
+		//int h = Math.max(myL.height(),myR.height());
 		//height()==Integer.MAX_VALUE means doesnt fit in int and use heightBig() instead.
 		//TODO optimize. use long for height? Or limit height?
-		height = h==Integer.MAX_VALUE ? Integer.MAX_VALUE : h+1;
+		//height = h==Integer.MAX_VALUE ? Integer.MAX_VALUE : h+1;
+		//boolean isBig = h==Integer.MAX_VALUE;
+		height = Math.max(myL.height(),myR.height())+1;
+		//if(height > MAX_HEIGHT) infLoop();
+		if(height<0){
+			//FIXME should isBig heights be allowed?
+			infLoop(); //doesnt fit in int.
+		}
+		
+		
+		//TODO optimize by calculating cur a simpler way
+		//by representing cur some way more similar to curHeight
+		//and calculating the same result in cur() but int cur is the optimized way,
+		//and name it something other than int cur if cur() doesnt return it directly.
+		
+		
+		
 		if(myL == curry){ //then height must be at least 5 cuz Op.curry height is 4
-			cur = cbtToNonnegInt(myR);
 			op = curry;
+			cur = cbtToNonnegInt(myR)-1; //subtract (TODO how much) cuz already (curry cbtAsUnary)
+			isCbt = myL.isCbt() && myR.isCbt();
 		}else if(height > 4){ //this happens most often
-			cur = myL.cur()-1;
 			op = myL.op();
+			//cur = (op==cbt0 || op==cbt1) ? 1 : myL.cur()-1;
+			cur = Math.max(myL.cur()-1, 1); //if (op==cbt0 || op==cbt1) cur is 1
+			isCbt = myL.isCbt() && myR.isCbt() & myL.height()==myR.height();
+			//FIXME should isBig heights be allowed? If so,
+			//must check height as fn/bigint instead of just height() here.
+			//if(isBig) throw new Error("TODO its expensive to cache isCbt when isBig aka height is Integer.MAX_VALUE. Maybe just shouldnt allow height bigger than that.");
 		}else{ //height <= 4. Part of boot process.
 			//If its 1 of the 16 in Op enum, get cur from there. Else cur is 1.
-			cur = Boot.bootCur(this);
 			op = this;
+			cur = Boot.bootCur(this);
+			isCbt = Boot.bootIsCbt(this);
 		}
 		lg("cur="+cur+" this="+this);
 	}
 	
 	public fn f(fn param){
+		$();
+		if(cur == 0){
+			return cp(this,param); //this is Op.curry. param is normally a cbtAsUnary
+		}
 		fn ret = Cache.getRetOfFuncParamElseNull(this,param);
 		if(ret != null) return ret;
 		if(1 < cur){
@@ -131,6 +173,10 @@ public class Call implements fn{
 	public fn R(){
 		return myR;
 	}
+	
+	public int curHeight(){
+		return curHeight;
+	}
 
 	public int cur(){
 		return cur;
@@ -149,7 +195,16 @@ public class Call implements fn{
 	}
 
 	public fn id(fn algorithm){
-		throw new Error("TODO");
+		//TODO optimize? could make ids be an Object thats either the id
+		//by a default id algorithm or a TinyMap if multiple.
+		fn id;
+		if(ids == null){
+			ids = new TinyMap(algorithm, id = algorithm.f(this));
+		}else{
+			id = ids.get(algorithm);
+			if(id == null) ids = ids.put(algorithm, id = algorithm.f(this));
+		}
+		return id;
 	}
 
 	public Compiled compiled(){
@@ -164,11 +219,11 @@ public class Call implements fn{
 	}
 
 	public boolean isCbt(){
-		throw new Error("TODO");
+		return isCbt;
 	}
 
 	public boolean isBigCbt(){
-		throw new Error("TODO");
+		return isCbt() && height()==Integer.MAX_VALUE;
 	}
 
 	public long longAt(int cbtBitIndex){
@@ -212,9 +267,16 @@ public class Call implements fn{
 	}
 	
 	public String toString(){
-		String s = Boot.tempNames.get(this);
-		if(s != null) return s;
-		return "("+L()+R()+")";
+		//if(L()==T) return "\\"+R(); //cuz of how common it is to prefix with T in S(...)
+		String n = Boot.tempNames.get(this);
+		if(n != null) return n;
+		if(isUnaryCbt(this)){
+			return "<unary"+(height-4)+">";
+		}
+		//display as currylist such as (((a b)c)d) displays as (a b c d).
+		String l = L().toString();
+		if(l.startsWith("(") && l.endsWith(")")) l = l.substring(1,l.length()-1);
+		return "("+l+R()+")";
 	}
 
 }

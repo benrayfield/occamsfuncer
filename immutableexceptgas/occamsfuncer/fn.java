@@ -166,6 +166,20 @@ public strictfp interface fn{
 	
 	public fn R();
 	
+	/** Height while only considering left branches.
+	This is normally used as cache of how far L().L().L()... is Op.curry.
+	This is designed to be more general cuz its simpler not to check for Op.curry
+	and instead to use 0 if leaf else L().height()+1.
+	Default implementation is slow and should be overridden.
+	Example: curHeight(leaf)==0
+	Example: curHeight(leaf.f(leaf))==1
+	Example: curHeight(leaf.f(leaf.f(leaf)))==1, despite its height is 2.
+	Example: curHeight(leaf.f(leaf).f(leaf))==2, same as its height.
+	*/
+	public default int curHeight(){
+		return isLeaf() ? 0 : L().curHeight()+1;
+	}
+	
 	/** number of curries since nearest Op.curry.
 	Technically this could be an unlimited size integer in a cbt,
 	but practically it will rarely if ever exceed byte range so int is probably ok.
@@ -173,7 +187,7 @@ public strictfp interface fn{
 	so do check for it, and its an error to either curry or not curry
 	when this range is exceeded since the spec says to curry for any depth
 	so to do anything other than say compute resources are exceeded would
-	be against the spec so maybe if exceeding should return (s s s s) aka infLoop?
+	be against the spec so maybe if exceeding should return (s s s s) [FIXME thats not actually an infinite loop] aka infLoop?
 	*/
 	public int cur();
 	
