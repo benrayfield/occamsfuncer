@@ -244,11 +244,38 @@ public strictfp interface fn{
 	/** efficient bitstrings. If isCbt but not isBitstring then is all cbt0. */
 	public boolean isCbt();
 	
-	/** efficient bitstrings. If isCbt but not isBitstring then is all cbt0. */
-	public boolean isBitstring();
+	/** efficient bitstrings. cbt with a last cbt1 (not part of bitstring)
+	and the rest are cbt0s padding until the next higher powOf2.
+	If isCbt but not isBitstring then is all cbt0.
+	This default implementation is very slow. Implementing classes should optimize.
+	*/
+	public default boolean isBitstring(){
+		return isCbt() && (this==cbt1 || L().isBitstring() || R().isBitstring());
+	}
 	
 	/** If true, you must use *Big bit indexs for cbt funcs instead of int indexs */
 	public boolean isBigCbt();
+	
+	public default boolean bitAt(int cbtBitIndex){
+		if(!isCbt()) return false;
+		int cbtHeight = height()-4;
+		int cbtSize = 1<<cbtHeight;
+		if(cbtBitIndex < 0 || cbtBitIndex >= cbtSize) return false;
+		if(cbtSize == 1) return this==cbt1;
+		if(cbtBitIndex < (cbtSize>>1)) return L().bitAt(cbtBitIndex);
+		return R().bitAt(cbtBitIndex-(cbtSize>>1));
+	}
+	
+	public default byte byteAt(int cbtBitIndex){
+		int ret = 0;
+		for(int i=0; i<8; i++){
+			ret <<= 1;
+			if(bitAt(cbtBitIndex+i)) ret |= 1;
+		}
+		return (byte)ret;
+	}
+	
+	//TODO byteAtBig
 	
 	/** efficient bitstrings (if isCbt).
 	Example: Double.longBitsToDouble(((long)intAt(0))<<32)|(intAt(32)&0xffffffffL))
@@ -286,8 +313,17 @@ public strictfp interface fn{
 	or TODO return what if its a cbt with all 0s or if its not a cbt?
 	Cbt represents bitstring and I'm undecided how to view that as
 	signed integer as there are multiple ways it could be done.
+	This default implementation is very slow and should be optimized in
+	subclasses ArrayCbt and SmallCbt.
 	*/
-	public int bitstringSize();
+	public default int bitstringSize(){
+		if(!isCbt()) throw new Error("Not a cbt");
+		int cbtSize = 1<<(height()-4);
+		for(int i=cbtSize-1; i>=0; i--){
+			if(bitAt(i)) return i; //dont include last cbt1 in bitstring
+		}
+		throw new Error("No cbt1 found so is not a bitstring");
+	}
 	
 	/** efficient bitstrings (if isCbt) */
 	public fn bitstringSizeBig();

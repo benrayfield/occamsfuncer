@@ -756,3 +756,379 @@ cur=-3 this=((((11)(11))((11)(11)))(((11)(11))((11)(11))))
 cur=-4 this=(((((11)(11))((11)(11)))(((11)(11))((11)(11))))((((11)(11))((11)(11)))(((11)(11))((11)(11)))))
 cur=2 this=(ZC)
 cur=1 this=((ZC)(((((11)(11))((11)(11)))(((11)(11))((11)(11))))((((11)(11))((11)(11)))(((11)(11))((11)(11))))))
+
+
+---
+newer run of TestBasics...
+
+fn673: (..(..)(..(..))(..(..)(..)))
+fn674: (..(..)(..(..))(..(..)(.(..))))
+fn675: (..(..)(..(..))(..(..)(...)))
+fn676: (..(..)(..(..))(..(..)(..(..))))
+Occamsfuncer booted.
+Starting testInfiniteLoopEndsCuzRunsOutOfGas
+cur=2 this=(SI)
+cur=1 this=(SII)
+cur=2 this=(Z(SII))
+cur=1 this=(Z(SII)(SII))
+testInfiniteLoopEndsCuzRunsOutOfGas passed by ending early
+Starting testSTLR
+cur=2 this=(ST)
+test pass: st.L()==S
+test pass: st.R()==T
+Starting testIdentityFuncs
+cur=1 this=(STT)
+test pass: leaf.L()==I
+test pass: leaf.R()==leaf
+cur=1 this=(TI)
+test pass: stt.f(I)==I
+cur=1 this=(TT)
+test pass: stt.f(T)==T
+cur=1 this=(TF)
+test pass: stt.f(F)==F
+test pass: I.f(stt)==stt
+test pass: I.f(T)==T
+Starting testSCurryList
+cur=2 this=(PG)
+cur=1 this=(PGC)
+cur=1 this=(TG)
+test pass: pair.f(getp).f(curry).f(T)==getp
+cur=1 this=(FG)
+test pass: pair.f(getp).f(curry).f(F)==curry
+test pass: t(getp)==T.f(getp)
+test pass: T.f(getp).f(curry)==getp
+cur=1 this=(T0)
+cur=1 this=(T1)
+cur=2 this=(S(T0))
+cur=1 this=(S(T0)(T1))
+S( [(T0), (T1)] ) returning (S(T0)(T1))
+cbtFuncBody of l=0 r=1
+cur=1 this=(01)
+cbt01: (01)
+cbt01__2: (01)
+test pass
+cur=1 this=(TP)
+cur=1 this=(TC)
+cur=2 this=(S(TP))
+cur=1 this=(S(TP)(TG))
+cur=2 this=(S(S(TP)(TG)))
+cur=1 this=(S(S(TP)(TG))(TC))
+S( [(TP), (TG), (TC)] ) returning (S(S(TP)(TG))(TC))
+SCurryA: (S(S(TP)(TG))(TC))
+pair_getp_curry: (PGC)
+test pass
+cur=2 this=(S(TT))
+cur=1 this=(S(TT)(TG))
+cur=2 this=(S(S(TT)(TG)))
+cur=1 this=(S(S(TT)(TG))(TC))
+S( [(TT), (TG), (TC)] ) returning (S(S(TT)(TG))(TC))
+SCurryB: (S(S(TT)(TG))(TC))
+test pass: f(S(t(T), t(getp), t(curry)),leaf)==getp
+test pass: F.f(getp).f(curry)==getp
+cur=2 this=(S(TF))
+cur=1 this=(S(TF)(TG))
+cur=2 this=(S(S(TF)(TG)))
+cur=1 this=(S(S(TF)(TG))(TC))
+S( [(TF), (TG), (TC)] ) returning (S(S(TF)(TG))(TC))
+test pass: f(S(t(F), t(getp), t(curry)),leaf)==curry
+Starting testIsUnaryCbt
+test pass: unary0
+cbtFuncBody of l=1 r=1
+cur=1 this=<unary1>
+test pass: unary1
+cbtFuncBody of l=<unary1> r=<unary1>
+cur=1 this=<unary2>
+test pass: unary2
+cbtFuncBody of l=<unary2> r=<unary2>
+cur=1 this=<unary3>
+test pass: unary3
+cbtFuncBody of l=<unary3> r=<unary3>
+cur=1 this=<unary4>
+test pass: unary4
+cbtFuncBody of l=<unary4> r=<unary4>
+cur=1 this=<unary5>
+test pass: unary5
+test pass
+test pass
+test pass
+cbtFuncBody of l=1 r=0
+cur=1 this=(10)
+test pass
+test pass
+cbtFuncBody of l=1 r=<unary1>
+cur=1 this=(1<unary1>)
+test pass
+test pass
+test pass
+Starting testGetp
+cbtFuncBody of l=<unary5> r=<unary5>
+cur=1 this=<unary6>
+cur=5 this=(C<unary6>)
+cur=4 this=(C<unary6>T)
+cur=3 this=(C<unary6>TT)
+x: (C<unary6>TT)
+cur=2 this=(Z(C<unary6>TT))
+cur=1 this=(Z(C<unary6>TT)0)
+madeByCurryForConstraint: (Z(C<unary6>TT)0)
+cur=2 this=(C<unary6>TT0)
+y: (C<unary6>TT0)
+cur=2 this=(Z(C<unary6>TT0))
+cur=1 this=(Z(C<unary6>TT0)1)
+madeByCurryForFuncBody: (Z(C<unary6>TT0)1)
+test pass: constraintGetsSecondLastParam
+test pass: funcBodyGetsLastParam
+test pass: funcBodyGetsSecondLastParam
+cur=2 this=(G.)
+cur=1 this=(G.<unary4>)
+test pass: constraint_getpunary4_is_cbt0
+cur=1 this=(G.<unary5>)
+test pass: constraint_getpunary5_is_leaf_cuzParamIndexDoesntExist
+cur=1 this=(G.<unary6>)
+test pass: constraint_getpunary6_is_leaf_cuzParamIndexDoesntExist
+test pass: funcBody_getpunary4_is_cbt0
+test pass: funcBody_getpunary5_is_cbt1
+Starting testAnd
+cur=4 this=(C<unary5>)
+cur=3 this=(C<unary5>T)
+cur=2 this=(S(G.<unary4>))
+cur=1 this=(S(G.<unary4>)(G.<unary5>))
+cur=2 this=(S(S(G.<unary4>)(G.<unary5>)))
+cur=1 this=(S(S(G.<unary4>)(G.<unary5>))(TF))
+S( [(G.<unary4>), (G.<unary5>), (TF)] ) returning (S(S(G.<unary4>)(G.<unary5>))(TF))
+cur=2 this=(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF)))
+and=(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF)))
+cur=2 this=(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF))))
+cur=1 this=(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF)))F)
+cur=1 this=(T(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF)))F))
+cur=1 this=(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF))F)
+cur=2 this=(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF))F))
+cur=1 this=(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF))F)F)
+cur=1 this=(FF)
+test pass: and_F_F
+cur=1 this=(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF))F)T)
+cur=1 this=(FT)
+test pass: and_F_T
+cur=1 this=(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF)))T)
+cur=1 this=(T(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF)))T))
+cur=1 this=(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF))T)
+cur=2 this=(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF))T))
+cur=1 this=(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF))T)F)
+test pass: and_T_F
+cur=1 this=(Z(C<unary5>T(S(S(G.<unary4>)(G.<unary5>))(TF))T)T)
+test pass: and_T_T
+Starting testString
+s: abc
+cbtFuncBody of l=(01) r=(10)
+cur=1 this=(01(10))
+cbtFuncBody of l=0 r=0
+cur=1 this=(00)
+cbtFuncBody of l=(00) r=(01)
+cur=1 this=(00(01))
+cbtFuncBody of l=(01(10)) r=(00(01))
+cur=1 this=(01(10)(00(01)))
+cbtFuncBody of l=(00) r=(10)
+cur=1 this=(00(10))
+cbtFuncBody of l=(01(10)) r=(00(10))
+cur=1 this=(01(10)(00(10)))
+cbtFuncBody of l=(01(10)(00(01))) r=(01(10)(00(10)))
+cur=1 this=(01(10)(00(01))(01(10)(00(10))))
+cbtFuncBody of l=(00) r=<unary1>
+cur=1 this=(00<unary1>)
+cbtFuncBody of l=(01(10)) r=(00<unary1>)
+cur=1 this=(01(10)(00<unary1>))
+cbtFuncBody of l=(10) r=(00)
+cur=1 this=(10(00))
+cbtFuncBody of l=(00) r=(00)
+cur=1 this=(00(00))
+cbtFuncBody of l=(10(00)) r=(00(00))
+cur=1 this=(10(00)(00(00)))
+cbtFuncBody of l=(01(10)(00<unary1>)) r=(10(00)(00(00)))
+cur=1 this=(01(10)(00<unary1>)(10(00)(00(00))))
+cbtFuncBody of l=(01(10)(00(01))(01(10)(00(10)))) r=(01(10)(00<unary1>)(10(00)(00(00))))
+cur=1 this=(01(10)(00(01))(01(10)(00(10)))(01(10)(00<unary1>)(10(00)(00(00)))))
+fnAbc: (01(10)(00(01))(01(10)(00(10)))(01(10)(00<unary1>)(10(00)(00(00)))))
+s__2: abc
+test pass
+cbtFuncBody of l=(01(10)) r=<unary2>
+cur=1 this=(01(10)<unary2>)
+cbtFuncBody of l=(01(10)<unary2>) r=(01(10)(00<unary1>))
+cur=1 this=(01(10)<unary2>(01(10)(00<unary1>)))
+cbtFuncBody of l=(01(10)) r=(01(10))
+cur=1 this=(01(10)(01(10)))
+cbtFuncBody of l=<unary1> r=(10)
+cur=1 this=(<unary1>(10))
+cbtFuncBody of l=(01(10)) r=(<unary1>(10))
+cur=1 this=(01(10)(<unary1>(10)))
+cbtFuncBody of l=(01(10)(01(10))) r=(01(10)(<unary1>(10)))
+cur=1 this=(01(10)(01(10))(01(10)(<unary1>(10))))
+cbtFuncBody of l=(01(10)<unary2>(01(10)(00<unary1>))) r=(01(10)(01(10))(01(10)(<unary1>(10))))
+cur=1 this=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10)))))
+cbtFuncBody of l=(01) r=<unary1>
+cur=1 this=(01<unary1>)
+cbtFuncBody of l=(01<unary1>) r=(00(00))
+cur=1 this=(01<unary1>(00(00)))
+cbtFuncBody of l=<unary1> r=(00)
+cur=1 this=(<unary1>(00))
+cbtFuncBody of l=(01(10)) r=(<unary1>(00))
+cur=1 this=(01(10)(<unary1>(00)))
+cbtFuncBody of l=(01<unary1>(00(00))) r=(01(10)(<unary1>(00)))
+cur=1 this=(01<unary1>(00(00))(01(10)(<unary1>(00))))
+cbtFuncBody of l=(01) r=(01)
+cur=1 this=(01(01))
+cbtFuncBody of l=(01<unary1>) r=(01(01))
+cur=1 this=(01<unary1>(01(01)))
+cbtFuncBody of l=(01(10)) r=(01<unary1>)
+cur=1 this=(01(10)(01<unary1>))
+cbtFuncBody of l=(01<unary1>(01(01))) r=(01(10)(01<unary1>))
+cur=1 this=(01<unary1>(01(01))(01(10)(01<unary1>)))
+cbtFuncBody of l=(01<unary1>(00(00))(01(10)(<unary1>(00)))) r=(01<unary1>(01(01))(01(10)(01<unary1>)))
+cur=1 this=(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>))))
+cbtFuncBody of l=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10))))) r=(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>))))
+cur=1 this=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10))))(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>)))))
+cbtFuncBody of l=(10) r=(10)
+cur=1 this=(10(10))
+cbtFuncBody of l=(00<unary1>) r=(10(10))
+cur=1 this=(00<unary1>(10(10)))
+cbtFuncBody of l=(10) r=(01)
+cur=1 this=(10(01))
+cbtFuncBody of l=(01(10)) r=(10(01))
+cur=1 this=(01(10)(10(01)))
+cbtFuncBody of l=(00<unary1>(10(10))) r=(01(10)(10(01)))
+cur=1 this=(00<unary1>(10(10))(01(10)(10(01))))
+cbtFuncBody of l=<unary1> r=(01)
+cur=1 this=(<unary1>(01))
+cbtFuncBody of l=(01(10)) r=(<unary1>(01))
+cur=1 this=(01(10)(<unary1>(01)))
+cbtFuncBody of l=(01(10)(<unary1>(01))) r=(01(10)(<unary1>(01)))
+cur=1 this=(01(10)(<unary1>(01))(01(10)(<unary1>(01))))
+cbtFuncBody of l=(00<unary1>(10(10))(01(10)(10(01)))) r=(01(10)(<unary1>(01))(01(10)(<unary1>(01))))
+cur=1 this=(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01)))))
+cbtFuncBody of l=(01) r=(00)
+cur=1 this=(01(00))
+cbtFuncBody of l=(01<unary1>) r=(01(00))
+cur=1 this=(01<unary1>(01(00)))
+cbtFuncBody of l=(01<unary1>(01(01))) r=(01<unary1>(01(00)))
+cur=1 this=(01<unary1>(01(01))(01<unary1>(01(00))))
+cbtFuncBody of l=(01<unary1>(01(01))(01<unary1>(01(00)))) r=(01(10)(00(01))(01(10)(00(10))))
+cur=1 this=(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10)))))
+cbtFuncBody of l=(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01))))) r=(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10)))))
+cur=1 this=(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01))))(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10))))))
+cbtFuncBody of l=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10))))(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>))))) r=(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01))))(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10))))))
+cur=1 this=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10))))(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>))))(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01))))(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10)))))))
+cbtFuncBody of l=(01(10)) r=(01(01))
+cur=1 this=(01(10)(01(01)))
+cbtFuncBody of l=(01(10)(<unary1>(00))) r=(01(10)(01(01)))
+cur=1 this=(01(10)(<unary1>(00))(01(10)(01(01))))
+cbtFuncBody of l=(01<unary1>) r=(10(00))
+cur=1 this=(01<unary1>(10(00)))
+cbtFuncBody of l=(01(10)(01(01))) r=(01<unary1>(10(00)))
+cur=1 this=(01(10)(01(01))(01<unary1>(10(00))))
+cbtFuncBody of l=(01(10)(<unary1>(00))(01(10)(01(01)))) r=(01(10)(01(01))(01<unary1>(10(00))))
+cur=1 this=(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00)))))
+cbtFuncBody of l=(01(10)(00<unary1>)) r=(01(10)(01(01)))
+cur=1 this=(01(10)(00<unary1>)(01(10)(01(01))))
+cbtFuncBody of l=(01<unary1>(00(00))) r=(01<unary1>(01(00)))
+cur=1 this=(01<unary1>(00(00))(01<unary1>(01(00))))
+cbtFuncBody of l=(01(10)(00<unary1>)(01(10)(01(01)))) r=(01<unary1>(00(00))(01<unary1>(01(00))))
+cur=1 this=(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00)))))
+cbtFuncBody of l=(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00))))) r=(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00)))))
+cur=1 this=(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00))))(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00))))))
+cbtFuncBody of l=(01(10)(01<unary1>)) r=(01(10)(00(01)))
+cur=1 this=(01(10)(01<unary1>)(01(10)(00(01))))
+cbtFuncBody of l=(01<unary1>) r=(00<unary1>)
+cur=1 this=(01<unary1>(00<unary1>))
+cbtFuncBody of l=(00(10)) r=(<unary1>(10))
+cur=1 this=(00(10)(<unary1>(10)))
+cbtFuncBody of l=(01<unary1>(00<unary1>)) r=(00(10)(<unary1>(10)))
+cur=1 this=(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))
+cbtFuncBody of l=(01(10)(01<unary1>)(01(10)(00(01)))) r=(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))
+cur=1 this=(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10)))))
+cbtFuncBody of l=(01(10)(00<unary1>)) r=(01(10)(00(01)))
+cur=1 this=(01(10)(00<unary1>)(01(10)(00(01))))
+cbtFuncBody of l=(01(10)<unary2>(01(10)(00<unary1>))) r=(01(10)(00<unary1>)(01(10)(00(01))))
+cur=1 this=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01)))))
+cbtFuncBody of l=(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))) r=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01)))))
+cur=1 this=(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01))))))
+cbtFuncBody of l=(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00))))(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00)))))) r=(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01))))))
+cur=1 this=(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00))))(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00)))))(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01)))))))
+cbtFuncBody of l=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10))))(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>))))(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01))))(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10))))))) r=(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00))))(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00)))))(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01)))))))
+cur=1 this=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10))))(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>))))(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01))))(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10))))))(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00))))(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00)))))(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01))))))))
+cbtFuncBody of l=(01(10)(<unary1>(01))) r=(01<unary1>(00<unary1>))
+cur=1 this=(01(10)(<unary1>(01))(01<unary1>(00<unary1>)))
+cbtFuncBody of l=(01(10)(01(10))) r=(01<unary1>(01(01)))
+cur=1 this=(01(10)(01(10))(01<unary1>(01(01))))
+cbtFuncBody of l=(01(10)(<unary1>(01))(01<unary1>(00<unary1>))) r=(01(10)(01(10))(01<unary1>(01(01))))
+cur=1 this=(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01)))))
+cbtFuncBody of l=(01(10)(<unary1>(10))) r=(01(10)(00<unary1>))
+cur=1 this=(01(10)(<unary1>(10))(01(10)(00<unary1>)))
+cbtFuncBody of l=(01<unary1>) r=(00(10))
+cur=1 this=(01<unary1>(00(10)))
+cbtFuncBody of l=(01(10)(01(01))) r=(01<unary1>(00(10)))
+cur=1 this=(01(10)(01(01))(01<unary1>(00(10))))
+cbtFuncBody of l=(01(10)(<unary1>(10))(01(10)(00<unary1>))) r=(01(10)(01(01))(01<unary1>(00(10))))
+cur=1 this=(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10)))))
+cbtFuncBody of l=(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01))))) r=(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10)))))
+cur=1 this=(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01))))(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10))))))
+cbtFuncBody of l=(01(00)) r=(01(01))
+cur=1 this=(01(00)(01(01)))
+cbtFuncBody of l=(00(10)(<unary1>(10))) r=(01(00)(01(01)))
+cur=1 this=(00(10)(<unary1>(10))(01(00)(01(01))))
+cbtFuncBody of l=(01<unary1>(10(00))) r=(01(10)(00(01)))
+cur=1 this=(01<unary1>(10(00))(01(10)(00(01))))
+cbtFuncBody of l=(00(10)(<unary1>(10))(01(00)(01(01)))) r=(01<unary1>(10(00))(01(10)(00(01))))
+cur=1 this=(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01)))))
+cbtFuncBody of l=(01(10)(<unary1>(01))) r=(01<unary1>(00(00)))
+cur=1 this=(01(10)(<unary1>(01))(01<unary1>(00(00))))
+cbtFuncBody of l=(01(10)(<unary1>(01))(01<unary1>(00(00)))) r=(01(10)(<unary1>(00))(01(10)(01(01))))
+cur=1 this=(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01)))))
+cbtFuncBody of l=(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01))))) r=(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01)))))
+cur=1 this=(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01))))(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01))))))
+cbtFuncBody of l=(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01))))(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10)))))) r=(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01))))(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01))))))
+cur=1 this=(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01))))(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10)))))(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01))))(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01)))))))
+cbtFuncBody of l=(00(10)(<unary1>(10))) r=(01(10)<unary2>)
+cur=1 this=(00(10)(<unary1>(10))(01(10)<unary2>))
+cbtFuncBody of l=(01(10)(00<unary1>)) r=(01(10)(01(10)))
+cur=1 this=(01(10)(00<unary1>)(01(10)(01(10))))
+cbtFuncBody of l=(00(10)(<unary1>(10))(01(10)<unary2>)) r=(01(10)(00<unary1>)(01(10)(01(10))))
+cur=1 this=(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10)))))
+cbtFuncBody of l=(01(10)(<unary1>(10))) r=(01<unary1>(00(00)))
+cur=1 this=(01(10)(<unary1>(10))(01<unary1>(00(00))))
+cbtFuncBody of l=(01(10)(<unary1>(00))) r=(01<unary1>(01(01)))
+cur=1 this=(01(10)(<unary1>(00))(01<unary1>(01(01))))
+cbtFuncBody of l=(01(10)(<unary1>(10))(01<unary1>(00(00)))) r=(01(10)(<unary1>(00))(01<unary1>(01(01))))
+cur=1 this=(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01)))))
+cbtFuncBody of l=(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10))))) r=(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01)))))
+cur=1 this=(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10))))(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01))))))
+cbtFuncBody of l=(01(10)(01<unary1>)) r=(01(00)(01(01)))
+cur=1 this=(01(10)(01<unary1>)(01(00)(01(01))))
+cbtFuncBody of l=(01<unary1>) r=(00(01))
+cur=1 this=(01<unary1>(00(01)))
+cbtFuncBody of l=(01<unary1>(00(01))) r=(01<unary1>(00(01)))
+cur=1 this=(01<unary1>(00(01))(01<unary1>(00(01))))
+cbtFuncBody of l=(01(10)(01<unary1>)(01(00)(01(01)))) r=(01<unary1>(00(01))(01<unary1>(00(01))))
+cur=1 this=(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01)))))
+cbtFuncBody of l=(00(00)) r=(00(00))
+cur=1 this=(00(00)(00(00)))
+cbtFuncBody of l=(10(00)(00(00))) r=(00(00)(00(00)))
+cur=1 this=(10(00)(00(00))(00(00)(00(00))))
+cbtFuncBody of l=(00(00)(00(00))) r=(00(00)(00(00)))
+cur=1 this=(00(00)(00(00))(00(00)(00(00))))
+cbtFuncBody of l=(10(00)(00(00))(00(00)(00(00)))) r=(00(00)(00(00))(00(00)(00(00))))
+cur=1 this=(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00)))))
+cbtFuncBody of l=(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01))))) r=(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00)))))
+cur=1 this=(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01))))(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00))))))
+cbtFuncBody of l=(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10))))(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01)))))) r=(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01))))(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00))))))
+cur=1 this=(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10))))(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01)))))(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01))))(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00)))))))
+cbtFuncBody of l=(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01))))(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10)))))(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01))))(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01))))))) r=(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10))))(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01)))))(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01))))(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00)))))))
+cur=1 this=(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01))))(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10)))))(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01))))(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01))))))(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10))))(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01)))))(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01))))(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00))))))))
+cbtFuncBody of l=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10))))(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>))))(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01))))(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10))))))(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00))))(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00)))))(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01)))))))) r=(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01))))(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10)))))(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01))))(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01))))))(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10))))(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01)))))(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01))))(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00))))))))
+cur=1 this=(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10))))(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>))))(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01))))(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10))))))(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00))))(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00)))))(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01)))))))(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01))))(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10)))))(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01))))(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01))))))(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10))))(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01)))))(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01))))(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00)))))))))
+cur=1 this=(Q(01(10)<unary2>(01(10)(00<unary1>))(01(10)(01(10))(01(10)(<unary1>(10))))(01<unary1>(00(00))(01(10)(<unary1>(00)))(01<unary1>(01(01))(01(10)(01<unary1>))))(00<unary1>(10(10))(01(10)(10(01)))(01(10)(<unary1>(01))(01(10)(<unary1>(01))))(01<unary1>(01(01))(01<unary1>(01(00)))(01(10)(00(01))(01(10)(00(10))))))(01(10)(<unary1>(00))(01(10)(01(01)))(01(10)(01(01))(01<unary1>(10(00))))(01(10)(00<unary1>)(01(10)(01(01)))(01<unary1>(00(00))(01<unary1>(01(00)))))(01(10)(01<unary1>)(01(10)(00(01)))(01<unary1>(00<unary1>)(00(10)(<unary1>(10))))(01(10)<unary2>(01(10)(00<unary1>))(01(10)(00<unary1>)(01(10)(00(01)))))))(01(10)(<unary1>(01))(01<unary1>(00<unary1>))(01(10)(01(10))(01<unary1>(01(01))))(01(10)(<unary1>(10))(01(10)(00<unary1>))(01(10)(01(01))(01<unary1>(00(10)))))(00(10)(<unary1>(10))(01(00)(01(01)))(01<unary1>(10(00))(01(10)(00(01))))(01(10)(<unary1>(01))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01(10)(01(01))))))(00(10)(<unary1>(10))(01(10)<unary2>)(01(10)(00<unary1>)(01(10)(01(10))))(01(10)(<unary1>(10))(01<unary1>(00(00)))(01(10)(<unary1>(00))(01<unary1>(01(01)))))(01(10)(01<unary1>)(01(00)(01(01)))(01<unary1>(00(01))(01<unary1>(00(01))))(10(00)(00(00))(00(00)(00(00)))(00(00)(00(00))(00(00)(00(00))))))))))
+cur=1 this=(..)
+Exception in thread "main" java.lang.Error: FIXME either the madeByCurry in Nondet.nondet(fn,fn) is broken or in ocfnplugEqq(fn) is broken.
+	at immutableexceptgas.occamsfuncer.Nondet.nondet(Nondet.java:73)
+	at immutableexceptgas.occamsfuncer.Boot.lambda$16(Boot.java:590)
+	at immutableexceptgas.occamsfuncer.impl.fns.Call.f(Call.java:155)
+	at immutableexceptgas.occamsfuncer.test.TestBasics.testOcfnplug(TestBasics.java:174)
+	at immutableexceptgas.occamsfuncer.test.TestBasics.main(TestBasics.java:336)
+	at start.Start.main(Start.java:10)

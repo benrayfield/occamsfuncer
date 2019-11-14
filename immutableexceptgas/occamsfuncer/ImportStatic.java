@@ -8,6 +8,7 @@ import static immutableexceptgas.occamsfuncer.ImportStatic.t;
 
 import java.util.Arrays;
 
+import immutable.util.Text;
 import immutableexceptgas.occamsfuncer.impl.fns.Call;
 import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
 
@@ -43,7 +44,8 @@ public class ImportStatic{
 	
 	public static final fn pair = Boot.op(Op.pair.ordinal());
 	
-	public static final fn bh = Boot.op(Op.bh.ordinal());
+	public static final fn ifElse = Boot.op(Op.ifElse.ordinal());
+	//public static final fn bh = Boot.op(Op.bh.ordinal());
 	
 	public static final fn lazyEval = Boot.op(Op.lazyEval.ordinal());
 	
@@ -311,7 +313,61 @@ public class ImportStatic{
 	/** wrap. If its primitive array, loses the type and dim sizes but keeps the bits. */
 	public static fn f(Object ob){
 		if(ob instanceof fn) return (fn)ob;
+		if(ob instanceof String){
+			return f(Text.stringToBytes((String)ob));
+		}
+		if(ob instanceof byte[]){
+			//TODO optimize: use ArrayCbt or SmallCbt depending on its size,
+			//but for now 2019-11 only Leaf and Call are working.
+			byte[] a = (byte[])ob;
+			a = pad(a);
+			return wrapPowOf2SizeRange(pad(a), 0, a.length);
+		}
 		throw new Error("TODO if prim array wrap in cbt. param="+ob);
+	}
+	
+	public static fn wrapPowOf2SizeRange(byte[] b, int start, int endExcl){
+		if(!isPowOf2(endExcl-start)) throw new Error(
+			"not powOf2 start="+start+" endExcl="+endExcl);
+		if(start+1==endExcl) return byteToRawCbt(b[start]);
+		fn itsL = wrapPowOf2SizeRange(b,start,(start+endExcl)/2);
+		fn itsR = wrapPowOf2SizeRange(b,(start+endExcl)/2,endExcl);
+		return itsL.f(itsR);
+	}
+	
+	public static boolean isPowOf2(int i){
+		return 0<i && (i&(i-1))==0; //TODO optimize: does this need 0<i?
+	}
+	
+	/** append cbt1 cbt0 cbt0... until the next higher powOf2 num of bits.
+	If array is already a powOf2 size, will double its size cuz must have that last cbt1
+	thats not part of the bitstring.
+	TODO optimize this using ArrayCbt which doesnt store this padding.
+	*/
+	public static byte[] pad(byte[] b){
+		int minBytes = b.length+1;
+		int newSize = Integer.highestOneBit(minBytes);
+		if(!isPowOf2(minBytes)) newSize *= 2;
+		byte[] c = new byte[newSize];
+		System.arraycopy(b, 0, c, 0, b.length);
+		c[b.length] = (byte)0b10000000;
+		return c;
+	}
+	
+	/** raw means without the
+	trailing cbt1 cbt0 cbt0... that normally represent bitstring before the last cbt1.
+	*/
+	public static fn byteToRawCbt(byte B){
+		int i = B;
+		fn a = (i&128)==0 ? cbt0 : cbt1;
+		fn b = (i&64)==0 ? cbt0 : cbt1;
+		fn c = (i&32)==0 ? cbt0 : cbt1;
+		fn d = (i&16)==0 ? cbt0 : cbt1;
+		fn e = (i&8)==0 ? cbt0 : cbt1;
+		fn f = (i&4)==0 ? cbt0 : cbt1;
+		fn g = (i&2)==0 ? cbt0 : cbt1;
+		fn h = (i&1)==0 ? cbt0 : cbt1;
+		return a.f(b).f(c.f(d)).f( e.f(f).f(g.f(h)) ); //(((ab)(cd))((ef)(gh)))
 	}
 	
 	public static fn f(Object... obs){
@@ -382,11 +438,40 @@ public class ImportStatic{
 	
 	/** is this a complete binary tree of all cbt1s? */
 	public static boolean isUnaryCbt(fn f){
+		//FIXME call $()?
 		//TODO optimize by caching this in Call instead of recursing.
 		//Without that optimization, this is exponential cost. With it, constant cost.
 		//unless f.isCbt() is false then its constant cost.
 		return f.isCbt() && f.height()>=4 && (f==cbt1 || (isUnaryCbt(f.L()) && isUnaryCbt(f.R())));
 		
+	}
+	
+	public static byte[] bytes(fn f){
+		$();
+		if(!f.isBitstring()) throw new Error("Not a bitstring: "+f);
+		int cbtSize = 1<<(f.height()-4);
+		$(cbtSize);
+		int bitstringSize = f.bitstringSize();
+		if((bitstringSize&7)!=0) throw new Error("not a multiple of 8 bits");
+		//FIXME also throw if not a multiple of 8 bits
+		//FIXME throw Gas instead?
+		byte[] b = new byte[bitstringSize>>3];
+		for(int i=0; i<b.length; i++){
+			b[i] = f.byteAt(i<<3);
+		}
+		return b;
+	}
+	
+	/**
+	011000010110001001100011 //string "abc"
+	01100001011000100110001110000000 //padded
+	(01(10)(00(01))(01(10)(00(10)))(01(10)(00<unary1>)(10(00)(00(00))))) //fn of padded
+	*/
+	public static String str(fn f){
+		$();
+		if(!f.isBitstring()) throw new Error("Not a bitstring so cant be a utf8 string: "+f);
+		//FIXME throw Gas instead?
+		return Text.bytesToString(bytes(f));
 	}
 	
 	public static final int curHeightOf_opCurry;

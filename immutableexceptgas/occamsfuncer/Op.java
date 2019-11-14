@@ -195,7 +195,12 @@ public enum Op{
 	*/
 	pair(3,'P'),
 	
-	/** FIXME choose which end of cbtBitstring, bigEndian or littleEndian,
+	/** This is being moved out of Op and will instead be derived
+	and optimized by Compiled, cuz need the space for Op.ifElse
+	which does similar thing as S with T or F but
+	without evaling all branches, so dont need lazyeval.
+	<br><br>
+	FIXME choose which end of cbtBitstring, bigEndian or littleEndian,
 	considering that one of the cbtBitstring ends is efficiently forkAppendable.
 	Or should bh take an extra param thats T or F to choose which of those
 	2 behaviors (that seems wasteful). Or should I derive a reverse cbtBitstring
@@ -205,8 +210,22 @@ public enum Op{
 	forkJump by binheap indexing, using cbt (complete binary tree) as bitstring
 	suffixed by the last cbt1, and before that the cbt0 is L and cbt1 is R.
 	This is an urbit-like op.
-	*/
+	*
 	bh(2,'J'),
+	*/
+	
+	/**
+	FIXME can ifElse be derived by a condition (which is T or F)
+	being called on PAIR, and do that twice, once for funcIfTrue vs funcIfFalse
+	and once for paramIfTrue vs paramIfFalse,
+	and is that more intuitive than Op.ifElse?
+	I could bring back Op.bh since Op.ifElse wouldnt be needed (or could be derived that way).
+	But it seems nonintuitive to put half of the IFTRUE and half of the IFFALSE together twice.
+	S( S(S(pair funcIfTrue funcIfFalse) condition) S(S(pair paramIfTrue paramIfFalse) condition) )
+	or something like that.
+	So I will keep the ifElse, since its intuitive.
+	*/
+	ifElse(5,'?'), 
 	
 	/** (lazyEval x y z) aka (((lazyEval x) y) z) returns (x y z) aka ((x y) z).
 	(lazyeval x y) is halted.

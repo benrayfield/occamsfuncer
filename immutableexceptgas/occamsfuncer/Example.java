@@ -171,6 +171,24 @@ public class Example{
 		return and;
 	}
 	
+	/** FIXME cant do this easily without equals func to detect unary0 */
+	private static fn unaryAdd;
+	/** Example: unaryAdd().f(unary(3)).f(unary(4))==unary(7). */
+	public static fn unaryAdd(){
+		if(unaryAdd == null){
+			//make sure to use curry and recur
+			//like TestBasics.testUnaryAddWhichUsesCurryAndRecur says.
+			/*unaryAdd =
+				f(
+					cc,
+					TODO
+				);
+			*/
+			throw new Error("TODO");
+		}
+		return unaryAdd;
+	}
+	
 	private static fn equals;
 	/** returns T or F depending if the 2 params equal by binForest shape.
 	TODO optimize by Compiled that first checks their depth
@@ -204,18 +222,18 @@ public class Example{
 			fn getP4 = p(4);
 			fn getP5 = p(5);
 			fn p5IsLeaf = S(t(isLeaf),getP5);
-			equals =
+			/*equals =
 				f(
 					cc,
 					S( //funcBody
 						S(t(isLeaf),getP4), //returns T or F for first param
 						p5IsLeaf, //optimization of the commentedout S(...) below
-						/*S(
-							//FIXME verify if this is the right way to if/else inside if/else
-							p5IsLeaf,
-							t(T), //both leafs, equals return true
-							t(F) //1 is leaf and the other not, equals return false
-						),*/
+						//S(
+						//	//FIXME verify if this is the right way to if/else inside if/else
+						//	p5IsLeaf,
+						//	t(T), //both leafs, equals return true
+						//	t(F) //1 is leaf and the other not, equals return false
+						//),
 						S(
 							p5IsLeaf,
 							t(F), //1 is leaf and the other not, equals return false
@@ -229,9 +247,126 @@ public class Example{
 						)
 					)
 				);
+			*/
+			
+			//implement equals using Op.ifElse
+			//FIXME use Op.ifElse
+			//.Example.How to split p5IsLeaf, related to S(...)?
+			equals =
+				f(
+					cc,
+					S( //funcBody
+						t(ifElse),
+						S(t(isLeaf),getP4), //returns T or F for first param
+						
+						//(S((T I)(T p5IsLeaf)) p) is (p5IsLeaf p)
+						//but something to figure out...
+						//does S((T I) p5IsLeaf) work? It doesnt lazyeval
+						//but its just the condition so ok not to lazyeval that.
+						t(I),
+						//t(p5IsLeaf),
+						p5IsLeaf,
+						
+						//p5IsLeaf.L(),
+						//p5IsLeaf.R(),
+						//S(
+						//	//FIXME verify if this is the right way to if/else inside if/else
+						//	p5IsLeaf,
+						//	t(T), //both leafs, equals return true
+						//	t(F) //1 is leaf and the other not, equals return false
+						//),
+						S(
+							t(ifElse),
+							p5IsLeaf,
+							
+							//See S((T I) p5IsLeaf) comment above
+							t(I),
+							t(F),
+							//t(F).L(), //1 is leaf and the other not, equals return false
+							//t(F).R(),
+							
+							/*FIXME use ifElse in here?
+							but how? cuz there are 32 things: and, recur..., recur...
+							Also ifElse of 5 params is making things bigger to write
+							and is making me get L and R of things I want to use literally.
+							Also the depth of multiple S(...) is confusing.
+							I need to get this Example.equals() func working
+							as proofOfConcept that the universal function (leaf)
+							is flexible, practical, and turingComplete,
+							though this isnt enough for proof of turingCompleteness
+							I would soon after building this func build rule110, proving it,
+							then proceed to other Example funcs implementing various games etc.
+							...
+							or if I cant get this to work intuitively and correct math
+							then I'll have to use the lazy interface (which has lazyL lazyR and eval funcs
+							and implements fn and runs (lazyL lazyR) to get the thing it actually wraps
+							and remembers ptr to that fn it wraps
+							before returning from any javafunc in fn such as fn.L() or fn.cur()
+							but only for calls that do not instantly return (such as cur()>1).
+							Op.ifElse appears to not align well with the following way
+							Im trying to use S(... S(...) S(...) ...) to AND 2 RECURs.
+							Does the t(S(...)) t(I) fix it? Probably. TODO verify.
+							*/
+							
+							t(S(
+								//Return AND of
+								//(recurse into 2 lefts) (recurse into 2 rights)
+								t(and()),
+								S( recur, S(t(L),getP4), S(t(L),getP5) ),
+								S( recur, S(t(R),getP4), S(t(R),getP5) )
+							)),
+							t(I)
+						),
+						t(I)
+					)
+				);
+			
 			//TODO optimize by equals.setCompiled(new Compiled(...)) 
 		}
 		return equals;
+	}
+	
+	private static fn doubleMult;
+	/** given 2 params that are cbtBitstring of 64 bits each, returns another of those
+	thats the strictfp ieee754 multiply of those doubles
+	such as what happens in java when you multiply 2 doubles in strictfp.
+	*/
+	public static fn doubleMult(){
+		if(doubleMult == null){
+			throw new Error("TODO");
+		}
+		return doubleMult;
+	}
+	
+	/** curry 2 cbt bitstrings each of size 64, return 1 of those */
+	private static fn doubleAdd;
+	public static fn doubleAdd(){
+		if(doubleAdd == null){
+			throw new Error("TODO");
+		}
+		return doubleAdd;
+	}
+	
+	/** curry 2 cbt bitstrings each of size 32, return 1 of those */
+	private static fn floatAdd;
+	public static fn floatAdd(){
+		if(floatAdd == null){
+			throw new Error("TODO");
+		}
+		return floatAdd;
+	}
+	
+	private static fn mandelbrot;
+	/** given some representation (TODO choose one) of x y coordinates in cbtBitstring,
+	returns a cbtBitstring of the double representing the brightness/color
+	as mandelbrot is normally displayed continuously
+	even though technically mandelbrot returns a bit.
+	*/
+	public static fn mandelbrot(){
+		if(mandelbrot == null){
+			throw new Error("TODO");
+		}
+		return mandelbrot;
 	}
 	
 	private static fn car;
@@ -359,33 +494,6 @@ public class Example{
 			throw new Error("TODO");
 		}
 		return mapPair;
-	}
-	
-	/** curry 2 cbt bitstrings each of size 64, return 1 of those */
-	private static fn doubleMult;
-	public static fn doubleMult(){
-		if(doubleMult == null){
-			throw new Error("TODO");
-		}
-		return doubleMult;
-	}
-	
-	/** curry 2 cbt bitstrings each of size 64, return 1 of those */
-	private static fn doubleAdd;
-	public static fn doubleAdd(){
-		if(doubleAdd == null){
-			throw new Error("TODO");
-		}
-		return doubleAdd;
-	}
-	
-	/** curry 2 cbt bitstrings each of size 32, return 1 of those */
-	private static fn floatAdd;
-	public static fn floatAdd(){
-		if(floatAdd == null){
-			throw new Error("TODO");
-		}
-		return floatAdd;
 	}
 	
 	/** see Opcode.acyclicFlow and .acyclicFlowN in other fork of occamsfuncer.
@@ -648,6 +756,14 @@ public class Example{
 			throw new Error("TODO");
 		}
 		return deriveCentralLimitTheoremByAllPossibilitiesOfCoinFlips;
+	}
+	
+	public static fn ocfnplugEqq(fn madeByCurry){
+		if(1<2) throw new Error("FIXME either the madeByCurry in Nondet.nondet(fn,fn) is broken or in ocfnplugEqq(fn) is broken.");
+		$();
+		fn a = getParam(4,madeByCurry);
+		fn b = getParam(5,madeByCurry);
+		return a==b ? T : F;
 	}
 	
 	/*TODO some of those fun experimental jar files in my q18 dir

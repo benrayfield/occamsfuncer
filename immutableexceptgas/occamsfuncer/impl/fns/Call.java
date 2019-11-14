@@ -226,6 +226,9 @@ public class Call implements fn{
 		return isCbt() && height()==Integer.MAX_VALUE;
 	}
 
+	/** You should probably use ArrayCbt and SmallCbt for efficient bitstrings,
+	but as of 2019-11 those arent working.
+	*/
 	public long longAt(int cbtBitIndex){
 		throw new Error("TODO");
 	}
@@ -242,13 +245,15 @@ public class Call implements fn{
 		throw new Error("TODO");
 	}
 
+	/*TODO implement optimization here and faster optimization in ArrayCbt and SmallCbt
 	public boolean isBitstring(){
 		throw new Error("TODO should probably have separate class for cbt and not allow Call to be a small cbt but can be any cbt that has small cbts as childs");
-	}
+	}*/
 
+	/** todo optimize
 	public int bitstringSize(){
 		throw new Error("TODO should probably have separate class for cbt and not allow Call to be a small cbt but can be any cbt that has small cbts as childs");
-	}
+	}*/
 
 	public fn bitstringSizeBig(){
 		throw new Error("TODO should probably have separate class for cbt and not allow Call to be a small cbt but can be any cbt that has small cbts as childs");

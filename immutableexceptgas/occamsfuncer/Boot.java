@@ -218,10 +218,131 @@ public class Boot{
 				//(s x y r) returns ((x r)(y r))
 				cur = 3;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
+					
+					//FIXME avoid stackoverflow in code like
+					//Example.equals() by not recursing into
+					//both branches when x is T or F
+					//(TODO is that similar to how Lazyk does it?)
+					//cuz the binary forest is infinitely deep
+					//as leaf.L()==I and leaf.R()==leaf
+					//so that code must be prevented from
+					//recursing after leaf to compute
+					//the first param of F or second param of T
+					//since those are NONHALTING.
+					//(T x anyNonhaltingCall) must return x.
+					//(F anyNonhaltingCall x) must return x.
+					//Since the anyNonhaltingCall is started here in Op.S,
+					//it must be detected here.
+					
 					$();
+					
 					fn x = l.L().R();
 					fn y = l.R();
 					return x.f(r).f(y.f(r));
+					
+					/* This code breaks Example.equals()
+					return x.f(r).f(y.f(r));
+					*/
+					
+					/*if(x == T){
+						//optimization of (T y r) returns y. Doesnt add to Cache
+						return y;
+					}else if(x == F){
+						//optimization of (T y r) returns r. Doesnt add to Cache
+						return r;
+					}else{
+						//FIXME check for S(...) of 3 things where first returns T or F
+						//but for now just handle (s a b c) where (a c) is T
+						//since that will intheory fix the Example.equals() problem
+						//since Example.equals() uses recur only in the third param
+						//instead of the second, so the base case is before that
+						//so (T baseCase someCallOfRecur) wont do the someCallOfRecur,
+						//but (F someCallOfRecur baseCase) would stackoverflow.
+						//Not fixing that for F (yet?) cuz s only passes a param
+						//down 2 branches, the param being the third param of s,
+						//but 3 branches is S(a b c) aka (s (s a b) c).
+						//Wait, maybe its F I need to call this way
+						//and put the base case after the recur?
+						fn xr = x.f(r);
+						//if(xr == T){
+						//	//dont eval y.f(r) cuz T would ignore it
+						//	return xr.
+						//}
+						if(xr == F){
+							return xr.
+						}
+						
+						FIXME choose a design for not evaling
+						the second param of T
+						and not evaling the first param of F
+						as combos of S calls them,
+						and maybe also for not evaling some of the params
+						inside curry but hopefully just thoe S T F things
+						will be enough. Research how similar softwares
+						handle recursion such as lazyk and urbit.
+						
+						https://tromp.github.io/cl/lazy-k.html says
+						"if there is any order in which a Lazy K program can be evaluated to work properly, the Lazy K interpreter will find it."
+						but I'm very skeptical the same thing will work in occamsfuncer
+						cuz leaf.L()==I and leaf.R()==leaf so the binary forest
+						of funcallPairs is infinitely deep cuz leaf wraps around,
+						but I do expect to find some solution.
+						
+						I could fix it by creating a wrapper of a funcallPair
+						that implements fn and only evals the call if ANY
+						of the funcs in the java interface are called
+						such as wrapper.L() must eval the call and return L()
+						of whatever that returns,
+						and as an optimization, dont create wrapper
+						for something that would instantly halt as known by cur()>1
+						or if its cur is 0 (cuz its Op.curry where 0 means varargs)
+						or if its op is cbt0 or cbt1 (and their cur maybe should be
+						cur 2 instead of cur 1 to simplify things but
+						cbt0 and cbt1 and combos of just those normally only
+						ever get 1 param and do something trivial (TODO what)
+						if that is called on a second param.
+						...
+						Id like to avoid creating such a LazyFn
+						(which is different than Op.lazyEval cuz you literally
+						cant detect if it is a LazyFn vs the call it wraps,
+						using only the deterministic ops at user level).
+						Only S and Curry and maybe T and F would create LazyFn.
+						LazyFn would not add to Cache <func,param,return> until
+						its evaled.
+						...
+						fn.unstub() would get the evaled result if it exists
+						so you dont have to keep using the LazyFn as the
+						thing it returns after it returns,
+						and that might need to happen recursively,
+						1 step from each caller, similar to dedup by Cache,
+						to avoid long chains containing LazyFn building up.
+						...
+						fn.unstub()
+						fn.lazyLOrNull()
+						fn.lazyROrNull()
+						x.L() would return x.lazyLOrNull().f(x.lazyROrNull()).L()
+						if lazyLOrNull()!=null, and after that, lazyLOrNull()
+						and lazyROrNull() would return null since its evaled.
+						...
+						Is there another way?
+						...
+						Maybe if return Op.I when (x r) is Op.F,
+						cuz F can be implemented as (T I),
+						and maybe I should use (T I) and get rid of Op.F
+						to make S not replace things unexpectedly,
+						if I choose that design (TODO verify it).
+						...
+						Related videos, writings, etc...
+						lazyk
+						urbit maybe.
+						haskell's compiled form
+						scheme
+						https://www.youtube.com/watch?v=eis11j_iGMs&t=1s
+						...
+						SOLUTION: Op.ifElse
+						
+					}*/
+					
 				};
 			break;
 			case isLeaf:
@@ -245,7 +366,7 @@ public class Boot{
 					return r.f(x).f(y);
 				};
 			break;
-			case bh:
+			/*case bh:
 				//(bh cbtAsBitstring x) does x.L().R().L().L()...
 				//for each bit in sequence in the cbtAsBitstring.
 				//As bitstring, the last cbt1 and trailing cbt0s are ignored.
@@ -262,6 +383,29 @@ public class Boot{
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
 					throw new Error("TODO");
+				};
+			break;
+			*/
+			case ifElse:
+				//(ifElse condition funcIfTrue paramIfTrue funcIfFalse paramIfFalse)
+				//returns (funcIfTrue paramIfTrue) if condition.equals(T)
+				//else returns (funcIfFalse paramIfFalse) if condition.equals(F)
+				//else infloop.
+				cur = 5;
+				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
+					$();
+					fn condition = l.L().L().L().R();
+					if(condition == T){
+						fn funcIfTrue = l.L().L().R();
+						fn paramIfTrue = l.L().R();
+						return funcIfTrue.f(paramIfTrue);
+					}else if(condition == F){
+						fn funcIfFalse = l.R();
+						fn paramIfFalse = r;
+						return funcIfFalse.f(paramIfFalse);
+					}else{
+						return infLoop();
+					}
 				};
 			break;
 			case lazyEval:

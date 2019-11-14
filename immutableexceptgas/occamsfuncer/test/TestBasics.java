@@ -151,6 +151,38 @@ public class TestBasics{
 		testEqq("and_T_T", and().f(T).f(T), T);
 	}
 	
+	public static void testString(){
+		lg("Starting testString");
+		String s = "abc";
+		lg("s: "+s);
+		fn fnAbc = f(s);
+		lg("fnAbc: "+fnAbc);
+		String s__2 = str(fnAbc);
+		lg("s__2: "+s__2);
+		test(s.equals(s__2));
+	}
+	
+	/** any static function whose name starts with "ocfnplug",
+	of fn to fn outside of user level code,
+	is considered part of occamsfuncer VM. The naming is for security
+	since you cant name something that way by accident.
+	*/
+	public static void testOcfnplug(){
+		fn plugEqq = nondet.f("ocfnplug:immutableexceptgas.occamsfuncer.Example.ocfnplugEqq");
+		fn leafLeaf = leaf.f(leaf);
+		fn leafLeaf__2 = CP(leaf,leaf);
+		testEqq("plugEqqA", plugEqq.f(leafLeaf).f(leafLeaf__2), F);
+		testEqq("plugEqqB", plugEqq.f(leafLeaf__2).f(leafLeaf__2), T);
+	}
+	
+	public static void testUnaryAddWhichUsesCurryAndRecur(){
+		lg("Starting testUnaryAddWhichUsesCurryAndRecur");
+		testEqq("unaryAdd_u3_u4", unaryAdd().f(unary(3)).f(unary(4)), unary(7));
+		testEqq("unaryAdd_u0_u0", unaryAdd().f(unary(0)).f(unary(0)), unary(0));
+		testEqq("unaryAdd_u5_u5", unaryAdd().f(unary(5)).f(unary(5)), unary(10));
+		testEqq("unaryAdd_u5_u35", unaryAdd().f(unary(5)).f(unary(25)), unary(30));
+	}
+	
 	/** Test the fn returned by Example.equals()
 	without the Compiled optimization that compares by height, ==, andOr id,
 	and without Cache dedup of <func,param,return> on the 2 funcs to be
@@ -201,6 +233,33 @@ public class TestBasics{
 		//and if you're deduping using a hashtable
 		//(which is normally disabled for cbt bitstring optimizations)
 		//then also x.L().f(x.R())==x for every x.
+	}
+	
+	public static void testDoubleMultOptimized(){
+		throw new Error("TODO test Example.doubleMult()");
+	}
+	
+	public static void testDoubleMultUnoptimized(){
+		throw new Error("TODO test Example.doubleMult()");
+	}
+	
+	public static void testDoubleAddUnoptimized(){
+		throw new Error("TODO test Example.doubleAdd()");
+	}
+	
+	public static void testDoubleAddOptimized(){
+		throw new Error("TODO test Example.doubleAdd()");
+	}
+	
+	/** TODO after Example.equals() works (in TestBasics),
+	derive ieee754 float64 math and compute unoptimized mandelbrot (very low resolution)
+	using it.
+	This will be computed using Compiled optimization of the double ops
+	which will get the exact same fn results (as proven by ids) as the unoptimized form.
+	*/
+	public static void testMandelbrot(){
+		fn mandelbrot = Example.mandelbrot();
+		throw new Error("TODO");
 	}
 	
 	/** tests ImportStatic.L(...) which is s-lambda-level 1 (s is level 0).
@@ -270,7 +329,18 @@ public class TestBasics{
 		testAnd();
 		//TODO test (curry cbtAsUnary5 T).setCompiled(...) for
 		//1-7 params after the standard curry params
+		
+		//FIXME find a way to test Op.recur that doesnt need Example.equals().
+
+		testString();
+		testOcfnplug();
+		testUnaryAddWhichUsesCurryAndRecur();
 		testEqualsWithoutOptimizationsOrDedup();
+		testDoubleAddUnoptimized();
+		testDoubleMultUnoptimized();
+		testDoubleAddOptimized();
+		testDoubleMultOptimized();
+		testMandelbrot();
 		testSLinkedList();
 		lg("All tests passed (TODO write harder tests)");
 	}
