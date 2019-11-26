@@ -1,10 +1,12 @@
-package immutableexceptgas.occamsfuncer;
-import static immutableexceptgas.occamsfuncer.ImportStatic.*;
+package immutableexceptgas.occamsfuncer.impl.util;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.function.BinaryOperator;
+
+import immutableexceptgas.occamsfuncer.fn;
 
 /** Implementation of Op.nondet goes here
 and you can load plugins (TODO design that system, and maybe should be 3 params
@@ -68,11 +70,10 @@ public class Nondet{
 						Method m = c.getMethod(lastPartOfFuncName,fn.class);
 						if(m.getReturnType() != fn.class) throw new Error("java Method doesnt return "+fn.class+" type");
 						if(!Modifier.isStatic(m.getModifiers())) throw new Error("java Method isnt static: "+s);
-						//FIXME is this madeByCurry correct? Can it be passed in as a param to
-						//this java func nondet(fn,fn) more efficiently than rebuilding it here (yes but just testing if it works at all for now)?
-						if(1<2) throw new Error("FIXME either the madeByCurry in Nondet.nondet(fn,fn) is broken or in ocfnplugEqq(fn) is broken.");
-						fn madeByCurry = lazyEval.f( curry.f(unary(5)).f(T).f(nondet).f(a) ).f( b );
-						return (fn) m.invoke(null,madeByCurry);
+						//Dont curry like this cuz if you want it in a curry you put that outside the nondet call.
+						//fn madeByCurry = lazyEval.f( curry.f(unary(5)).f(T).f(nondet).f(a) ).f( b );
+						//return (fn) m.invoke(null,madeByCurry);
+						return (fn) m.invoke(null,b);
 					}catch(ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
 						throw new Error(s,e);
 					}

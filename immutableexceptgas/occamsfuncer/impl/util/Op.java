@@ -1,5 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer;
+package immutableexceptgas.occamsfuncer.impl.util;
 
 /** For efficiency of a universal lambda function,
 there should be a powOf2 number of opcodes.
@@ -174,7 +174,13 @@ public enum Op{
 	*/
 	I(1,'I'),
 	
-	/** Lx.Ly.Lz.xz(yz) */
+	/** Lx.Ly.Lz.xz(yz). This is the simplest kind of controlflow
+	and is used to define funcs by passing a param
+	down to branches: x and y as (x z) and (y z).
+	then calls what (x z) returns on what (y z) returns.
+	Use identityFunc/I to get the z param,
+	or use (T quoteMe) to quote something to get instead.
+	*/
 	S(3,'S'),
 	
 	////////
@@ -214,7 +220,11 @@ public enum Op{
 	bh(2,'J'),
 	*/
 	
-	/**
+	/** (ifElse condition funcIfTrue paramIfTrue funcIfFalse paramIfFalse)
+	returns (funcIfTrue paramIfTrue) or (funcIfFalse paramIfFalse)
+	depending on if condition is T or something other than T.
+	See Example.equals() for how to use this with recur on a tree.
+	<br><br>
 	FIXME can ifElse be derived by a condition (which is T or F)
 	being called on PAIR, and do that twice, once for funcIfTrue vs funcIfFalse
 	and once for paramIfTrue vs paramIfFalse,

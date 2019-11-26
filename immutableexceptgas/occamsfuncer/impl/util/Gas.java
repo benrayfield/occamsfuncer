@@ -1,5 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer;
+package immutableexceptgas.occamsfuncer.impl.util;
 
 public class Gas extends RuntimeException{
 	

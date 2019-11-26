@@ -1,14 +1,15 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer;
-import static immutableexceptgas.occamsfuncer.ImportStatic.S;
-import static immutableexceptgas.occamsfuncer.ImportStatic.T;
-import static immutableexceptgas.occamsfuncer.ImportStatic.curry;
-import static immutableexceptgas.occamsfuncer.ImportStatic.getp;
-import static immutableexceptgas.occamsfuncer.ImportStatic.t;
+package immutableexceptgas.occamsfuncer.impl.util;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.S;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.T;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.curry;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.getp;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.t;
 
 import java.util.Arrays;
 
 import immutable.util.Text;
+import immutableexceptgas.occamsfuncer.fn;
 import immutableexceptgas.occamsfuncer.impl.fns.Call;
 import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
 
@@ -469,7 +470,9 @@ public class ImportStatic{
 	*/
 	public static String str(fn f){
 		$();
-		if(!f.isBitstring()) throw new Error("Not a bitstring so cant be a utf8 string: "+f);
+		if(!f.isBitstring()) {
+			throw new Error("Not a bitstring so cant be a utf8 string");
+		}
 		//FIXME throw Gas instead?
 		return Text.bytesToString(bytes(f));
 	}

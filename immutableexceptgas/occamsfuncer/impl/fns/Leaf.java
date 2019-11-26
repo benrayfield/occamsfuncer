@@ -1,12 +1,13 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutableexceptgas.occamsfuncer.impl.fns;
-import java.util.function.BinaryOperator;
-import immutableexceptgas.occamsfuncer.Boot;
-import immutableexceptgas.occamsfuncer.Compiled;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
-import static immutableexceptgas.occamsfuncer.ImportStatic.*;
-import immutableexceptgas.occamsfuncer.Op;
+import java.util.function.BinaryOperator;
+
 import immutableexceptgas.occamsfuncer.fn;
+import immutableexceptgas.occamsfuncer.impl.util.Boot;
+import immutableexceptgas.occamsfuncer.impl.util.Compiled;
+import immutableexceptgas.occamsfuncer.impl.util.Op;
 
 /** leaf.f(anything) is the halted state (leaf anything).
 x.L().f(x.R()).equals(x) for all x.

@@ -1,7 +1,7 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer;
-import static immutableexceptgas.occamsfuncer.ImportStatic.*;
-import static immutableexceptgas.occamsfuncer.Gas.*;
+package immutableexceptgas.occamsfuncer.impl.util;
+import static immutableexceptgas.occamsfuncer.impl.util.Gas.*;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 
+import immutableexceptgas.occamsfuncer.fn;
 import immutableexceptgas.occamsfuncer.impl.fns.Call;
 import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
 
@@ -394,6 +395,7 @@ public class Boot{
 				cur = 5;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
+					lg("ifElse l="+l+" r="+r);
 					fn condition = l.L().L().L().R();
 					if(condition == T){
 						fn funcIfTrue = l.L().L().R();

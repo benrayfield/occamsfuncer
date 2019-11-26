@@ -1,13 +1,15 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutableexceptgas.occamsfuncer.impl.fns;
-import static immutableexceptgas.occamsfuncer.ImportStatic.*;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
+
 import java.util.function.BinaryOperator;
-import immutableexceptgas.occamsfuncer.Boot;
-import immutableexceptgas.occamsfuncer.Cache;
-import immutableexceptgas.occamsfuncer.Compiled;
-import immutableexceptgas.occamsfuncer.Op;
-import immutableexceptgas.occamsfuncer.TinyMap;
+
 import immutableexceptgas.occamsfuncer.fn;
+import immutableexceptgas.occamsfuncer.impl.util.Boot;
+import immutableexceptgas.occamsfuncer.impl.util.Cache;
+import immutableexceptgas.occamsfuncer.impl.util.Compiled;
+import immutableexceptgas.occamsfuncer.impl.util.Op;
+import immutableexceptgas.occamsfuncer.impl.util.TinyMap;
 
 public class Call implements fn{
 	
@@ -275,8 +277,12 @@ public class Call implements fn{
 		//if(L()==T) return "\\"+R(); //cuz of how common it is to prefix with T in S(...)
 		String n = Boot.tempNames.get(this);
 		if(n != null) return n;
-		if(isUnaryCbt(this)){
-			return "<unary"+(height-4)+">";
+		if(isCbt()){
+			if(isUnaryCbt(this)){
+				return "<unary"+(height-4)+">";
+			}else if(isBitstring() && (bitstringSize()&7)==0){
+				return "<mayBeStr:"+str(this)+">";
+			}
 		}
 		//display as currylist such as (((a b)c)d) displays as (a b c d).
 		String l = L().toString();

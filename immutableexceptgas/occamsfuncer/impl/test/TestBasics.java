@@ -1,13 +1,13 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer.test;
-import static immutableexceptgas.occamsfuncer.Example.*;
-import static immutableexceptgas.occamsfuncer.ImportStatic.*;
+package immutableexceptgas.occamsfuncer.impl.test;
+import static immutableexceptgas.occamsfuncer.impl.util.Example.*;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
-import immutableexceptgas.occamsfuncer.Boot;
-import immutableexceptgas.occamsfuncer.Example;
-import immutableexceptgas.occamsfuncer.Gas;
 import immutableexceptgas.occamsfuncer.fn;
 import immutableexceptgas.occamsfuncer.impl.fns.Call;
+import immutableexceptgas.occamsfuncer.impl.util.Boot;
+import immutableexceptgas.occamsfuncer.impl.util.Example;
+import immutableexceptgas.occamsfuncer.impl.util.Gas;
 
 public class TestBasics{
 	
@@ -168,19 +168,34 @@ public class TestBasics{
 	since you cant name something that way by accident.
 	*/
 	public static void testOcfnplug(){
-		fn plugEqq = nondet.f("ocfnplug:immutableexceptgas.occamsfuncer.Example.ocfnplugEqq");
 		fn leafLeaf = leaf.f(leaf);
 		fn leafLeaf__2 = CP(leaf,leaf);
-		testEqq("plugEqqA", plugEqq.f(leafLeaf).f(leafLeaf__2), F);
-		testEqq("plugEqqB", plugEqq.f(leafLeaf__2).f(leafLeaf__2), T);
+		
+		fn plugEqqOfPair = nondet.f("ocfnplug:"+Example.class.getName()+".ocfnplugEqqOfPair");
+		testEqq("plugEqqAPair", plugEqqOfPair.f(pair.f(leafLeaf).f(leafLeaf__2)), F);
+		testEqq("plugEqqBPair", plugEqqOfPair.f(pair.f(leafLeaf__2).f(leafLeaf__2)), T);
+		
+		//fn plugEqq = nondet.f("ocfnplug:"+Example.class.getName()+".ocfnplugEqq");
+		//fn plugEqq = cc().f(nondet.f("ocfnplug:"+Example.class.getName()+".ocfnplugEqq"));
+		testEqq("plugEqqACurry", eqq().f(leafLeaf).f(leafLeaf__2), F);
+		testEqq("plugEqqBCurry", eqq().f(leafLeaf__2).f(leafLeaf__2), T);
 	}
 	
 	public static void testUnaryAddWhichUsesCurryAndRecur(){
 		lg("Starting testUnaryAddWhichUsesCurryAndRecur");
-		testEqq("unaryAdd_u3_u4", unaryAdd().f(unary(3)).f(unary(4)), unary(7));
+		testEqq("unaryInc_u3", 	unaryInc().f(unary(3)), unary(4));
+		
+		//if(1<2) throw new Error("infloops below. Might need redesign occamsfuncer to implement core ops as pairAndSymbol based turing machine to make this understandable.");
+		testEqq("unaryAddUsingNondetEqq_u0_u0", unaryAddUsingNondetEqq().f(unary(0)).f(unary(0)), unary(0));
+		testEqq("unaryAddUsingNondetEqq_u1_u1", unaryAddUsingNondetEqq().f(unary(1)).f(unary(1)), unary(2));
+		testEqq("unaryAddUsingNondetEqq_u2_u1", unaryAddUsingNondetEqq().f(unary(2)).f(unary(1)), unary(3));
+		testEqq("unaryAddUsingNondetEqq_u2_u3", unaryAddUsingNondetEqq().f(unary(2)).f(unary(3)), unary(5));
+		
+		/*testEqq("unaryAdd_u3_u4", unaryAdd().f(unary(3)).f(unary(4)), unary(7));
 		testEqq("unaryAdd_u0_u0", unaryAdd().f(unary(0)).f(unary(0)), unary(0));
 		testEqq("unaryAdd_u5_u5", unaryAdd().f(unary(5)).f(unary(5)), unary(10));
 		testEqq("unaryAdd_u5_u35", unaryAdd().f(unary(5)).f(unary(25)), unary(30));
+		*/
 	}
 	
 	/** Test the fn returned by Example.equals()
@@ -329,12 +344,12 @@ public class TestBasics{
 		testAnd();
 		//TODO test (curry cbtAsUnary5 T).setCompiled(...) for
 		//1-7 params after the standard curry params
-		
+	
 		//FIXME find a way to test Op.recur that doesnt need Example.equals().
-
 		testString();
 		testOcfnplug();
 		testUnaryAddWhichUsesCurryAndRecur();
+		
 		testEqualsWithoutOptimizationsOrDedup();
 		testDoubleAddUnoptimized();
 		testDoubleMultUnoptimized();

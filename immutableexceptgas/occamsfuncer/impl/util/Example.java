@@ -1,7 +1,10 @@
-package immutableexceptgas.occamsfuncer;
-import static immutableexceptgas.occamsfuncer.ImportStatic.*;
+package immutableexceptgas.occamsfuncer.impl.util;
+import static immutableexceptgas.occamsfuncer.impl.util.Example.cc;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
 import java.lang.reflect.InvocationTargetException;
+
+import immutableexceptgas.occamsfuncer.fn;
 
 /** This is NOT part of the occamsfuncer spec since all these
 could be derived using the simpler ops (at most height4)
@@ -102,7 +105,7 @@ public class Example{
 			c = f(
 				curry,
 				//cuz (curry cbtAsUnary constraint funcBody params...)
-				unary(5),
+				unary(4),
 				T //no constraint
 			);
 		}
@@ -169,6 +172,49 @@ public class Example{
 			);
 		}
 		return and;
+	}
+	
+	private static fn unaryInc;
+	/** Example: unaryInc().f(unary(3))==unary(4). */
+	public static fn unaryInc(){
+		if(unaryInc == null){
+			unaryInc = S.f(I).f(I);
+		}
+		return unaryInc;
+	}
+	
+	private static fn unaryAddUsingNondetEqq;
+	/** cuz cant make the normal unaryAdd yet cuz havent got equals() working
+	and am making unaryAdd to test Op.ifElse with Op.recur.
+	This func recursively decreases second param while increasing first param
+	until second param is unary(0).
+	*/
+	public static fn unaryAddUsingNondetEqq(){
+		if(unaryAddUsingNondetEqq == null){
+			fn getP4 = p(4);
+			fn getP5 = p(5);
+			fn unaryDec = L;
+			unaryAddUsingNondetEqq = f(
+				cc(),
+				S(
+					t(ifElse),
+					//condition. If second param is unary0
+					S(t(eqq().f(unary(0))),getP5),
+					//funcIfTrue
+					t(I),
+					//paramIfTrue
+					getP4, //return this
+					//funcIfFalse
+					S(
+						recur,
+						S(t(unaryInc()),getP4)
+					),
+					//paramIfFalse
+					S(t(unaryDec),getP5)
+				)	
+			);
+		}
+		return unaryAddUsingNondetEqq;
 	}
 	
 	/** FIXME cant do this easily without equals func to detect unary0 */
@@ -254,17 +300,23 @@ public class Example{
 			//.Example.How to split p5IsLeaf, related to S(...)?
 			equals =
 				f(
-					cc,
+					cc(),
 					S( //funcBody
 						t(ifElse),
+						
+						//condition
 						S(t(isLeaf),getP4), //returns T or F for first param
 						
 						//(S((T I)(T p5IsLeaf)) p) is (p5IsLeaf p)
 						//but something to figure out...
 						//does S((T I) p5IsLeaf) work? It doesnt lazyeval
 						//but its just the condition so ok not to lazyeval that.
+						
+						//funcIfTrue
 						t(I),
 						//t(p5IsLeaf),
+						
+						//paramIfTrue
 						p5IsLeaf,
 						
 						//p5IsLeaf.L(),
@@ -275,6 +327,8 @@ public class Example{
 						//	t(T), //both leafs, equals return true
 						//	t(F) //1 is leaf and the other not, equals return false
 						//),
+						
+						//funcIfFalse
 						S(
 							t(ifElse),
 							p5IsLeaf,
@@ -308,6 +362,9 @@ public class Example{
 							Does the t(S(...)) t(I) fix it? Probably. TODO verify.
 							*/
 							
+							
+							//FIXME the recurs here might be getting
+							//the wrong param cuz the S is inside t(...)
 							t(S(
 								//Return AND of
 								//(recurse into 2 lefts) (recurse into 2 rights)
@@ -317,6 +374,7 @@ public class Example{
 							)),
 							t(I)
 						),
+						//paramIfFalse
 						t(I)
 					)
 				);
@@ -758,12 +816,28 @@ public class Example{
 		return deriveCentralLimitTheoremByAllPossibilitiesOfCoinFlips;
 	}
 	
+	/** Since I havent got curry working perfectly yet (2019-11-26) I'm passing a pair
+	to this func to test ocfnplug. (pair a b) aka ((pair a) b).
+	*/
+	public static fn ocfnplugEqqOfPair(fn aPair){
+		fn a = aPair.L().R();
+		fn b = aPair.R();
+		return a==b ? T : F;
+	}
+	
 	public static fn ocfnplugEqq(fn madeByCurry){
-		if(1<2) throw new Error("FIXME either the madeByCurry in Nondet.nondet(fn,fn) is broken or in ocfnplugEqq(fn) is broken.");
 		$();
 		fn a = getParam(4,madeByCurry);
 		fn b = getParam(5,madeByCurry);
 		return a==b ? T : F;
+	}
+	
+	public static fn eqq;
+	public static fn eqq(){
+		if(eqq == null){
+			eqq = cc().f(nondet.f("ocfnplug:"+Example.class.getName()+".ocfnplugEqq"));
+		}
+		return eqq;
 	}
 	
 	/*TODO some of those fun experimental jar files in my q18 dir

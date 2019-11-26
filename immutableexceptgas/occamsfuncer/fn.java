@@ -1,7 +1,12 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutableexceptgas.occamsfuncer;
-import static immutableexceptgas.occamsfuncer.ImportStatic.*;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
+
 import java.util.function.BinaryOperator;
+
+import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
+import immutableexceptgas.occamsfuncer.impl.util.Compiled;
+import immutableexceptgas.occamsfuncer.impl.util.ImportStatic;
 
 /** The purpose of this software is large scale realtime collaboration
 at low lag, of millions of people programming andOr researching andOr
@@ -117,6 +122,26 @@ be stored in <func,param,return>.
 EmptyMap
 */
 public strictfp interface fn{
+	
+	/** the whole occamsfuncer software can be used from this,
+	including the wrapping of large 1d primitive arrays or strings
+	such as universalLambdaFunction.f("hello").f(new float[]{...}),
+	but you will probably find the 16 fn constants in ImportStatic
+	useful as they are the fn form of the 16 ops
+	that can be derived each as a few calls of this
+	and you will get the same fn by == regardless of
+	if you use those constants or if you derive them
+	even if you derive them many different ways
+	cuz this system has a perfect godel-like-numbering
+	that works trivially by each unique binary forest shape
+	that leads to 1 leaf is a unique function behavior
+	if you could looking into its left and right childs
+	and checking is a fn the leaf (Op.isLeaf),
+	all of which a fn can measure about another fn
+	using only combos of universalLambdaFunction aka leaf.
+	To understand these behaviors, look in Op.java and Boot.java.
+	*/
+	public static final fn universalLambdaFunction = Leaf.instance;
 	
 	
 	/** lambda call. Rememeber, if this is in a nondet(erministic)
@@ -298,6 +323,20 @@ public strictfp interface fn{
 	
 	/** efficient bitstrings (if isCbt) */
 	public long longAtBig(fn cbtBitIndex);
+	
+	/** FIXME can it throw? what if its a nonNormed float val (most of the nans and infinities, or extra precision near 0 theres some trick they do thats nonstandard).
+	This can be implemented more efficiently in ArrayCbt<float[]> and FloatCbt.
+	*/
+	public default float floatAt(int cbtBitIndex){
+		return Float.intBitsToFloat(intAt(cbtBitIndex));
+	}
+	
+	/** see FIXME comment in floatAt(int).
+	This can be implemented more efficiently in ArrayCbt<double[]> and DoubleCbt.
+	*/
+	public default double doubleAt(int cbtBitIndex){
+		return Double.longBitsToDouble(longAt(cbtBitIndex));
+	}
 	
 	/** height0 to height4 are ops.
 	Only leaf and 16 of those at height4 have nontrivial behaviors.

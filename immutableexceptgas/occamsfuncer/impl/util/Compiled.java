@@ -1,6 +1,8 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer;
+package immutableexceptgas.occamsfuncer.impl.util;
 import java.util.function.BinaryOperator;
+
+import immutableexceptgas.occamsfuncer.fn;
 
 /** Example: compile a certain fn that does ieee754 double multiply on
 2 cbts of 64 bits each

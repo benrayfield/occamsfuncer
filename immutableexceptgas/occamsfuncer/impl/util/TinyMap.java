@@ -1,4 +1,6 @@
-package immutableexceptgas.occamsfuncer;
+package immutableexceptgas.occamsfuncer.impl.util;
+
+import immutableexceptgas.occamsfuncer.fn;
 
 /** linkedlist of key/value pairs that compares by ==,
 so if for example you want to use this to compare by idFuncs

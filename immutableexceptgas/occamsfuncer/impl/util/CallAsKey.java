@@ -1,5 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer.util;
+package immutableexceptgas.occamsfuncer.impl.util;
 import immutableexceptgas.occamsfuncer.fn;
 import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
 

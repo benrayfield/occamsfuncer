@@ -1,5 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer.impl;
+package immutableexceptgas.occamsfuncer.impl.util;
 
 /** This is a data format for sending things through network
 or storing on harddrive etc,

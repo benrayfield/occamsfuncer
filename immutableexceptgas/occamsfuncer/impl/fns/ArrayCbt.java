@@ -1,11 +1,11 @@
 package immutableexceptgas.occamsfuncer.impl.fns;
-import static immutableexceptgas.occamsfuncer.ImportStatic.*;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
 import java.lang.reflect.Array;
 import java.util.function.BinaryOperator;
 
-import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.fn;
+import immutableexceptgas.occamsfuncer.impl.util.Compiled;
 
 /** optimization of completeBinaryTree of Op.cbt0 and Op.cbt1,
 stored as any 1d primitive array,
@@ -15,7 +15,9 @@ as if it was just the ieee754 normed bits of that
 such as double[] float[] long[] int[] byte[] are all
 representations of certain binForest shapes
 that are a completeBinaryTree of bits.
-If the array size is not a powOf2 then its viewed
+<br><br>
+FIXME this logic seems inconsistent: If the array size
+is not a powOf2 then its viewed
 as if the next bit is 1 and the rest are 0s.
 <br><br>
 FIXME there might be a problem with double[] and float[]

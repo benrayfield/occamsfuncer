@@ -1,11 +1,11 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer;
+package immutableexceptgas.occamsfuncer.impl.util;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import immutableexceptgas.occamsfuncer.*;
-import immutableexceptgas.occamsfuncer.util.CallAsKey;
 
 /** FIXME the counting below maybe is not in the right order.
 Make sure its in order of height recursively by bruteForce finding
