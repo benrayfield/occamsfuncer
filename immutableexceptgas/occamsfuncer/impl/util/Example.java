@@ -216,6 +216,78 @@ public class Example{
 	}
 	
 	private static fn equals;
+	public static fn equals(){
+		if(equals == null){
+			fn getP4 = p(4);
+			fn getP5 = p(5);
+			fn p5IsLeaf = S(t(isLeaf),getP5);
+			/*equals = f(
+				cc(),
+				S(
+					t(IF()),
+					S(t(isLeaf),getP4),
+					p5IsLeaf,
+					S(
+						t(IF()),
+						p5IsLeaf,
+						t(F),
+						S(
+							t(and()),
+							S(recur, S(t(L),getP4), S(t(L),getP5) ),
+							S(recur, S(t(R),getP4), S(t(R),getP5) )
+						)
+					)
+				)
+			);*/
+			equals = f(
+				cc(),
+				S(
+					t(ifElse),
+					S(t(isLeaf),getP4),
+					f(lazig(), p5IsLeaf),
+					f(
+						lazig(),
+						S(
+							t(ifElse),
+							p5IsLeaf,
+							t(t(F)),
+							f(
+								lazig(),
+								S(
+									t(and()),
+									S(recur, S(t(L),getP4), S(t(L),getP5) ),
+									S(recur, S(t(R),getP4), S(t(R),getP5) )
+								)
+							)
+						)
+					)
+				)
+			);
+		}
+		return equals;
+	}
+	
+	private static fn IF;
+	/** (IF condition ifTrue ifFalse)
+	returns (lazig ifTrue leaf) or (lazig ifFalse leaf) depending on condition
+	being T or F, and if condition is neither of those then infloops
+	(cuz ifElse infloops if condition is not T or F).
+	*/
+	public static fn IF(){
+		if(IF == null){
+			IF = f(
+				ccc(),
+				S(
+					t(ifElse),
+					p(4),
+					S(t(lazig()), p(5)),
+					S(t(lazig()), p(6))
+				)
+			);
+		}
+		return IF;
+	}
+	
 	/** returns T or F depending if the 2 params equal by binForest shape.
 	TODO optimize by Compiled that first checks their depth
 	then compares them by whichever id type(s) is believed to be a secureHash,
@@ -229,7 +301,7 @@ public class Example{
 	(of which multiple id types are allowed simultaneously
 	but 1 should be chosen to be trusted for determiniing equality
 	at least in the early prototype).
-	*/
+	*
 	public static fn equals(){
 		if(equals == null){
 			/*TODO write the exponential cost implementation first,
@@ -242,7 +314,7 @@ public class Example{
 			Op.curry is designed to have a pointer to the func being called
 			so it can be recursive.
 			Do 3 if/elses (2 of which are used each time) and handle all 4 cases.
-			*/
+			*
 			
 			//p4 is first param cuz p0..p3 are standard parts of curry.
 			fn getP4 = p(4);
@@ -375,7 +447,7 @@ public class Example{
 				);
 				*/
 			
-				equals = f(
+				/*equals = f(
 				cc(),
 				S(
 					t(ifElse),
@@ -395,17 +467,17 @@ public class Example{
 						
 						//inner ifFalse. p4 !isLeaf. p5 !isLeaf.
 						
-						/*I need to avoid giving recur its last param
-						until the outer ifelse does (funcIfFalse paramIfFalse).
-						That paramIfFalse will be ignored.
-						It can be done with lazyEval s k etc somehow.
-						(lazyEval x y z) returns (x y z)
-						(s x y z) return ((x z)(y z)).
-						I still need the param to flow down the s forest
-						so recur and getP4 and getP5 will work,
-						and in (s x y z) that param is z.
-						I might need to derive a new func, which I'll call lazys.
-						*/
+						//I need to avoid giving recur its last param
+						//until the outer ifelse does (funcIfFalse paramIfFalse).
+						//That paramIfFalse will be ignored.
+						//It can be done with lazyEval s k etc somehow.
+						//(lazyEval x y z) returns (x y z)
+						//(s x y z) return ((x z)(y z)).
+						//I still need the param to flow down the s forest
+						//so recur and getP4 and getP5 will work,
+						//and in (s x y z) that param is z.
+						//I might need to derive a new func, which I'll call lazys.
+						
 						
 						//lazys of AND (recurse into 2 lefts) (recurse into 2 rights)
 						//
@@ -416,34 +488,112 @@ public class Example{
 						//(lazys w x y z) returns ((w z)(y z))?
 						//Probably so. TODO test this in TestBasics.*equals*
 						//(after finishing Example.lazys() to do that.
-						f(
-							lazys(),
-							S(
+						S(
+							t(lazys()),
+							t(S(
 								t(and()),
 								S(recur, S(t(L),getP4), S(t(L),getP5) )
-							),
-							S(recur, S(t(R),getP4), S(t(R),getP5) )
+							)),
+							t(S(recur, S(t(R),getP4), S(t(R),getP5) ))
 						),
 						t(I)
 						
-						/*S(
-							//AND (recurse into 2 lefts) (recurse into 2 rights)
-							t(and()),
-							S( t(lazyEval), S(recur,S(t(L),getP4)), S(t(L),getP5) ),
-							S( t(lazyEval), S(recur,S(t(R),getP4)), S(t(R),getP5) )
-						),
-						t(I)
-						*/
+						//S(
+						//	//AND (recurse into 2 lefts) (recurse into 2 rights)
+						//	t(and()),
+						//	S( t(lazyEval), S(recur,S(t(L),getP4)), S(t(L),getP5) ),
+						//	S( t(lazyEval), S(recur,S(t(R),getP4)), S(t(R),getP5) )
+						//),
+						//t(I)
 					),
 					//paramIfFalse
 					t(I)
 				)
+				*
+			
+				equals = f(
+					cc(),
+					S(
+						t(ifElse),
+						//condition
+						S(t(isLeaf),getP4),
+						//funcIfTrue
+						S(t(lazig()), p5IsLeaf),
+						//t(I),
+						//paramIfTrue (is always leaf if redesign ifElse). p4 is leaf.
+						//p5IsLeaf, //already know p4IsLeaf here
+						//funcIfFalse. p4 is not leaf.
+						S(
+							t(ifElse),
+							p5IsLeaf,
+							//inner ifTrue
+							t(t(F)), //first T is for S(...). Second T is for ifElse gives leaf param.
+							//t(I),
+							//t(F), //p4 isLeaf. p5 !isLeaf.
+							
+							//inner ifFalse. p4 !isLeaf. p5 !isLeaf.
+							
+							/*I need to avoid giving recur its last param
+							until the outer ifelse does (funcIfFalse paramIfFalse).
+							That paramIfFalse will be ignored.
+							It can be done with lazyEval s k etc somehow.
+							(lazyEval x y z) returns (x y z)
+							(s x y z) return ((x z)(y z)).
+							I still need the param to flow down the s forest
+							so recur and getP4 and getP5 will work,
+							and in (s x y z) that param is z.
+							I might need to derive a new func, which I'll call lazys.
+							*/
+							
+							//lazys of AND (recurse into 2 lefts) (recurse into 2 rights)
+							//
+							//Putting lazys in S(...) wont work. lazys needs to be in f(...)
+							//but somehow to reproduce the behaviors of S(...).
+							//
+							//If this definition of lazys is true, will it work?
+							//(lazys w x y z) returns ((w z)(y z))?
+							//Probably so. TODO test this in TestBasics.*equals*
+							//(after finishing Example.lazys() to do that.
+							
+							/*S(
+								t(lazys()),
+								t(S(
+									t(and()),
+									S(recur, S(t(L),getP4), S(t(L),getP5) )
+								)),
+								t(S(recur, S(t(R),getP4), S(t(R),getP5) ))
+							),
+							t(I)
+							*
+							f(
+								lazig(),
+								S(
+									t(and()),
+									S(recur, S(t(L),getP4), S(t(L),getP5) ),
+									S(recur, S(t(R),getP4), S(t(R),getP5) )
+								)
+							)
+							
+							
+							//S(
+							//	//AND (recurse into 2 lefts) (recurse into 2 rights)
+							//	t(and()),
+							//	S( t(lazyEval), S(recur,S(t(L),getP4)), S(t(L),getP5) ),
+							//	S( t(lazyEval), S(recur,S(t(R),getP4)), S(t(R),getP5) )
+							//),
+							//t(I)
+						)
+						//paramIfFalse (is always leaf if redesign ifElse)
+						//t(I)
+					)
+				
+				
 			);
 			
 			//TODO optimize by equals.setCompiled(new Compiled(...)) 
 		}
 		return equals;
-	}
+	}*/
 	
 	/** The first usecase of it is in Example.equals().
 	(lazys w x y z) returns ((w z)(y z)).
@@ -487,6 +637,20 @@ public class Example{
 		return lazys;
 	}
 	
+	private static fn lazig;
+	/** (lazig x y z) returns (x y), ignoring z. Its a lazy (x y),
+	unlike (Op.lazyEval x y z) which returns (x y z).
+	TODO use this to get Example.equals() working, by redefining Op.ifElse
+	to have 3 params instead of 5, and paramIfTrue and funcIfTrue are both leaf.
+	*/
+	public static fn lazig(){
+		if(lazig == null){
+			//(lazig x y z) returns (x y)
+			lazig = f( ccc(), S(p(4),p(5)) );
+		}
+		return lazig;
+	}
+	
 	
 	private static fn unaryAddUsingNondetEqq;
 	/** cuz cant make the normal unaryAdd yet cuz havent got equals() working
@@ -499,6 +663,27 @@ public class Example{
 			fn getP4 = p(4);
 			fn getP5 = p(5);
 			fn unaryDec = L;
+			unaryAddUsingNondetEqq = f(
+				cc(),
+				S(
+					t(ifElse),
+					//condition. If second param is unary0
+					S(t(eqq().f(unary(0))),getP5),
+					//ifTrue
+					f(lazig(), getP4),
+					//ifFalse
+					f(
+						lazig(),
+						S(
+							recur,
+							S(t(unaryInc()),getP4),
+							S(t(unaryDec),getP5)
+						)
+					)
+				)	
+			);
+			
+			/*this is using the old 5 param kind of ifElse (redesigned to 3 params)
 			unaryAddUsingNondetEqq = f(
 				cc(),
 				S(
@@ -518,6 +703,7 @@ public class Example{
 					S(t(unaryDec),getP5)
 				)	
 			);
+			*/
 		}
 		return unaryAddUsingNondetEqq;
 	}

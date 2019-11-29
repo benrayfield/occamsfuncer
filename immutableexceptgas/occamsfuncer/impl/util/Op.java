@@ -220,7 +220,12 @@ public enum Op{
 	bh(2,'J'),
 	*/
 	
-	/** (ifElse condition funcIfTrue paramIfTrue funcIfFalse paramIfFalse)
+	/** (ifElse condition ifTrue ifFalse)
+	returns (ifTrue leaf) or (ifFalse leaf) depending if condition is T or F,
+	and if condition is neither of those then infloops.
+	See Example.equals() for how to use this to conditionally recurse.
+	<br><br>
+	OLD: (ifElse condition funcIfTrue paramIfTrue funcIfFalse paramIfFalse)
 	returns (funcIfTrue paramIfTrue) or (funcIfFalse paramIfFalse)
 	depending on if condition is T or something other than T.
 	See Example.equals() for how to use this with recur on a tree.
@@ -235,7 +240,7 @@ public enum Op{
 	or something like that.
 	So I will keep the ifElse, since its intuitive.
 	*/
-	ifElse(5,'?'), 
+	ifElse(3,'?'), 
 	
 	/** (lazyEval x y z) aka (((lazyEval x) y) z) returns (x y z) aka ((x y) z).
 	(lazyeval x y) is halted.

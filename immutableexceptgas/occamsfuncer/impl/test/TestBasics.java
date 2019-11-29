@@ -181,6 +181,23 @@ public class TestBasics{
 		testEqq("plugEqqBCurry", eqq().f(leafLeaf__2).f(leafLeaf__2), T);
 	}
 	
+	
+	/** (lazys w x y z) returns ((w z)(y z)) */
+	public static void testLazys(){
+		lg("Starting testLazys");
+		fn lazys = Example.lazys();
+		fn cbt01 = f(lazys, R, L, fnThatInfiniteLoopsForEveryPossibleParam(), cbt1.f(cbt0));
+		testEqq("lazys_reverses_10_to_01", cbt01, cbt0.f(cbt1));
+	}
+	
+	/** (lazig x y z) returns (x y) */
+	public static void testLazig(){
+		lg("Starting testLazig");
+		fn lazig = Example.lazig();
+		fn cbt01 = f(lazig, cbt0, cbt1, curry);
+		testEqq("lazigA", f(lazig, cbt0, cbt1, curry), cbt0.f(cbt1));
+	}
+	
 	public static void testUnaryAddWhichUsesCurryAndRecur(){
 		lg("Starting testUnaryAddWhichUsesCurryAndRecur");
 		testEqq("unaryInc_u3", 	unaryInc().f(unary(3)), unary(4));
@@ -342,15 +359,13 @@ public class TestBasics{
 		testIsUnaryCbt();
 		testGetp();
 		testAnd();
-		//TODO test (curry cbtAsUnary5 T).setCompiled(...) for
-		//1-7 params after the standard curry params
-	
-		//FIXME find a way to test Op.recur that doesnt need Example.equals().
 		testString();
 		testOcfnplug();
 		testUnaryAddWhichUsesCurryAndRecur();
-		
+		testLazys();
+		testLazig();
 		testEqualsWithoutOptimizationsOrDedup();
+		
 		testDoubleAddUnoptimized();
 		testDoubleMultUnoptimized();
 		testDoubleAddOptimized();

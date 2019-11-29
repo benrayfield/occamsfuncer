@@ -388,6 +388,24 @@ public class Boot{
 			break;
 			*/
 			case ifElse:
+				//(ifElse condition ifTrue ifFalse)
+				//returns (ifTrue leaf) or (ifFalse leaf) depending on condition.
+				//See Example.equals() for how to use this to conditionally recurse.
+				cur = 3;
+				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
+					$();
+					lg("ifElse l="+l+" r="+r);
+					fn condition = l.L().R();
+					if(condition == T){
+						return l.R().f(leaf);
+					}else if(condition == F){
+						return r.f(leaf);
+					}else{
+						return infLoop();
+					}
+				};
+				
+				/*
 				//(ifElse condition funcIfTrue paramIfTrue funcIfFalse paramIfFalse)
 				//returns (funcIfTrue paramIfTrue) if condition.equals(T)
 				//else returns (funcIfFalse paramIfFalse) if condition.equals(F)
@@ -409,6 +427,7 @@ public class Boot{
 						return infLoop();
 					}
 				};
+				*/
 			break;
 			case lazyEval:
 				//(lazyEval x y r) returns (x y r)
