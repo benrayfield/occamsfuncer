@@ -290,9 +290,9 @@ public class ImportStatic{
 	}*/
 	
 	/** p4 is first param, and p5 is second param, and so on.
-	p0 gets curry. p1 gets cbtAsUnary. p2 gets constraint. p3 gets funcBody.
+	p0 gets Op.curry. p1 gets cbtAsUnary. p2 gets constraint. p3 gets funcBody.
 	returns a func that
-	[gets param at nonnegative integer when given the structure op.curry creates]
+	[gets param at nonnegative integer when given the structure Op.curry creates]
 	There are 3 standard params of curry:
 	(curry cbtAsUnary constraint funcBody),
 	so p(0).f(structure curry creates)==curry,

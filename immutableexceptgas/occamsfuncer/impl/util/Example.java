@@ -101,7 +101,7 @@ public class Example{
 	private static fn c;
 	/** curry 2 without constraint. funcBody then its params are next. */
 	public static fn c(){
-		if(cc == null){
+		if(c == null){
 			c = f(
 				curry,
 				//cuz (curry cbtAsUnary constraint funcBody params...)
@@ -137,7 +137,21 @@ public class Example{
 				T //no constraint
 			);
 		}
-		return cc;
+		return ccc;
+	}
+	
+	private static fn cccc;
+	/** curry 4 without constraint. funcBody then its params are next. */
+	public static fn cccc(){
+		if(cccc == null){
+			cccc = f(
+				curry,
+				//cuz (curry cbtAsUnary constraint funcBody params...)
+				unary(7),
+				T //no constraint
+			);
+		}
+		return cccc;
 	}
 	
 	private static fn and;
@@ -181,40 +195,6 @@ public class Example{
 			unaryInc = S.f(I).f(I);
 		}
 		return unaryInc;
-	}
-	
-	private static fn unaryAddUsingNondetEqq;
-	/** cuz cant make the normal unaryAdd yet cuz havent got equals() working
-	and am making unaryAdd to test Op.ifElse with Op.recur.
-	This func recursively decreases second param while increasing first param
-	until second param is unary(0).
-	*/
-	public static fn unaryAddUsingNondetEqq(){
-		if(unaryAddUsingNondetEqq == null){
-			fn getP4 = p(4);
-			fn getP5 = p(5);
-			fn unaryDec = L;
-			unaryAddUsingNondetEqq = f(
-				cc(),
-				S(
-					t(ifElse),
-					//condition. If second param is unary0
-					S(t(eqq().f(unary(0))),getP5),
-					//funcIfTrue
-					t(I),
-					//paramIfTrue
-					getP4, //return this
-					//funcIfFalse
-					S(
-						recur,
-						S(t(unaryInc()),getP4)
-					),
-					//paramIfFalse
-					S(t(unaryDec),getP5)
-				)	
-			);
-		}
-		return unaryAddUsingNondetEqq;
 	}
 	
 	/** FIXME cant do this easily without equals func to detect unary0 */
@@ -295,6 +275,8 @@ public class Example{
 				);
 			*/
 			
+			
+			/*
 			//implement equals using Op.ifElse
 			//FIXME use Op.ifElse
 			//.Example.How to split p5IsLeaf, related to S(...)?
@@ -305,7 +287,7 @@ public class Example{
 						t(ifElse),
 						
 						//condition
-						S(t(isLeaf),getP4), //returns T or F for first param
+						S(t(isLeaf),getP4),
 						
 						//(S((T I)(T p5IsLeaf)) p) is (p5IsLeaf p)
 						//but something to figure out...
@@ -339,49 +321,205 @@ public class Example{
 							//t(F).L(), //1 is leaf and the other not, equals return false
 							//t(F).R(),
 							
-							/*FIXME use ifElse in here?
-							but how? cuz there are 32 things: and, recur..., recur...
-							Also ifElse of 5 params is making things bigger to write
-							and is making me get L and R of things I want to use literally.
-							Also the depth of multiple S(...) is confusing.
-							I need to get this Example.equals() func working
-							as proofOfConcept that the universal function (leaf)
-							is flexible, practical, and turingComplete,
-							though this isnt enough for proof of turingCompleteness
-							I would soon after building this func build rule110, proving it,
-							then proceed to other Example funcs implementing various games etc.
-							...
-							or if I cant get this to work intuitively and correct math
-							then I'll have to use the lazy interface (which has lazyL lazyR and eval funcs
-							and implements fn and runs (lazyL lazyR) to get the thing it actually wraps
-							and remembers ptr to that fn it wraps
-							before returning from any javafunc in fn such as fn.L() or fn.cur()
-							but only for calls that do not instantly return (such as cur()>1).
-							Op.ifElse appears to not align well with the following way
-							Im trying to use S(... S(...) S(...) ...) to AND 2 RECURs.
-							Does the t(S(...)) t(I) fix it? Probably. TODO verify.
-							*/
+							//FIXME use ifElse in here?
+							//but how? cuz there are 32 things: and, recur..., recur...
+							//A/lso ifElse of 5 params is making things bigger to write
+							//and is making me get L and R of things I want to use literally.
+							//Also the depth of multiple S(...) is confusing.
+							//I need to get this Example.equals() func working
+							//as proofOfConcept that the universal function (leaf)
+							//is flexible, practical, and turingComplete,
+							//though this isnt enough for proof of turingCompleteness
+							//I would soon after building this func build rule110, proving it,
+							//then proceed to other Example funcs implementing various games etc.
+							//...
+							//or if I cant get this to work intuitively and correct math
+							//then I'll have to use the lazy interface (which has lazyL lazyR and eval funcs
+							//and implements fn and runs (lazyL lazyR) to get the thing it actually wraps
+							//and remembers ptr to that fn it wraps
+							//before returning from any javafunc in fn such as fn.L() or fn.cur()
+							//but only for calls that do not instantly return (such as cur()>1).
+							//Op.ifElse appears to not align well with the following way
+							//Im trying to use S(... S(...) S(...) ...) to AND 2 RECURs.
+							//Does the t(S(...)) t(I) fix it? Probably. TODO verify.
+							
 							
 							
 							//FIXME the recurs here might be getting
 							//the wrong param cuz the S is inside t(...)
-							t(S(
+							//t(S(
+							//	//Return AND of
+							//	//(recurse into 2 lefts) (recurse into 2 rights)
+							//	t(and()),
+							//	S( recur, S(t(L),getP4), S(t(L),getP5) ),
+							//	S( recur, S(t(R),getP4), S(t(R),getP5) )
+							//)),
+							//t(I)
+							
+							
+							//FIXME the recurs here might be getting
+							//the wrong param cuz the S is inside t(...)
+							//TODO use lazyEval here a few places?
+							S(
 								//Return AND of
 								//(recurse into 2 lefts) (recurse into 2 rights)
 								t(and()),
-								S( recur, S(t(L),getP4), S(t(L),getP5) ),
-								S( recur, S(t(R),getP4), S(t(R),getP5) )
-							)),
+								S( t(lazyEval), S(recur,S(t(L),getP4)), S(t(L),getP5) ),
+								S( t(lazyEval), S(recur,S(t(R),getP4)), S(t(R),getP5) )
+							),
 							t(I)
 						),
 						//paramIfFalse
 						t(I)
 					)
 				);
+				*/
+			
+				equals = f(
+				cc(),
+				S(
+					t(ifElse),
+					//condition
+					S(t(isLeaf),getP4),
+					//funcIfTrue
+					t(I),
+					//paramIfTrue. p4 is leaf.
+					p5IsLeaf, //already know p4IsLeaf here
+					//funcIfFalse. p4 is not leaf.
+					S(
+						t(ifElse),
+						p5IsLeaf,
+						//inner ifTrue
+						t(I),
+						t(F), //p4 isLeaf. p5 !isLeaf.
+						
+						//inner ifFalse. p4 !isLeaf. p5 !isLeaf.
+						
+						/*I need to avoid giving recur its last param
+						until the outer ifelse does (funcIfFalse paramIfFalse).
+						That paramIfFalse will be ignored.
+						It can be done with lazyEval s k etc somehow.
+						(lazyEval x y z) returns (x y z)
+						(s x y z) return ((x z)(y z)).
+						I still need the param to flow down the s forest
+						so recur and getP4 and getP5 will work,
+						and in (s x y z) that param is z.
+						I might need to derive a new func, which I'll call lazys.
+						*/
+						
+						//lazys of AND (recurse into 2 lefts) (recurse into 2 rights)
+						//
+						//Putting lazys in S(...) wont work. lazys needs to be in f(...)
+						//but somehow to reproduce the behaviors of S(...).
+						//
+						//If this definition of lazys is true, will it work?
+						//(lazys w x y z) returns ((w z)(y z))?
+						//Probably so. TODO test this in TestBasics.*equals*
+						//(after finishing Example.lazys() to do that.
+						f(
+							lazys(),
+							S(
+								t(and()),
+								S(recur, S(t(L),getP4), S(t(L),getP5) )
+							),
+							S(recur, S(t(R),getP4), S(t(R),getP5) )
+						),
+						t(I)
+						
+						/*S(
+							//AND (recurse into 2 lefts) (recurse into 2 rights)
+							t(and()),
+							S( t(lazyEval), S(recur,S(t(L),getP4)), S(t(L),getP5) ),
+							S( t(lazyEval), S(recur,S(t(R),getP4)), S(t(R),getP5) )
+						),
+						t(I)
+						*/
+					),
+					//paramIfFalse
+					t(I)
+				)
+			);
 			
 			//TODO optimize by equals.setCompiled(new Compiled(...)) 
 		}
 		return equals;
+	}
+	
+	/** The first usecase of it is in Example.equals().
+	(lazys w x y z) returns ((w z)(y z)).
+	<br><br>
+	Wrote this while figuring out what lazys does (still not sure but getting closer)...
+	S((lazys S(...) S(...)) t(I))
+	returns something with the 2 inner S(...) called on eachother,
+	and those inner S(...) get the param that came into the outer S(...)
+	cuz of the t(I).
+	Wait, I might be missing another param since the outer S(...)
+	gives the param that the inner S(...)es need.
+	amd the t(I)'s purpose is to delay calling the inner S(...)es on eachother
+	until the ifElse calls (funcIfTrue paramIfTrue) or (funcIfFalse paramIfFalse).
+	That t(I) can remember the param that the S(...)es need even after
+	lazys ignores it. That design appears to be...
+	(lazys w x y z) returns ((w z)(y z))
+	and could be described as a lazy-s since (s w x z) is ((w z)(x z))
+	so the lazy part is the y param.
+	Is that what I want? (lazys w x y z) returns ((w z)(y z))?
+	Maybe, but I need to make sure that fits with the lazys working inside f(...)
+	instead of S(...). 
+	<br><br>
+	OLD...
+	TODO?
+	(lazys x y z) returns (x y)
+	TODO? (S(lazys w x) y z) returns (S(w x) y), and (S(lazys w x) y) is halted.
+	FIXME is that possible?
+	*/
+	private static fn lazys;
+	public static fn lazys(){
+		if(lazys == null){
+			//(lazys w x y z) returns ((w z)(y z)).
+			lazys = f(
+				cccc(),
+				S(
+					S(p(4),p(7)),
+					S(p(5),p(7))
+				)
+			);
+		}
+		return lazys;
+	}
+	
+	
+	private static fn unaryAddUsingNondetEqq;
+	/** cuz cant make the normal unaryAdd yet cuz havent got equals() working
+	and am making unaryAdd to test Op.ifElse with Op.recur.
+	This func recursively decreases second param while increasing first param
+	until second param is unary(0).
+	*/
+	public static fn unaryAddUsingNondetEqq(){
+		if(unaryAddUsingNondetEqq == null){
+			fn getP4 = p(4);
+			fn getP5 = p(5);
+			fn unaryDec = L;
+			unaryAddUsingNondetEqq = f(
+				cc(),
+				S(
+					t(ifElse),
+					//condition. If second param is unary0
+					S(t(eqq().f(unary(0))),getP5),
+					//funcIfTrue
+					t(I),
+					//paramIfTrue
+					getP4, //return this
+					//funcIfFalse
+					S(
+						recur,
+						S(t(unaryInc()),getP4)
+					),
+					//paramIfFalse
+					S(t(unaryDec),getP5)
+				)	
+			);
+		}
+		return unaryAddUsingNondetEqq;
 	}
 	
 	private static fn doubleMult;

@@ -107,7 +107,7 @@ public class Call implements fn{
 			cur = Boot.bootCur(this);
 			isCbt = Boot.bootIsCbt(this);
 		}
-		lg("cur="+cur+" this="+this);
+		//lg("cur="+cur+" this="+this);
 	}
 	
 	public fn f(fn param){
