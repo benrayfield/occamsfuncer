@@ -2,7 +2,8 @@
 an extremely optimizable and scalable universal lambda function meant for number crunching, AI research, and low lag massively multiplayer games that players can redesign into new game types in turingComplete ways by hotswap/forkEditing per bit, per function call pair, etc
 
 Its very self referencing.
-See the output at the end where it proves that
+See the output at the end of README.md (and StartTestsLocal.main(Stringp[])
+where it proves that
 the equals function equals the equals function by its binary forest of call pairs.
 "test pass: equals(equals,equals)==T".
 There are still optimizations to put in that will make it many times faster,
