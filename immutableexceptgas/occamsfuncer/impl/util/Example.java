@@ -280,8 +280,8 @@ public class Example{
 				S(
 					t(ifElse),
 					p(4),
-					S(t(lazig()), p(5)),
-					S(t(lazig()), p(6))
+					S(t(S), t(t(lazig())), p(5)), //FIXME causes stackoverflow in Example.equals()
+					S(t(S), t(t(lazig())), p(6)) //FIXME
 				)
 			);
 		}
