@@ -8,7 +8,20 @@ the equals function equals the equals function by its binary forest of call pair
 "test pass: equals(equals,equals)==T".
 There are still optimizations to put in that will make it many times faster,
 by using the Compiled objects to access OpenCL and Javassist
-and int[] opcodes of acyclicFlow realtime music tools optimization.
+and int[] opcodes of acyclicFlow realtime music tools optimization,
+and the equals function will continue to appear that way
+to introspection but will be optimized by a Compiled
+that uses a manually chosen secureHash id generator
+(such as doubleSha256 with some pre and post processing
+in a cbt bitstring so both the id generators and ids are functions,
+and equals on cbts will be compared as small arrays such as
+maybe 24 or 36 bytes I havent decided on the size
+but it supports multiple id types at once
+including every possible id func so your existing
+ids in every system are already compatible
+if you can write a function that statelessly
+maps a binary forest to them or even an Op.nondet
+can call a java func if you dont require strict determinism mode).
 
 TODO get the IF() working so dont have to directly use lazig.
 
