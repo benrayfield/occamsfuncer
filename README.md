@@ -2,7 +2,7 @@
 an extremely optimizable and scalable universal lambda function meant for number crunching, AI research, and low lag massively multiplayer games that players can redesign into new game types in turingComplete ways by hotswap/forkEditing per bit, per function call pair, etc
 
 Its very self referencing.
-See the output at the end of README.md (and StartTestsLocal.main(Stringp[])
+See the output at the end of README.md (and StartTestsLocal.main(String[])
 where it proves that
 the equals function equals the equals function by its binary forest of call pairs.
 "test pass: equals(equals,equals)==T".
@@ -22,6 +22,14 @@ ids in every system are already compatible
 if you can write a function that statelessly
 maps a binary forest to them or even an Op.nondet
 can call a java func if you dont require strict determinism mode).
+
+Its like an assembly language for pure functions (not procedural assembly)
+but will be far more readable by Humans when you use
+the comment section in Op.getp as and #localNames.
+Such comments affect equals/ids but #localNames do not.
+You would #localName something either when it occurs multiple places
+so you dont see its expanded form both places
+andOr if you want to remember it for later.
 
 TODO get the IF() working so dont have to directly use lazig.
 
@@ -66,7 +74,7 @@ and = f(
 	)
 );
 
-lazig = f( ccc(), S(p(4),p(5)) );T
+lazig = f( ccc(), S(p(4),p(5)) );
 
 
 /** Optimized forkAppend bitstring such as double*double op or opencl.
