@@ -25,7 +25,7 @@ can call a java func if you dont require strict determinism mode).
 
 Its like an assembly language for pure functions (not procedural assembly)
 but will be far more readable by Humans when you use
-the comment section in Op.getp as and #localNames.
+the comment section in Op.getp and #localNames.
 Such comments affect equals/ids but #localNames do not.
 You would #localName something either when it occurs multiple places
 so you dont see its expanded form both places

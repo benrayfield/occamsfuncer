@@ -215,23 +215,40 @@ public class Example{
 		return unaryAdd;
 	}
 	
+	private static boolean experimentalEqualsCode = true;
 	private static fn equals;
 	public static fn equals(){
 		if(equals == null){
 			fn getP4 = p(4);
 			fn getP5 = p(5);
 			fn p5IsLeaf = S(t(isLeaf),getP5);
+			equals = f(
+				cc(),
+				IF(
+					S(t(isLeaf),getP4),
+					then(p5IsLeaf),
+					then(IF(
+						p5IsLeaf,
+						tt(F),
+						then(
+							t(and()),
+							S(recur, S(t(L),getP4), S(t(L),getP5) ),
+							S(recur, S(t(R),getP4), S(t(R),getP5) )
+						)
+					))
+				)
+			);
 			/*equals = f(
 				cc(),
 				S(
-					t(IF()),
+					t(ifElse),
 					S(t(isLeaf),getP4),
-					p5IsLeaf,
-					S(
-						t(IF()),
+					then(p5IsLeaf),
+					then(
+						t(ifElse),
 						p5IsLeaf,
-						t(F),
-						S(
+						t(t(F)),
+						then(
 							t(and()),
 							S(recur, S(t(L),getP4), S(t(L),getP5) ),
 							S(recur, S(t(R),getP4), S(t(R),getP5) )
@@ -239,7 +256,7 @@ public class Example{
 					)
 				)
 			);*/
-			equals = f(
+			/*equals = f(
 				cc(),
 				S(
 					t(ifElse),
@@ -262,17 +279,60 @@ public class Example{
 						)
 					)
 				)
-			);
+			);*/
 		}
 		return equals;
 	}
 	
 	private static fn IF;
 	/** (IF condition ifTrue ifFalse)
-	returns (lazig ifTrue leaf) or (lazig ifFalse leaf) depending on condition
-	being T or F, and if condition is neither of those then infloops
-	(cuz ifElse infloops if condition is not T or F).
-	*/
+	<br><br>
+	This is a replacement for code like this...
+	S(
+		t(ifElse),
+		S(...)#aCondition,
+		f(lazig(), S(...)#anIfTrue),
+		f(lazig(), S(...)#anIfFalse)
+	)
+	<br><br>
+	Code like this instead (but this might be buggy and need to change, TODO)...
+	S(
+		t(IF()),
+		S(...)#aCondition,
+		S(...)#anIfTrue,
+		S(...)#anIfFalse
+	)
+	<br><br>
+	To do that, IF() needs to take those same anIfTrue and anIfFalse
+	params and have the same behaviors as if lazig() were there.
+	(lazig x y z) returns (x y).
+	(lazig anIfTrue)'s next param is y which is the param that S(...)#anIfTrue
+	passes down recursively, and z is the leaf param given by ifElse
+	thats ignored just to cause the eval of (x y) aka (anIfTrue y).
+	We have to build this using Op.ifElse
+	(or could derive its behaviors with s and k but less efficiently)
+	since this will not be a java func since I'm trying to
+	avoid needing Op.nondet (which is how java funcs are called).
+	The f(...) instead of S(...), in f(lazig(), S(...)#anIfTrue),
+	prevents the outer S(t(ifElse)...) from passing its params
+	down into S(...)#anIfTrue, and instead lazig remembers that param
+	as the y in (lazig x y z).
+	I will try building this using an ifElse and 2 lazigs.
+	Wait, I cant, cuz  if S(...) is in a S(...) then by definition
+	it passes the params down into the inner S(...).
+	This IF() function is therefore logically impossible as defined,
+	but I can adjust the syntax so lazig is shorter to write.
+	I could give it a 1 letter name like t(x) means T.f(x) aka (T x),
+	and I could also define a letter that can be used instead of S,
+	meaning that S is wrapped in a lazig call,
+	maybe ifS(a b c) means f(lazig(), S(a b c)) or then(...)
+	S(
+		t(IF()),
+		S(...)#aCondition,
+		then(...)#anIfTrue,
+		then(...)#anIfFalse
+	)
+	*
 	public static fn IF(){
 		if(IF == null){
 			IF = f(
@@ -286,7 +346,7 @@ public class Example{
 			);
 		}
 		return IF;
-	}
+	}*/
 	
 	/** returns T or F depending if the 2 params equal by binForest shape.
 	TODO optimize by Compiled that first checks their depth

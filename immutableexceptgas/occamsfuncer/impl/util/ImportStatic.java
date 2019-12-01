@@ -74,6 +74,10 @@ public class ImportStatic{
 		System.err.println(line);
 	}
 	
+	public static fn IF(fn condition, fn ifTrue, fn ifFalse){
+		return S(t(ifElse), condition, ifTrue, ifFalse);
+	}
+	
 	/*public static fn dedup(fn f){
 		return Cache.dedup(f);
 	}
@@ -399,6 +403,15 @@ public class ImportStatic{
 		return x;
 	}
 	
+	/** Same as f(lazig(), S(...)).
+	Normally used as the ifTrue and ifFalse parts of Op.ifElse,
+	but you can use anything as an ifTrue or ifFalse,
+	anything designed to happen when it gets leaf as its param.
+	*/
+	public static fn then(Object... obs){
+		return Example.lazig().f(S(obs));
+	}
+	
 	/* l(...) is a literal linkedlist. L(...) is 1 s-lambda-level higher
 	as f(L(a b c) p) returns l((a p)(b p)(c p)).
 	TODO? might want to rename that since Op.L means leftChild, not linkedList.
@@ -420,6 +433,18 @@ public class ImportStatic{
 	/** convenience func for T.f(param) */
 	public static fn t(fn param){
 		return T.f(param);
+	}
+	
+	public static fn tt(fn param){
+		return t(t(param));
+	}
+	
+	public static fn ttt(fn param){
+		return t(tt(param));
+	}
+	
+	public static fn tttt(fn param){
+		return tt(tt(param));
 	}
 	
 	/*

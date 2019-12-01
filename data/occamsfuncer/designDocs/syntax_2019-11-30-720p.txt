@@ -1,0 +1,76 @@
+Since occamsfuncer is turingComplete it will eventually be able to parse and toString its own syntax
+in a variety of ways that all refer to binaryForestShapes as they all represent a binary forest of
+call pairs of the same universalLambdaFunc.
+
+In java I coded the equals func this way,
+keeping in mind that IF(...) and cc() and t(...) etc are defined elsewhere,
+and keeping in mind that this does generate a binary forest of calls of universal lambda
+and has already been tested that when called on itself twice as equals(equals,equals) it returns T
+as tested in TestBasics.java, and it calculates that by recursing the binary forest.
+f(
+	cc(),
+	IF(
+		S(t(isLeaf),getP4),
+		then(p5IsLeaf),
+		then(IF(
+			p5IsLeaf,
+			tt(F),
+			then(
+				t(and()),
+				S(recur, S(t(L),getP4), S(t(L),getP5) ),
+				S(recur, S(t(R),getP4), S(t(R),getP5) )
+			)
+		))
+	)
+)
+
+The category of syntaxes I'm considering have these things in common:
+-- Reserved chars include: '(', ')',  and '#'.
+-- # defines localNames. ( and ) are like sexps.
+-- Each (...) has a syntax type thats defined by its prefix like S(a b c) or then(a b c).
+-- A branch can be viewed as expanded or collapsed, but since theres no standard idFunc, it might be hard to choose what the token is other than a fn in memory, and it might need to be a localId instead of by content so avoid triggering lazyHash.
+
+A map (such as made of MapPair, MapSingle, and MapEmpty) might be viewed with scrollbars andOr other controls, like a JPanel or HTML div inside eachother recursively, maybe with dragAndDrop. These can also be navigated by calling fn on fn. So this is not necessarily the design of a text syntax but is the design of various possible UIs for using these binary forests.
+
+;abc maybe should mean the bitstring "abc" or maybe cbt bitstrings should always be type:content such as u[]:abc where u[] means utf8 byte array, or something like that.
+
+S(a b c) means ((S ((S a) b)) c).
+
+Do I want JPanels with dragAndDrop into eachother or maybe JTree?
+
+Any UI actions, such as by dragAndDrop, would need to be defined in terms of calling fn on fn then redisplaying.
+
+I can live without the then(...) syntax but I do need at least a syntax for t(x) and S(...) and maybe linkedlist literal l(...) and maybe SLinkedList aka L(...).
+
+I dont know if I still want syntax for avlList since, like maps, its internal structure must be derived and would not normally be the same order a person would write it.
+
+I might want a syntax for progn p(...). It just chains the return of one thing into the param of the next.
+Im unsure but that probably works at the f(...) level not the S(...) level even though the things inside p(...)
+are often S(...).
+
+I want a syntax for Op.getp such as (Op.getp ;xyz 5) is written as 5xyz.
+
+A SmallForest.java instance might be a good representation for this stuff, though fn is better for in memory,
+since SmallForest can represent sparse parts.
+
+Copy/paste can be handled by SmallForest andOr other representations of the binary forest.
+Whats needed is basically UIs that allow a person to point at
+[a specific binary forest node, a path of Ls and Rs (like bh(cbt)), and the node started from]
+while viewing a binary forest, and to do various ops on them, each defined as a fn,
+and maybe to map each of those fn to a displayMode (such as S(...) or p(...) or t(x) etc),
+or more generally map each of them, using a nondet id func (so doesnt trigger lazyHash),
+map it to a map of UI state about that, but only for the parts being viewed not necessarily
+the huge parts of forest below that.
+
+Theres 3 pairs of chars that most programming text editors automatically match: ( ) [ ] { }.
+I'll use those 3 for S(...) and f(...) and p/progn(...).
+Theres a fourth pair < > that most editors dont match.
+I'll use < > for the a.b<stuff...otherstuff>.d=(...) syntax since its s small amount of stuff
+between each < > usually.
+,x means f(T x). ,,x means f(T f(T x)).
+;xyz means cbt bitstring of "xyz", so if you want a g:xyz then you write ;g:xyz,
+but of course this syntax cant represent all possible bitstrings so will need some escape codes.
+
+Basically it will display using ( ) [ ] { } a.b<c.d>= #localName like sexps, and wherever things are #localNamed is a place the display is suggested to break off a piece of it aka display as collapsed. It should be many small pieces,
+some of which have bigdata cbt bitstrings,
+most importantly, that people can share with eachother seamlessly at gamingLowLag (TODO ocfnSmartblobIsProofOfConceptThatLeadsToBuildingSlightlyMoreAdvancedAndFunThingsThatMemeUpOfOcfn).
