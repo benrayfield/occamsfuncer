@@ -83,7 +83,7 @@ public class Example{
 	public static fn fnThatInfiniteLoopsForEveryPossibleParam(){
 		if(fnThatInfiniteLoopsForEveryPossibleParam == null){
 			fnThatInfiniteLoopsForEveryPossibleParam =
-				lazyEval.f(callParamOnItself()).f(callParamOnItself());
+				lazig.f(callParamOnItself()).f(callParamOnItself());
 		}
 		return fnThatInfiniteLoopsForEveryPossibleParam;
 	}
@@ -617,7 +617,8 @@ public class Example{
 		return equals;
 	}*/
 	
-	/** The first usecase of it is in Example.equals().
+	/** OLD DESIGN OF EXAMPLE.EQUALS... used lazig instead.
+	The first usecase of it is in Example.equals().
 	(lazys w x y z) returns ((w z)(y z)).
 	<br><br>
 	Wrote this while figuring out what lazys does (still not sure but getting closer)...
@@ -659,18 +660,28 @@ public class Example{
 		return lazys;
 	}
 	
-	private static fn lazig;
+	/** lazig is now 1 of the 16 ops so dont derive it here.
+	/*private static fn lazig;
 	/** (lazig x y z) returns (x y), ignoring z. Its a lazy (x y),
 	unlike (Op.lazyEval x y z) which returns (x y z).
 	TODO use this to get Example.equals() working, by redefining Op.ifElse
 	to have 3 params instead of 5, and paramIfTrue and funcIfTrue are both leaf.
-	*/
+	*
 	public static fn lazig(){
 		if(lazig == null){
 			//(lazig x y z) returns (x y)
 			lazig = f( ccc(), S(p(4),p(5)) ); //ignore p(6)
 		}
 		return lazig;
+	}*/
+	
+	private static fn lazyEval;
+	/** (lazyEval x y z) returns (x y z) */
+	public static fn lazyEval(){
+		if(lazyEval == null){
+			lazyEval = f( ccc(), S(p(4),p(5),p(6)) );
+		}
+		return lazyEval;
 	}
 	
 	
@@ -692,10 +703,10 @@ public class Example{
 					//condition. If second param is unary0
 					S(t(eqq().f(unary(0))),getP5),
 					//ifTrue
-					f(lazig(), getP4),
+					f(lazig, getP4),
 					//ifFalse
 					f(
-						lazig(),
+						lazig,
 						S(
 							recur,
 							S(t(unaryInc()),getP4),

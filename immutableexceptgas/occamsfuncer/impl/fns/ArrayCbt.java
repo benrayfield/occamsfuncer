@@ -4,8 +4,8 @@ import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 import java.lang.reflect.Array;
 import java.util.function.BinaryOperator;
 
+import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.fn;
-import immutableexceptgas.occamsfuncer.impl.util.Compiled;
 
 /** optimization of completeBinaryTree of Op.cbt0 and Op.cbt1,
 stored as any 1d primitive array,

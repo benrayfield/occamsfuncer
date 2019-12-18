@@ -48,7 +48,8 @@ public class ImportStatic{
 	public static final fn ifElse = Boot.op(Op.ifElse.ordinal());
 	//public static final fn bh = Boot.op(Op.bh.ordinal());
 	
-	public static final fn lazyEval = Boot.op(Op.lazyEval.ordinal());
+	//public static final fn lazyEval = Boot.op(Op.lazyEval.ordinal());
+	public static final fn lazig = Boot.op(Op.lazig.ordinal());
 	
 	/////
 	
@@ -416,7 +417,7 @@ public class ImportStatic{
 	anything designed to happen when it gets leaf as its param.
 	*/
 	public static fn then(Object... obs){
-		return Example.lazig().f(S(obs));
+		return lazig.f(S(obs));
 	}
 	
 	/* l(...) is a literal linkedlist. L(...) is 1 s-lambda-level higher

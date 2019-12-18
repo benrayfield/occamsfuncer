@@ -2,8 +2,10 @@
 package immutableexceptgas.occamsfuncer.impl.util;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import immutableexceptgas.occamsfuncer.*;
 
@@ -98,6 +100,17 @@ Level3 has 26 binary forest shapes.
 public class Cache{
 	
 	private static final Map<CallAsKey,fn> funcParamReturn = new HashMap();
+	
+	public static fn[] allCachedFns(){
+		Set<fn> set = new HashSet();
+		for(Map.Entry<CallAsKey,fn> entry : funcParamReturn.entrySet()){
+			CallAsKey cak = entry.getKey();
+			set.add(cak.L);
+			set.add(cak.R);
+			set.add(entry.getValue());
+		}
+		return set.toArray(new fn[0]);
+	}
 	
 	/*FIXME should it be dedup by <func,param>, using map of <func,param,return>?
 	Also, each <func,param,return> needs a bit to say if its a <itsL,itsR,parent>

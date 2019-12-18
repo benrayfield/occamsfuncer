@@ -318,10 +318,18 @@ public enum Op{
 	*/
 	ifElse(3,'?'), 
 	
-	/** (lazyEval x y z) aka (((lazyEval x) y) z) returns (x y z) aka ((x y) z).
+	/** This will be derived instead of being an op, to make room for lazig.
+	(lazyEval x y z) aka (((lazyEval x) y) z) returns (x y z) aka ((x y) z).
 	(lazyeval x y) is halted.
-	*/
+	*
 	lazyEval(3,'Z'),
+	*/
+	
+	
+	/** (lazig x y z) returns (x y). Used in ifElse and curry and getp and recur.
+	In an earlier design lazyEval was used for that.
+	*/
+	lazig(3, 'Z'),
 	
 	////////
 	

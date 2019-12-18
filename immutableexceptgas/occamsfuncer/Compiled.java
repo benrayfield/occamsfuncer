@@ -1,8 +1,6 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutableexceptgas.occamsfuncer.impl.util;
+package immutableexceptgas.occamsfuncer;
 import java.util.function.BinaryOperator;
-
-import immutableexceptgas.occamsfuncer.fn;
 
 /** Example: compile a certain fn that does ieee754 double multiply on
 2 cbts of 64 bits each
@@ -15,7 +13,26 @@ public class Compiled{
 	
 	public final int cur;
 	
-	/** If null then the constraint is Op.T which is always true so doesnt
+	/** A constraint is satisfied for a param if it halts (returns anything)
+	when called on that param, and is called at fn.cur()-1
+	compared to funcBody called at fn.cur(),
+	so nothing that fails constraint is ever returned anywhere.
+	It can only constrain the fn.cur()-1 size,
+	where cur differs in different datastructs,
+	but thats all you need for datastructs in general
+	such as MapPair will be a derived datastruct
+	whose constraint is a certain param (by getp)
+	is the sum of the 2 childs' params of that same index
+	which is the size,
+	and that they ahve the same sortValueGenerator (instead of comparator,
+	where sort values are compared by height then left then right),
+	and it enforces key order in the treemap,
+	and enforces that childs of mappair are either mappair or mapsingle.
+	It doesnt need to know about mapempty but mapput and mapget etc do.96+
+	Constraints dont cause map size to be in the mappair,
+	but they motivate other code to do that else it wont return.
+	<br>><br>
+	If null then the constraint is Op.T which is always true so doesnt
 	need to be calculated. A constraint is false when its param causes it to infloop.
 	*/
 	public final BinaryOperator<fn> constraintOrNull;
@@ -94,11 +111,35 @@ public class Compiled{
 		this.constraintOrNull = constraintOrNull;
 		this.funcBody = funcBody;
 		this.backup = backup;
-		if(backup != null && cur != backup.cur) throw new Error("Diff cur in this="+this+" bk="+backup);
+		if(backup != null && backup.cur != 0 && backup.cur != cur) {
+			
+			//If backup.cur==0 then its for Op.curry
+			//Should still check the depth of L().L().L()... until Op.curry
+			//but dont have access to the fn here,
+			//so TODO check for that error later.
+			//There will be no error if the Compiled is designed right.
+			
+			//since Op.curry has cur 0, An effect of that is fixable by makiung
+			//the Compiled of calls of curry such as Example.lazyEval() curries 3
+			//after funcBody (curry unary(6) T funcBody x y z) so
+			//Boot.optimize() would setCompiled in
+			//(curry unary(6) T funcBody) to a Compiled that has cur 3 instead of cur 0,
+			//but how would it know to do that? The wrong way to pass tests
+			//(TODO add tests that fail for that)
+			//would be that Compiled of Example.lazyEval() has cur 0,
+			//or maybe it wouldnt work since it wouldnt choose to run when it gets
+			//3 more curries. The right way would be to check for cur==0
+			//to handle the vararg case.
+			
+			
+			
+			throw new Error("Diff cur in this="+this+" ("+this.cur+") bk="+backup+" ("+backup.cur+")");
+		}
 	}
 	
 	public void setOn(boolean on){
 		if(!on && backup == null) throw new Error("Cant turn off the innermost Compiled");
+		this.on = on;
 	}
 
 }

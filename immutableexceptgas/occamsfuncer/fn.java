@@ -5,7 +5,6 @@ import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 import java.util.function.BinaryOperator;
 
 import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
-import immutableexceptgas.occamsfuncer.impl.util.Compiled;
 import immutableexceptgas.occamsfuncer.impl.util.ImportStatic;
 
 /** The purpose of this software is large scale realtime collaboration
@@ -265,6 +264,23 @@ public strictfp interface fn{
 	
 	/** This is only to be called by trusted code. */
 	public void setCompiled(Compiled c);
+	
+	/** TODO optimize this default implementation could get very slow
+	cuz could update L.L.L's cache multiple times
+	cuz updates it when updating L.L's cache and L's cache. 
+	Theres probably a faster way somehow,
+	else you could just wait for the next clearing of nearly
+	the whole Cache.java other than it shouldnt clear those fns
+	with custom Compiled objects and maybe not some structures of ids
+	(if redesigned for ids that way) but the ids it can clear cuz
+	theres TinyMap a different system for remembering ids.
+	*/
+	public default void updateCompiledCache(){
+		if(height() > 4){
+			L().updateCompiledCache();
+			setCompiled(L().compiled());
+		}
+	}
 	
 	/** efficient bitstrings. If isCbt but not isBitstring then is all cbt0. */
 	public boolean isCbt();

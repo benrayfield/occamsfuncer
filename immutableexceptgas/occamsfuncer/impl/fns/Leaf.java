@@ -4,9 +4,9 @@ import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
 import java.util.function.BinaryOperator;
 
+import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.fn;
 import immutableexceptgas.occamsfuncer.impl.util.Boot;
-import immutableexceptgas.occamsfuncer.impl.util.Compiled;
 import immutableexceptgas.occamsfuncer.impl.util.Op;
 
 /** leaf.f(anything) is the halted state (leaf anything).

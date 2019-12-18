@@ -51,12 +51,19 @@ public class Nondet{
 	public static fn nondet(fn a, fn b){
 		$();
 		if(Gas.forceDeterminism){
-			throw new Error("if its InfloopIf then return leaf (still deterministic cuz that op always either infloops or returns leaf),"
-				+" else infloop (so its like whatever it was going to do, such as Wallet or Spend, was just infinitely inefficient but didnt change its behaviors).");
+			return infLoop();
+			//throw new Error("if its InfloopIf then return leaf (still deterministic cuz that op always either infloops or returns leaf),"
+			//	+" else infloop (so its like whatever it was going to do, such as Wallet or Spend, was just infinitely inefficient but didnt change its behaviors).");
 		}else{
 			if(a.isBitstring()){
 				String s = str(a);
-				if(s.startsWith("ocfnplug:")){
+				if(s.equals("spend:")){
+					throw new Error("TODO");
+				}else if(s.equals("spendIf:")){ //in a way, is deterministic if it has enough, since it doesnt ask how much, only infloops if it doesnt have enough, and you can run from an earlier state until this doesnt infloop.
+					throw new Error("TODO");
+				}else if(s.equals("wallet:")){
+					throw new Error("TODO");
+				}else if(s.startsWith("ocfnplug:")){
 					//TODO optimize by Map<fn,Method> caching these
 					//(will that interfere with java garbcol or occamsfuncer garbcol?)
 					//package.a.b.class.ocfnplugFuncName(fn) returns fn

@@ -1,8 +1,8 @@
 package immutableexceptgas.occamsfuncer.impl.fns;
 import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
+import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.fn;
-import immutableexceptgas.occamsfuncer.impl.util.Compiled;
 
 /** If height is 0, then data is either cbt0 or cbt1.
 If height is 1, then its 2 bits. Height goes up to 6 for 64 bits.

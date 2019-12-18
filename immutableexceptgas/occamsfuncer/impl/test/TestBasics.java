@@ -28,6 +28,13 @@ public class TestBasics{
 		lg("test pass: "+name);
 	}
 	
+	public static void testDotEq(String name, Object a, Object b){
+		if(!a.equals(b)){
+			throw new Error("Test failed: "+name+" a["+a+"] b["+b+"]");
+		}
+		lg("test pass: "+name);
+	}
+	
 	/** WARNING: modifies Gas.top without conserving Gas */
 	public static void testInfiniteLoopEndsCuzRunsOutOfGas(){
 		lg("Starting testInfiniteLoopEndsCuzRunsOutOfGas");
@@ -108,6 +115,7 @@ public class TestBasics{
 		testEqq("(L Leaf)", L.f(leaf), I);
 		testEqq("(R leaf)", R.f(leaf), leaf);
 	}
+
 	
 	/** test the property [((L x)(R x)) equals x for all x] */
 	public static void testLRQuine(fn x){
@@ -124,6 +132,23 @@ public class TestBasics{
 		testLRQuine(getp);
 		testLRQuine(curry.f(leaf));
 		testLRQuine(leaf.f(leaf.f(getp)));
+	}
+	
+	/** Op.curry is the only vararg op. Its int fn.cur is 0,
+	and its next param is a unary, such as unary(3)
+	is cbt1.f(cbt1).f(cbt1.f(cbt1)).f(cbt1.f(cbt1).f(cbt1.f(cbt1)))
+	aka a completeBinaryTree of exponentially many cbt1s (linear cost).
+	The fn.cur of (curry <unaryN>) is N-1. It acts like that unary
+	is the fn.cur of Op.curry (which is actually 0 but later in the
+	currylist it acts like that).
+	*/
+	public static void testCurIntInVararg(){
+		lg("Starting testIdentityFuncs");
+		testDotEq("curry.cur", curry.cur(), 0);
+		for(int i=1; i<5; i++){
+			testDotEq("curry.u"+i+".cur", curry.f(unary(i)).cur(), i-1);
+		}
+		testDotEq("curry.u7.T.T.cur", curry.f(unary(7)).f(T).f(T).cur(), 4);
 	}
 	
 	public static void testIdentityFuncs(){
@@ -146,11 +171,13 @@ public class TestBasics{
 		//instead of letting curry create the lazyEval.
 		fn x = f(curry,unary(6),T,funcBody);
 		lg("x: "+x);
-		fn madeByCurryForConstraint = f(lazyEval,x,cbt0);
+		//fn madeByCurryForConstraint = f(lazyEval,x,cbt0);
+		fn madeByCurryForConstraint = f(pair,x,cbt0);
 		lg("madeByCurryForConstraint: "+madeByCurryForConstraint);;
 		fn y = f(curry,unary(6),T,funcBody,cbt0);
 		lg("y: "+y);
-		fn madeByCurryForFuncBody = f(lazyEval,y,cbt1);
+		fn madeByCurryForFuncBody = f(pair,y,cbt1);
+		//fn madeByCurryForFuncBody = f(lazyEval,y,cbt1);
 		lg("madeByCurryForFuncBody: "+madeByCurryForFuncBody);;
 		
 		testEqq("constraintGetsSecondLastParam", getParam(4,madeByCurryForConstraint), cbt0);
@@ -216,9 +243,14 @@ public class TestBasics{
 	/** (lazig x y z) returns (x y) */
 	public static void testLazig(){
 		lg("Starting testLazig");
-		fn lazig = Example.lazig();
 		fn cbt01 = f(lazig, cbt0, cbt1, curry);
 		testEqq("lazigA", f(lazig, cbt0, cbt1, curry), cbt0.f(cbt1));
+	}
+	
+	public static void testLazyEval(){
+		lg("Starting testLazyEval");
+		fn lazyEval = Example.lazyEval();
+		testEqq("(lazyEval pair curry getp)", lazyEval.f(pair).f(curry).f(getp), pair.f(curry).f(getp));
 	}
 	
 	public static void testUnaryAddWhichUsesCurryAndRecur(){
@@ -268,12 +300,14 @@ public class TestBasics{
 		testEqq("equalsC", equals.f(secondOp).f(copyOfFirstOp), F);
 		testEqq("equalsD", equals.f(copyOfFirstOp).f(secondOp), F);
 		fn sii = CP(CP(S,I),I);
-		fn copyOf_lazyEval_sii_sii = CP(CP(lazyEval,sii),sii);
+		fn copyOf_lazig_sii_sii = CP(CP(lazig,sii),sii);
+		//fn copyOf_lazyEval_sii_sii = CP(CP(lazyEval,sii),sii);
 		test(
 			"somethingLambdaFuncsCantDoCuzItWouldInfiniteLoop",
 			T == equals
 				.f(fnThatInfiniteLoopsForEveryPossibleParam())
-				.f(copyOf_lazyEval_sii_sii)
+				.f(copyOf_lazig_sii_sii)
+				//.f(copyOf_lazyEval_sii_sii)
 		);
 		test("equals(equals,equals)==T", equals.f(equals).f(equals)==T);
 		//Unless optimizations have been turned on (shouldnt be yet, TODO verify),
@@ -391,6 +425,7 @@ public class TestBasics{
 			Gas.top = 1e6;
 			testLeaf();
 			testLRQuine();
+			testCurIntInVararg();
 			testSTLR();
 			testIdentityFuncs();
 			testSCurryList();
@@ -402,6 +437,7 @@ public class TestBasics{
 			testUnaryAddWhichUsesCurryAndRecur();
 			testLazys();
 			testLazig();
+			testLazyEval();
 			testEqualsWithoutOptimizationsOrDedup();
 			testIota();
 			
@@ -453,6 +489,9 @@ public class TestBasics{
 			*/
 			
 			if(!optimized) Boot.optimize();
+			
+			//FIXME make sure see "lazyEval.compiled" in program output,
+			//then commentOut that lg in Boot.optimize() of Example.lazyEval().
 		}
 		
 		
@@ -467,4 +506,5 @@ public class TestBasics{
 	}
 
 }
+
 

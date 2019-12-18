@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 
+import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.fn;
 import immutableexceptgas.occamsfuncer.impl.fns.Call;
 import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
@@ -309,7 +310,7 @@ public class Boot{
 				};
 				*/
 			break;
-			case lazyEval:
+			/*case lazyEval:
 				//(lazyEval x y r) returns (x y r)
 				cur = 3;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
@@ -317,6 +318,17 @@ public class Boot{
 					fn x = l.L().R();
 					fn y = l.R();
 					return x.f(y).f(r);
+				};
+			break;
+			*/
+			case lazig:
+				//(lazyEval x y r) returns (x y r)
+				cur = 3;
+				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
+					$();
+					fn x = l.L().R();
+					fn y = l.R();
+					return x.f(y);
 				};
 			break;
 			case curry:
@@ -335,7 +347,9 @@ public class Boot{
 					//but I also wanted to use getNthCurry
 					//instead of 2 calls of getParam which is slower,
 					//but it seems I cant since they run at different curry numbers.
-					fn viewOfVarargCall = lazyEval.f(l).f(r);
+					fn viewOfVarargCall = pair.f(l).f(r);
+					//fn viewOfVarargCall = lazig.f(l).f(r);
+					//fn viewOfVarargCall = lazyEval.f(l).f(r);
 					fn constraint = getParam(2,viewOfVarargCall);
 					//infloop (catch at Spend) if constraint is not satisfied
 					constraint.f(viewOfVarargCall);
@@ -406,7 +420,8 @@ public class Boot{
 				};
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					$();
-					fn viewOfVarargCall = lazyEval.f(l).f(r);
+					fn viewOfVarargCall = pair.f(l).f(r);
+					//fn viewOfVarargCall = lazyEval.f(l).f(r);
 					//(curry cbtAsUnary constraint/k funcBody)
 					//fn c3 = getNthCurry(3, viewOfVarargCall);
 					//fn constraint = c3.L().R();
@@ -526,10 +541,33 @@ public class Boot{
 	by fn.setCompiled(Compiled) on certain fns.
 	*/
 	public static void optimize(){
+		
+		/** (lazyEval x y z) returns (x y z) */
+		Example.lazyEval().setCompiled(new Compiled(
+			3,
+			null,
+			(BinaryOperator<fn>)(fn l, fn r)->{
+				
+				//FIXME Im not seeing this lg happen. Its probably using the older slower Compiled for Op.curry in general.
+				lg("lazyEval.compiled");
+				$();
+				fn x = l.L().R();
+				fn y = l.R();
+				return x.f(x).f(y).f(r);
+			},
+			Example.lazyEval().compiled()
+		));
+		
+		//update cache of fn.compiled() in every fn
+		for(fn x : Cache.allCachedFns()){
+			x.updateCompiledCache();
+		}
+		
 		/*TODO equals func will check height first,
 		then [use unoptimized equals, TODO instead compare by a secureHash id]
-		*/
+		*
 		throw new Error("TODO");
+		*/
 		
 		//TODO
 	}

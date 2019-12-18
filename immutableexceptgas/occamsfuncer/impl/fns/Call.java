@@ -4,10 +4,10 @@ import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
 import java.util.function.BinaryOperator;
 
+import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.fn;
 import immutableexceptgas.occamsfuncer.impl.util.Boot;
 import immutableexceptgas.occamsfuncer.impl.util.Cache;
-import immutableexceptgas.occamsfuncer.impl.util.Compiled;
 import immutableexceptgas.occamsfuncer.impl.util.Op;
 import immutableexceptgas.occamsfuncer.impl.util.TinyMap;
 
