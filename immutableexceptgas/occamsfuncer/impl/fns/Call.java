@@ -21,8 +21,9 @@ public class Call implements fn{
 	Example ops: s, t, f, cbt0, cbt1, curry, leaf, (leaf leaf).
 	All of those have a Compiled, and thats what f(fn) uses.
 	(curry k) may also have a Compiled even though curry has a Compiled.
-	*/
+	*
 	public final fn op;
+	*/
 	
 	/** number of curries remaining until would do something nontrivial,
 	or 0 if varargs and havent found the cbt to use as unary number for how many curries.
@@ -56,10 +57,15 @@ public class Call implements fn{
 	The specific optimizations are not part of the occamsfuncer spec
 	since they have no effect on ids.
 	*/
-	protected Compiled compiledOrNull;
+	protected Compiled compiled;
 	
 	/** most fns never have an id as its lazyEval, but even if they
 	are created later there is still instant global sync cuz derived from content.
+	<br><br>
+	TODO should this just use the Cache class? Would have to prevent
+	garbcol of ids until the things they are ids of are gone, and what
+	if theres a cycle such as cbt0.f(cbt1) is likely somewhere in its
+	own id in many possible idFuncs generating it.
 	*/
 	protected TinyMap ids;
 	
@@ -90,11 +96,13 @@ public class Call implements fn{
 		
 		
 		if(myL == curry){ //then height must be at least 5 cuz Op.curry height is 4
-			op = curry;
+			//op = curry;
+			compiled = curry.compiled();
 			cur = cbtToNonnegInt(myR)-1; //subtract (TODO how much) cuz already (curry cbtAsUnary)
 			isCbt = myL.isCbt() && myR.isCbt();
 		}else if(height > 4){ //this happens most often
-			op = myL.op();
+			//op = myL.op();
+			compiled = myL.compiled();
 			//cur = (op==cbt0 || op==cbt1) ? 1 : myL.cur()-1;
 			cur = Math.max(myL.cur()-1, 1); //if (op==cbt0 || op==cbt1) cur is 1
 			isCbt = myL.isCbt() && myR.isCbt() & myL.height()==myR.height();
@@ -103,7 +111,11 @@ public class Call implements fn{
 			//if(isBig) throw new Error("TODO its expensive to cache isCbt when isBig aka height is Integer.MAX_VALUE. Maybe just shouldnt allow height bigger than that.");
 		}else{ //height <= 4. Part of boot process.
 			//If its 1 of the 16 in Op enum, get cur from there. Else cur is 1.
-			op = this;
+			//op = this;
+
+			//compiledOrNull will be set in Boot but is null for now.
+			//Its never ok to call a fn whose compiledOrNull is null.
+			
 			cur = Boot.bootCur(this);
 			isCbt = Boot.bootIsCbt(this);
 		}
@@ -121,7 +133,8 @@ public class Call implements fn{
 			if(cur == 2){
 			//TODO may be optimizable with fChecksConstraint but only if done in op.compiled() instead of this.compiled()
 			//if(fChecksConstraint){
-				BinaryOperator<fn> constraint = op.compiled().constraintOrNull;
+				//BinaryOperator<fn> constraint = op.compiled().constraintOrNull;
+				BinaryOperator<fn> constraint = compiled.get().constraintOrNull;
 				if(constraint != null){ //null means Op.T which matches everything
 					//Most calls dont have a constraint, but for example derived MapPair does.
 					//Constraint never runs with less than 2 curries
@@ -154,7 +167,7 @@ public class Call implements fn{
 		//contain a fn to use as a constraint and a fn to use as a funcBody,
 		//and this is a similar pattern but should not need the lazyEval.
 		//FIXME verify all that fits together, else it will be detected in TestBasics.
-		ret = op.compiled().funcBody.apply(this,param);
+		ret = compiled.get().funcBody.apply(this,param);
 		//FIXME should this happen in op.compiled().apply instead?
 		Cache.putFuncParamReturn(this, param, ret);
 		return ret;
@@ -210,12 +223,12 @@ public class Call implements fn{
 	}
 
 	public Compiled compiled(){
-		return compiledOrNull;
+		return compiled;
 	}
 	
 	public void setCompiled(Compiled c){
 		if(cur != c.cur) throw new Error("cur differs. Its set in Op enum for 16 of the fns at height 4, and for all those at most height 4. this="+this+" Compiled="+c+" this.cur="+this.cur+" Compiled.cur="+c.cur);
-		compiledOrNull = c;
+		compiled = c;
 		//FIXME this would only work if it happened here instead of in op.compiled()
 		//fChecksConstraint = cur == 2 && c != null && c.constraintOrNull != null;
 	}
@@ -269,9 +282,9 @@ public class Call implements fn{
 		throw new Error("TODO");
 	}
 	
-	public fn op(){
+	/*public fn op(){
 		return op;
-	}
+	}*/
 	
 	public String toString(){
 		//if(L()==T) return "\\"+R(); //cuz of how common it is to prefix with T in S(...)

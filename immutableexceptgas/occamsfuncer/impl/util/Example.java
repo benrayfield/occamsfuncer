@@ -59,9 +59,10 @@ public class Example{
 	private static fn iota;
 	/** This has the same param/return mapping as
 	iota aka Lf.f(Lx.Ly.Lz.((xz)(yz)))(Lq.Li.q)
-	and differs only in reflection ability as you can use
-	Op.L and Op.R to look at the call pairs inside any halted state
-	while still being a function within the system.
+	and differs only in reflection ability
+	(which the universal lambda function can do, so its not exactly iota)
+	as you can use Op.L and Op.R to look at the call pairs inside
+	any halted state while still being a function within the system.
 	*/
 	public static fn iota(){
 		if(iota == null){
@@ -157,6 +158,7 @@ public class Example{
 	private static fn and;
 	/** AND of 2 params which are each T or F. Returns T or F.
 	TODO check compatibility with https://en.wikipedia.org/wiki/Church_encoding
+	TODO optimize: use ifelse for shortcircuiting.
 	*/
 	public static fn and(){
 		if(and == null){
@@ -173,7 +175,9 @@ public class Example{
 	}
 	
 	private static fn or;
-	/** OR of 2 params which are each T or F. Returns T or F. */
+	/** OR of 2 params which are each T or F. Returns T or F.
+	TODO optimize: use ifelse for shortcircuiting.
+	*/
 	public static fn or(){
 		if(and == null){
 		and = f(
@@ -215,7 +219,7 @@ public class Example{
 		return unaryAdd;
 	}
 	
-	private static boolean experimentalEqualsCode = true;
+	//private static boolean experimentalEqualsCode = true;
 	private static fn equals;
 	public static fn equals(){
 		if(equals == null){
@@ -238,48 +242,6 @@ public class Example{
 					))
 				)
 			);
-			/*equals = f(
-				cc(),
-				S(
-					t(ifElse),
-					S(t(isLeaf),getP4),
-					then(p5IsLeaf),
-					then(
-						t(ifElse),
-						p5IsLeaf,
-						t(t(F)),
-						then(
-							t(and()),
-							S(recur, S(t(L),getP4), S(t(L),getP5) ),
-							S(recur, S(t(R),getP4), S(t(R),getP5) )
-						)
-					)
-				)
-			);*/
-			/*equals = f(
-				cc(),
-				S(
-					t(ifElse),
-					S(t(isLeaf),getP4),
-					f(lazig(), p5IsLeaf),
-					f(
-						lazig(),
-						S(
-							t(ifElse),
-							p5IsLeaf,
-							t(t(F)),
-							f(
-								lazig(),
-								S(
-									t(and()),
-									S(recur, S(t(L),getP4), S(t(L),getP5) ),
-									S(recur, S(t(R),getP4), S(t(R),getP5) )
-								)
-							)
-						)
-					)
-				)
-			);*/
 		}
 		return equals;
 	}
@@ -706,7 +668,7 @@ public class Example{
 	public static fn lazig(){
 		if(lazig == null){
 			//(lazig x y z) returns (x y)
-			lazig = f( ccc(), S(p(4),p(5)) );
+			lazig = f( ccc(), S(p(4),p(5)) ); //ignore p(6)
 		}
 		return lazig;
 	}
@@ -891,6 +853,100 @@ public class Example{
 			throw new Error("TODO derive from elementaryCellularAutomataRecur");
 		}
 		return rule110Recur;
+	}
+	
+	/** true if is a cbt (complete binary tree) of cbt0 and cbt1
+	AND it has at least 1 cbt1 (just past end of the bitstring).
+	TODO setCompiled optimization to call fn.isBitstring.
+	*
+	public static fn isBitstring;
+	public static fn isBitstring(){
+		
+		if(isBitstring == null){
+			isBitstring = f(
+				c(),
+				IF(
+					ST(), TODO base case is it [cbt0 or cbt1] or is it not a cbt, and does cbt allow noncompletebinarytree shapes such as (0(11))?
+					TODO,
+					S(recur, )
+				)
+			);
+			
+			//FIXME that was copied from equals, rewrite it.
+			//isBitstring = f(
+			//	cc(),
+			//	IF(
+			//		S(t(isLeaf),getP4),
+			//		then(p5IsLeaf),
+			//		then(IF(
+			//			p5IsLeaf,
+			//			tt(F),
+			//			then(
+			//				t(and()),
+			//				S(recur, S(t(L),getP4), S(t(L),getP5) ),
+			//				S(recur, S(t(R),getP4), S(t(R),getP5) )
+			//			)
+			//		))
+			//	)
+			//);
+			
+			throw new Error("TODO");
+		}
+		return isBitstring;
+	}*/
+	
+	
+	/** given a cbt bitstring, which is any cbt that has a cbt1,
+	else infloop if has no cbt1,
+	push a cbt0 just before the last cbt1.
+	*/
+	public static fn cbtbsPush0;
+	public static fn cbtbsPush0(){
+		if(cbtbsPush0 == null){
+			//cbtbsPush0 = TODO;
+			throw new Error("TODO");
+		}
+		return cbtbsPush0;
+	}
+	
+	/** given a cbt bitstring, which is any cbt that has a cbt1,
+	else infloop if has no cbt1,
+	push a cbt1 just before the last cbt1.
+	*/
+	public static fn cbtbsPush1;
+	public static fn cbtbsPush1(){
+		if(cbtbsPush1 == null){
+			throw new Error("TODO");
+			//cbtbsPush1 = TODO;
+		}
+		return cbtbsPush1;
+	}
+	
+	public static fn cbtbsPeek;
+	/** given a cbt bitstring, which is any cbt that has a cbt1,
+	else infloop if has no cbt1,
+	return the cbt0 or cbt1 just before the last cbt1.
+	*/
+	public static fn cbtbsPeek(){
+		if(cbtbsPeek == null){
+			throw new Error("TODO");
+			//cbtbsPeek = TODO;
+		}
+		return cbtbsPeek;
+	}
+	
+	public static fn cbtbsPop;
+	/** given a cbt bitstring, which is any cbt that has a cbt1,
+	else infloop if has no cbt1,
+	returns such a bitstring 1 smaller, or returns same bitstring if already empty.
+	To get the bit (cbt0 or cbt1) popped, use cbtbsPeek() on the nonpopped state. 
+	*/
+	public static fn cbtbsPop(){
+		if(cbtbsPop == null){
+			throw new Error("TODO");
+			//cbtbsPop = TODO;
+		}
+		return cbtbsPop;
 	}
 	
 	/** depending on param can generate any possible turingMachine and step through its states,
@@ -1079,9 +1135,24 @@ public class Example{
 		return gameGoNxM;
 	}
 	
+	private static fn gameTetrisNxM;
+	/** Each square in the 2d grid will have 2 bits: connectsToRight, connectsToDown.
+	That way, all possible 2d shapes that fit in a grid,
+	such as the normal tetris pieces, can be represented as each horizontally
+	and vertically adjacent pairs of squares being connected or not,
+	and will also want cbt for intARGB or just intRGB color
+	(might store those 2 bits in the A 8 bits?). Undecided on the datastructs.
+	*/
+	public static fn gameTetrisNxM(){
+		if(gameTetrisNxM == null){
+			throw new Error("TODO");
+		}
+		return gameTetrisNxM;
+	}
+	
 	private static fn gameChessNxM;
 	public static fn gameChessNxM(){
-		if(gameRubiksCube3x3x3 == null){
+		if(gameChessNxM == null){
 			throw new Error("TODO");
 		}
 		return gameChessNxM;
@@ -1192,6 +1263,9 @@ public class Example{
 		return audivolv;
 	}
 	
+	/** average (heads-tails)^2 is number of coins,
+	counting all exponential number of ways they can land exactly once.
+	*/
 	private static fn deriveCentralLimitTheoremByAllPossibilitiesOfCoinFlips;
 	public static fn deriveCentralLimitTheoremByAllPossibilitiesOfCoinFlips(){
 		if(deriveCentralLimitTheoremByAllPossibilitiesOfCoinFlips == null){
@@ -1202,6 +1276,8 @@ public class Example{
 	
 	/** Since I havent got curry working perfectly yet (2019-11-26) I'm passing a pair
 	to this func to test ocfnplug. (pair a b) aka ((pair a) b).
+	2019-12 curry is working. (equals equals equals) returns T,
+	where equals is Example.equals() which is a lambda func.
 	*/
 	public static fn ocfnplugEqqOfPair(fn aPair){
 		fn a = aPair.L().R();

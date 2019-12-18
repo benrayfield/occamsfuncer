@@ -2,7 +2,7 @@ package mutable.occamsfuncer.ui;
 
 import javax.swing.JPanel;
 
-public class OccamsfuncerUi extends JPanel{
+public class OccamsfuncerVobUi extends JPanel{
 	
 	/*TODO Vob.java graphics
 	TODO make this a plugin as the way of viewing it

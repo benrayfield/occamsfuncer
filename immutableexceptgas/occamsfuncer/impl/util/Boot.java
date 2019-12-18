@@ -144,7 +144,8 @@ public class Boot{
 				//even if its not consistent by the strictest rules of lambda.
 				//This can be adjusted later without affecting the ops.
 				return cp(l,r);
-			}
+			},
+			null
 		);
 		BinaryOperator<fn> cbtFuncBody = (fn l, fn r)->{
 			lg("cbtFuncBody of l="+l+" r="+r);
@@ -513,13 +514,24 @@ public class Boot{
 			break;
 			*/
 			}
-			f.setCompiled(new Compiled(cur, constraintOrNull, funcBody));
+			f.setCompiled(new Compiled(cur, constraintOrNull, funcBody, null));
 		}
 		for(int i=0; i<fns.size(); i++){
 			fn f = fns.get(i);
 			lg("fn"+i+": "+f);
 		}
 		booted = true;
+	}
+	/** call this once after boot() to add a few optimizations
+	by fn.setCompiled(Compiled) on certain fns.
+	*/
+	public static void optimize(){
+		/*TODO equals func will check height first,
+		then [use unoptimized equals, TODO instead compare by a secureHash id]
+		*/
+		throw new Error("TODO");
+		
+		//TODO
 	}
 	
 	/** Slow. Returns 0 if (.(..)) or 1 if ((..).), else -1 if its not part of an Op */

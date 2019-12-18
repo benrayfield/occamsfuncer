@@ -130,6 +130,82 @@ public enum Op{
 	FIXME choose which go together? cbt0 T L, cbt1 F R. T goes with 0? Align better.
 	*/
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/* FIXME, choose a design...
+	Allow cbt0 and cbt1 to form things that arent completeBinaryTrees
+	like (0(11))? Would make it more efficient since wouldnt have to
+	use pair on that.
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/** Optimized forkAppend bitstring such as double*double op or opencl.
 	All completeBinaryTrees (cbt) of calling these on eachother
 	are halted states, but any non-complete-binary-tree infLoops

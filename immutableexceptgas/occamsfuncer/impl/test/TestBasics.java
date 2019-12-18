@@ -103,6 +103,29 @@ public class TestBasics{
 		test(!isUnaryCbt(T));
 	}
 	
+	public static void testLeaf(){
+		lg("Starting testLeaf");
+		testEqq("(L Leaf)", L.f(leaf), I);
+		testEqq("(R leaf)", R.f(leaf), leaf);
+	}
+	
+	/** test the property [((L x)(R x)) equals x for all x] */
+	public static void testLRQuine(fn x){
+		testEqq("testLRQuine_"+x, x.L().f(x.R()), x);
+	}
+	
+	public static void testLRQuine(){
+		lg("Starting testLRQuine");
+		testLRQuine(leaf);
+		testLRQuine(leaf.f(leaf));
+		testLRQuine(L);
+		testLRQuine(R);
+		testLRQuine(curry);
+		testLRQuine(getp);
+		testLRQuine(curry.f(leaf));
+		testLRQuine(leaf.f(leaf.f(getp)));
+	}
+	
 	public static void testIdentityFuncs(){
 		lg("Starting testIdentityFuncs");
 		fn stt = f(S,T,T);
@@ -267,6 +290,15 @@ public class TestBasics{
 		//then also x.L().f(x.R())==x for every x.
 	}
 	
+	public static void testIota(){
+		lg("Starting testIota");
+		fn x = Example.iota();
+		testEqq("(iota iota getp) cuz iota iota is an identityFunc", x.f(x).f(getp), getp);
+		testEqq("get T from iota", x.f(x.f(x.f(x))), T);
+		testEqq("get S from iota", x.f(x.f(x.f(x.f(x)))), S);
+		lg("Tests pass: testIota");
+	}
+	
 	public static void testDoubleMultOptimized(){
 		throw new Error("TODO test Example.doubleMult()");
 	}
@@ -351,20 +383,79 @@ public class TestBasics{
 	}*/
 	
 	public static void main(String... args){
-		testInfiniteLoopEndsCuzRunsOutOfGas();
-		Gas.top = 1e6;
-		testSTLR();
-		testIdentityFuncs();
-		testSCurryList();
-		testIsUnaryCbt();
-		testGetp();
-		testAnd();
-		testString();
-		testOcfnplug();
-		testUnaryAddWhichUsesCurryAndRecur();
-		testLazys();
-		testLazig();
-		testEqualsWithoutOptimizationsOrDedup();
+		for(int i=0; i<2; i++){
+			boolean optimized = i!=0;
+			lg("OPTIMIZED="+optimized);
+			
+			testInfiniteLoopEndsCuzRunsOutOfGas();
+			Gas.top = 1e6;
+			testLeaf();
+			testLRQuine();
+			testSTLR();
+			testIdentityFuncs();
+			testSCurryList();
+			testIsUnaryCbt();
+			testGetp();
+			testAnd();
+			testString();
+			testOcfnplug();
+			testUnaryAddWhichUsesCurryAndRecur();
+			testLazys();
+			testLazig();
+			testEqualsWithoutOptimizationsOrDedup();
+			testIota();
+			
+			/*I could provide an id func so secure it would never be cracked
+			but it would be slow. from that maybe could bootstrap things
+			so could include using those ids
+			a more efficient but slightly less secure (sha256, etc)
+			ids by giving the id of that id generator in the uncrackable ids? 
+			/*no I dont want things like this in nondet. use ocfnplug for that
+			or derive it from leaf. that includes deriving sha256 or whatever
+			calculations it is, including the pre and post processing.
+			private static fn defaultIdGenerator;
+			public static fn defaultIdGenerator(){
+				if(defaultIdGenerator == null) defaultIdGenerator =
+					nondet.f("getBenFRayfieldsRecommendedIdGeneratorAtUtcTime1576000000").f(leaf);
+				return defaultIdGenerator;
+			}*/
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			/*FIXME todo choose design:
+			does cbt allow noncompletebinarytree shapes such as (0(11))
+			Write testcases for that, then get back to Example.isBitstring.
+			*/
+			
+			if(!optimized) Boot.optimize();
+		}
+		
+		
 		
 		testDoubleAddUnoptimized();
 		testDoubleMultUnoptimized();

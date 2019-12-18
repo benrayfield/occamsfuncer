@@ -373,8 +373,9 @@ public strictfp interface fn{
 	<br><br>
 	If Op.curry then it looks for Compiled/BinaryOperator<fn>
 	in its constraint/k param and its funcBody param.
-	*/
+	*
 	public fn op();
+	*/
 	
 	/** If this is a cbt that points into a range of an array possibly
 	shared with other cbts, copies the relevant range

@@ -403,6 +403,13 @@ public class ImportStatic{
 		return x;
 	}
 	
+	/** same as S(t(firstParam), other params...) */
+	public static fn ST(Object... obs){
+		Object[] o = obs.clone();
+		o[0] = t(f(o[0]));
+		return S(o);
+	}
+	
 	/** Same as f(lazig(), S(...)).
 	Normally used as the ifTrue and ifFalse parts of Op.ifElse,
 	but you can use anything as an ifTrue or ifFalse,
