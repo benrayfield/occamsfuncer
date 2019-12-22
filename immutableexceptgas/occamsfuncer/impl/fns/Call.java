@@ -3,6 +3,7 @@ package immutableexceptgas.occamsfuncer.impl.fns;
 import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.*;
 
 import java.util.function.BinaryOperator;
+import java.util.function.IntConsumer;
 
 import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.fn;
@@ -227,8 +228,24 @@ public class Call implements fn{
 	}
 	
 	public void setCompiled(Compiled c){
-		if(cur != c.cur) throw new Error("cur differs. Its set in Op enum for 16 of the fns at height 4, and for all those at most height 4. this="+this+" Compiled="+c+" this.cur="+this.cur+" Compiled.cur="+c.cur);
+		if(height() <= 4){
+			if(cur != c.cur){
+				throw new Error("In op or below. cur differs. Its set in Op enum for 16 of the fns at height 4, and for all those at most height 4. this="+this+" Compiled="+c+" this.cur="+this.cur+" Compiled.cur="+c.cur);
+			}
+		}else{
+			fn op = this;
+			while(op.height() != 4) op = op.L();
+			if(op == curry){
+				lg("FIXME throw if cur not match");
+			}else{
+				if(op.cur() != c.cur){
+					throw new Error("In params of op other than curry. cur differs. Its set in Op enum for 16 of the fns at height 4, and for all those at most height 4. this="+this+" Compiled="+c+" this.cur="+this.cur+" Compiled.cur="+c.cur);
+				}
+			}
+		}
 		compiled = c;
+		
+		//OLD?...
 		//FIXME this would only work if it happened here instead of in op.compiled()
 		//fChecksConstraint = cur == 2 && c != null && c.constraintOrNull != null;
 	}
@@ -300,7 +317,65 @@ public class Call implements fn{
 		//display as currylist such as (((a b)c)d) displays as (a b c d).
 		String l = L().toString();
 		if(l.startsWith("(") && l.endsWith(")")) l = l.substring(1,l.length()-1);
-		return "("+l+R()+")";
+		String ret = "("+l+R()+")";
+		/*if(!ret.contains("\t")){
+			ret = indentPseudocode(ret);
+		}*/
+		return ret;
+	}
+	
+	/*public static String toString(fn x, int tabLevel){
+		//if(L()==T) return "\\"+R(); //cuz of how common it is to prefix with T in S(...)
+		String n = Boot.tempNames.get(x);
+		if(n != null) return n;
+		if(x.isCbt()){
+			if(isUnaryCbt(x)){
+				return "<unary"+(x.height()-4)+">";
+			}else if(x.isBitstring() && (x.bitstringSize()&7)==0){
+				return "<mayBeStr:"+str(x)+">";
+			}
+		}
+		//display as currylist such as (((a b)c)d) displays as (a b c d).
+		//String l = x.L().toString();
+		String l = toString(x.L(), tabLevel+1);
+		if(l.startsWith("(") && l.endsWith(")")) l = l.substring(1,l.length()-1);
+		return "("+l+x.R()+")";
+	}*/
+	
+	public static String indentPseudocode(String s){
+		StringBuilder sb = new StringBuilder();
+		int tabLevel = 0;
+		boolean inAngleBrackets = false;
+		IntConsumer indentLine = (int tabs)->{
+			sb.append("\n");
+			for(int i=0; i<tabs; i++) sb.append('\t');
+		};
+		for(int i=0; i<s.length(); i++){
+			char c = s.charAt(i);
+			if(!inAngleBrackets && c == '('){
+				indentLine.accept(tabLevel++);
+				sb.append(c);
+			}else if(!inAngleBrackets && c == ')'){
+				indentLine.accept(--tabLevel);
+				sb.append(c);
+				//indentLine.accept(--tabLevel);
+			}else if(c == '<'){
+				if(inAngleBrackets) throw new Error("TODO < ... < ... > ... > s="+s);
+				//FIXME this might not handle string literal syntax
+				inAngleBrackets = true;
+				indentLine.accept(tabLevel);
+				sb.append(c);
+			}else if(c == '>'){
+				if(!inAngleBrackets) throw new Error("> while not in <...>. s="+s);
+				inAngleBrackets = false;
+				indentLine.accept(tabLevel);
+				sb.append(c);
+			}else{
+				indentLine.accept(tabLevel);
+				sb.append(c);
+			}
+		}
+		return sb.toString();
 	}
 
 }

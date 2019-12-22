@@ -17,6 +17,7 @@ import immutableexceptgas.occamsfuncer.Compiled;
 import immutableexceptgas.occamsfuncer.fn;
 import immutableexceptgas.occamsfuncer.impl.fns.Call;
 import immutableexceptgas.occamsfuncer.impl.fns.Leaf;
+import immutableexceptgas.occamsfuncer.impl.test.TestBasics;
 
 public class Boot{
 	
@@ -73,6 +74,7 @@ public class Boot{
 			Op[] e = Op.class.getEnumConstants();
 			if(e.length != ops.length) throw new Error("Wrong number of ops: "+e.length);
 			fn leaf = Leaf.instance;
+			if(leaf == null) throw new Error("Leaf.instance is a static final field and is null. This happened 2019-12-21 probably when I accidentally put a cycle of dependencies in the static vars AND there were compile errors but I clicked run anyways.");
 			fn leafLeaf = cp(leaf,leaf);
 			fn zero = cp(leaf,leafLeaf);
 			fn one = cp(leafLeaf,leaf);
@@ -530,6 +532,9 @@ public class Boot{
 			*/
 			}
 			f.setCompiled(new Compiled(cur, constraintOrNull, funcBody, null));
+			//this isnt true in n params of any op,
+			//but these are all ops or the forest below them.
+			f.compiled().func = f;
 		}
 		for(int i=0; i<fns.size(); i++){
 			fn f = fns.get(i);
@@ -537,27 +542,79 @@ public class Boot{
 		}
 		booted = true;
 	}
+	
+	static void setCompiledAndThatTestVar(fn x, Compiled c){
+		c.func = x;
+		x.setCompiled(c);
+	}
+	
+	private static boolean lazyEvalCompiledRan = false;
+	
 	/** call this once after boot() to add a few optimizations
 	by fn.setCompiled(Compiled) on certain fns.
 	*/
 	public static void optimize(){
 		
 		/** (lazyEval x y z) returns (x y z) */
-		Example.lazyEval().setCompiled(new Compiled(
-			3,
-			null,
-			(BinaryOperator<fn>)(fn l, fn r)->{
-				
-				//FIXME Im not seeing this lg happen. Its probably using the older slower Compiled for Op.curry in general.
-				lg("lazyEval.compiled");
-				$();
-				fn x = l.L().R();
-				fn y = l.R();
-				return x.f(x).f(y).f(r);
-			},
-			Example.lazyEval().compiled()
-		));
+		setCompiledAndThatTestVar(
+			Example.lazyEval(),
+			new Compiled(
+				Example.lazyEval().cur(),
+				null,
+				(BinaryOperator<fn>)(fn l, fn r)->{
+					lazyEvalCompiledRan = true;
+					$();
+					fn x = l.L().R();
+					fn y = l.R();
+					return x.f(x).f(y).f(r);
+				},
+				Example.lazyEval().compiled()
+			)
+		);
 		
+		long timeIdOfCurrysCompiled = curry.compiled().timeId;
+		long timeIdOfLazyevalsCompiled = Example.lazyEval().compiled().timeId;
+		if(timeIdOfCurrysCompiled >= timeIdOfLazyevalsCompiled) throw new Error(
+			"timeIdOfCurrysCompiled=="+timeIdOfCurrysCompiled+" >= timeIdOfLazyevalsCompiled=="+timeIdOfLazyevalsCompiled+". This shouldnt happen cuz timeIds are creating in increasing order.");
+		
+		TestBasics.testLazyEval();
+		if(lazyEvalCompiledRan) throw new Error("Already Boot.optimize(). Dont call this again, but new Compiles per fn at runtime is supported, which would be a JIT if it happened automatically (TODO)");
+		Example.lazyEval().updateCompiledCache(); //I'm testing updateCompiledCache before doing it for all funcs
+		TestBasics.testLazyEval();
+		if(!lazyEvalCompiledRan) throw new Error("updateCompiledCache failed for Example.lazyEval(). This is the first test of optimizing, to make sure the optimization is actually used instead of the equal behaviors of the unoptimized form.");
+		
+		/** Remove "lazyEvalCompiledRan = true;" from Example.lazyEval(). */
+		setCompiledAndThatTestVar(
+			Example.lazyEval(),
+			new Compiled(
+				Example.lazyEval().cur(),
+				null,
+				(BinaryOperator<fn>)(fn l, fn r)->{
+					$();
+					fn x = l.L().R();
+					fn y = l.R();
+					return x.f(x).f(y).f(r);
+				},
+				Example.lazyEval().compiled()
+			)
+		);
+		
+		setCompiledAndThatTestVar(
+			Example.unaryAdd(),
+			new Compiled(
+				Example.unaryAdd().cur(),
+				null,
+				(BinaryOperator<fn>)(fn l, fn r)->{
+					fn x = l.L().R();
+					fn y = l.R();
+					int xAsUnary = x.height()-4;
+					int yAsUnary = y.height()-4;
+					return unary(xAsUnary+yAsUnary);
+				},
+				Example.unaryAdd().compiled() //curry.compiled()
+			)
+		);
+				
 		//update cache of fn.compiled() in every fn
 		for(fn x : Cache.allCachedFns()){
 			x.updateCompiledCache();

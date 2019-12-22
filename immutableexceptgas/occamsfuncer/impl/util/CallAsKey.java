@@ -50,7 +50,7 @@ public class CallAsKey{
 	*/
 	
 	public CallAsKey(fn haltedLR){
-		if(haltedLR == Leaf.instance) throw new Error("Cant cache leaf cuz thats where fractal wraps around");
+		if(haltedLR == Leaf.instance) throw new Error("Cant cache leaf cuz thats where fractal wraps around aka leaf.L()==I and leaf.R()==leaf, and I is made of calling leaf on itself a certain combo at height 4.");
 		this.retIsThisPair = true;
 		this.L = haltedLR.L();
 		this.R = haltedLR.R();

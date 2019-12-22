@@ -1,10 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutableexceptgas.occamsfuncer.impl.util;
-import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.S;
-import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.T;
-import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.curry;
-import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.getp;
-import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.t;
 
 import java.util.Arrays;
 

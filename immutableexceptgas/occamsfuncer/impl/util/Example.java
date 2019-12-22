@@ -155,6 +155,22 @@ public class Example{
 		return cccc;
 	}
 	
+	private static fn[] currysWithoutConstraints = new fn[256];
+	/** curry 4 without constraint. funcBody then its params are next. */
+	public static fn c(int funcParams){
+		boolean isSmall = funcParams<256;
+		fn cached = isSmall ? currysWithoutConstraints[funcParams] : null;
+		if(cached != null) return cached;
+		fn ret = f(
+			curry,
+			//cuz (curry cbtAsUnary constraint funcBody params...)
+			unary(3+funcParams),
+			T //no constraint
+		);
+		if(isSmall) currysWithoutConstraints[funcParams] = ret;
+		return ret;
+	}
+	
 	private static fn and;
 	/** AND of 2 params which are each T or F. Returns T or F.
 	TODO check compatibility with https://en.wikipedia.org/wiki/Church_encoding
@@ -196,25 +212,40 @@ public class Example{
 	/** Example: unaryInc().f(unary(3))==unary(4). */
 	public static fn unaryInc(){
 		if(unaryInc == null){
-			unaryInc = S.f(I).f(I);
+			//FIXME should this verify it is a unary (cbt of all cbt1)?
+			unaryInc = callParamOnItself;
 		}
 		return unaryInc;
 	}
+	
+	/*
+	private static fn unaryDec;
+	public static fn unaryDec(){
+		if(unaryDec == null){
+			//FIXME should this verify it is a unary (cbt of all cbt1)?
+			//FIXME what if its already unary(0) aka cbt1? Return cbt1? Inflop?
+			unaryDec = L;
+		}
+		return unaryDec;
+	}*/
 	
 	/** FIXME cant do this easily without equals func to detect unary0 */
 	private static fn unaryAdd;
 	/** Example: unaryAdd().f(unary(3)).f(unary(4))==unary(7). */
 	public static fn unaryAdd(){
 		if(unaryAdd == null){
-			//make sure to use curry and recur
-			//like TestBasics.testUnaryAddWhichUsesCurryAndRecur says.
-			/*unaryAdd =
-				f(
-					cc,
-					TODO
-				);
-			*/
-			throw new Error("TODO");
+			unaryAdd = f(
+				cc(),
+				IF(
+					ST(equals(),p(5),t(unary(0))), //if second param is unary(0)
+					then(p(4)), //then return first param (second param moved into it)
+					then(
+						recur,
+						ST(unaryInc(),p(4)), //1 higher cbt than p4
+						ST(L, p(5)) //1 lower cbt than p5. R would work too.
+					)
+				)
+			);
 		}
 		return unaryAdd;
 	}
@@ -245,6 +276,47 @@ public class Example{
 		}
 		return equals;
 	}
+	
+	private static fn funcParamReturn;
+	/** Existence of (funcParamReturn func param return) (by curry constraint),
+	See comment in Compiled.timeId for a kind of database I'm considering creating,
+	and using this it only need store binaryForest (Ls and Rs and keepUntilAtLeast)
+	since that can represent <func,param,return> (less efficiently but simpler).
+	It would have 2 tables: <self,L,R,keepUntilAtLeast>. self is the primary key.
+	and <self,bigCbt> //need log of these for a cbtBitstring unless you want to pad 0s.
+	and <self,bigCbtBitstring>
+	x.keepUntilAtLeast >= x.L().keepUntilAtLeast
+	x.keepUntilAtLeast >= x.R().keepUntilAtLeast
+	keepUntilAtLeast can be increased but not decreased,
+	considering those constraints.
+	This guarantees all fns reachable remain.
+	<br><br>
+	(funcParamReturn func param ret x) evals to (ret x).
+	There is no return statement in lambdas. Return is just a name here.
+	for any 3 fns func param return,
+	proves that (func param) evals to return,
+	except if it calls Op.nondet which is by definition potentially nondeterministic.
+	It does that by (equals (func param) return),
+	and if that never halts (caught by $(...) system limiting compute resources)
+	then the funcParamReturn call wouldnt finish so you would never
+	have a pointer to a (funcParamReturn func param return) that isnt true.
+	*/
+	public static fn funcParamReturn(){
+		if(funcParamReturn == null){
+			throw new Error("TODO see comment below");
+			/*funcParamReturn = TODO infloop unless (func param) evals to return,
+			and it must be done in curry's constraint instead of
+			in curry's funcBody, cuz (funcParamReturn func param return)
+			must eval to itself,
+			therefore it must also take 1 more param
+			(TODO choose arbitrary behavior, such as always return leaf,
+			or act like the return so give param to the return.)).
+			*/
+		}
+		return funcParamReturn;
+	}
+	
+	
 	
 	private static fn IF;
 	/** (IF condition ifTrue ifFalse)
@@ -790,7 +862,10 @@ public class Example{
 	*/
 	public static fn car(){
 		if(car == null){
-			throw new Error("TODO");
+			//(pair x y) is Lxyz.zyx
+			//(car (pair x y)) is x
+			//(car (pair x y)) is La.aT
+			car = S.f(I).f(t(T));
 		}
 		return car;
 	}
@@ -801,7 +876,8 @@ public class Example{
 	*/
 	public static fn cdr(){
 		if(cdr == null){
-			throw new Error("TODO");
+			//see comment in car()
+			car = S.f(I).f(t(F));
 		}
 		return cdr;
 	}

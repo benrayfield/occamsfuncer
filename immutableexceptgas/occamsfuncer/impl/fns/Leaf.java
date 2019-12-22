@@ -61,15 +61,31 @@ public class Leaf implements fn{
 	public fn id(fn algorithm){
 		throw new Error("TODO");
 	}
+	
+	/** TODO optimize this by not calling Leaf.instance and copying that code here.
+	This is actually a little slower than Leaf directly,
+	but every x.compiled()!=null for every fn x,
+	cuz they copy ptr to Compiled in each next param.
+	*/
+	public static final Compiled compiledOfLeaf = new Compiled(
+		Leaf.instance.cur(),
+		null,
+		((fn l,fn r)->Leaf.instance.f(r)),
+		null
+	);
+	
+	public Compiled compiled(){
+		return compiledOfLeaf;
+	}
 
 	/** FIXME? does this being null contradict the design
 	that everything from height0 to height4 is an op
 	and must have a compiled? Could make that height1 to height4,
 	but the behaviors are only nontrivial for 16 of those at heigh4.
-	*/
+	*
 	public Compiled compiled(){
 		return null;
-	}
+	}*/
 	
 	public void setCompiled(Compiled c){
 		throw new UnsupportedOperationException("Leaf doesnt need a compiled form since its behaviors are very simple");

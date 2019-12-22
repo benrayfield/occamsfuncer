@@ -278,7 +278,40 @@ public strictfp interface fn{
 	public default void updateCompiledCache(){
 		if(height() > 4){
 			L().updateCompiledCache();
-			setCompiled(L().compiled());
+			//func.compiled() != Compiled.func
+			//where func is any of the n params of any op.
+			Compiled cBelow = L().compiled();
+			Compiled cHere = compiled();
+			if(cBelow != cHere){
+				if(cBelow.timeId > cHere.timeId){
+					setCompiled(cBelow);
+				}
+			}
+			
+			//Fixed the design problem described in the commentedout code below,
+			//by Compiled.timeId replacing Compiled.minCurHeight.
+			
+			/*
+			if(cHere.minCurHeight == cBelow.minCurHeight){
+				//FIXME check for possible non-idempotent behaviors.
+				//Havent thought through this enough in the == case,
+				//which I am using in Boot.optimize() to replace
+				//Example.lazyEval().compiled() with the same code except
+				//it lacks 1 line of test code to set a static boolean to true.
+				//(for example).
+				
+				if(cHere.backup != cBelow) throw new Error("cHere.backup != cBelow");
+				lg("WARNING: 2 equal Compiled.minCurHeight in same Compiled.backup.backup... linkedlist. This is more a warning about it being wasteful and confusing than a belief that anything will break, but TODO look into this just in case I didnt think of every possible way it might break things.");
+				setCompiled(cBelow);
+			}else if(cHere.minCurHeight < cBelow.minCurHeight){
+				//TODO rewrite this comment cuz checking for == above.
+				//Dont reorder if same minCurHeight.
+				//Probably will never need to have any of same minCurHeight
+				//in same sequence of params, but just in case,
+				//dont risk non-idempotent behavior
+				//of switching back and forth every call of updateCompiledCache.
+				setCompiled(cBelow);
+			}*/
 		}
 	}
 	

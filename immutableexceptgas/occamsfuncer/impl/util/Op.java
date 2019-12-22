@@ -268,14 +268,14 @@ public enum Op{
 	The equals func will be optimized by secureHash comparing.
 	All optimizations go in BinaryOperator<fn> fn.compiled().
 	*/
-	isLeaf(1,'Y'),
+	isLeaf(1,'_'),
 	
 	/** Lx.Ly.Lz.zxy.
 	(pair x y F) returnx x.
 	(pair x y T) returns y.
 	(pair x y) is halted, of course.
 	*/
-	pair(3,'P'),
+	pair(3,'2'),
 	
 	/** This is being moved out of Op and will instead be derived
 	and optimized by Compiled, cuz need the space for Op.ifElse
@@ -441,12 +441,12 @@ public enum Op{
 	<br><br>
 	Returns leaf if the requested param index is out of range.
 	*/
-	getp(3,'G'),
+	getp(3,'P'),
 	
 	/** same logic as ImportStatic.recurse which uses .getNthCurry,
 	TODO explain more directly.
 	*/
-	recur(1,'E'),
+	recur(1,'U'),
 	
 	/** First param is normally a cbt thats either an arbitrary
 	bitstring or maybe a type:content bitstring or whatever you want it

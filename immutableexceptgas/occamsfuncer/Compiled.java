@@ -1,6 +1,12 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutableexceptgas.occamsfuncer;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.S;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.f;
+import static immutableexceptgas.occamsfuncer.impl.util.ImportStatic.p;
+
 import java.util.function.BinaryOperator;
+
+import mutable.util.Time;
 
 /** Example: compile a certain fn that does ieee754 double multiply on
 2 cbts of 64 bits each
@@ -9,9 +15,72 @@ compile that to a BinaryOperator with cur=2
 to use java strictfp double*double,
 or a similar fn could do that in 1 cbt of 128 bits and 64 bits out.
 */
-public class Compiled{
+public class Compiled /*implements Comparable<Compiled>*/{
+	
+	/** what is this a compile of? This starts null cuz
+	I'm only including it for finding bugs 2019-12. Might remove this.
+	*/
+	public fn func;
 	
 	public final int cur;
+	
+	/** Keep the Compiled with higher sort, usually cuz its faster.
+	Renaming this from "sort" (as in comments below) to minCurHeight.
+	<br><br>
+	Compiled.backup should point at lower sort.
+	The default Compileds at height0 to height1 all have sort 0.
+	Example:
+	curry.compiled().sort==0;
+	Example.lazyEval() == f( ccc(), S(p(4),p(5),p(6)) );
+	Example.lazyEval().compiled()==curry.compiled() at first
+	but in Boot.optimize() is changed to another Compiled
+	which has a higher sort.
+	You could set the sort values to the param index,
+	since for example curry.f(unary(3+params))
+	could be optimized for that specific number of params,
+	and then funcs that call curry and have that number of params
+	would have their Compiled.backup point to that middle Compiled
+	whose backup is curry.compiled()
+	which is end of that linkedlist of Compileds.
+	So maybe the standard should be fn.curHeight() of the min param
+	it can be a Compiled at.
+	f( ccc(), S(p(4),p(5),p(6)) ) aka f(curry,unary(6),T,S(p(4),p(5),p(6))),
+	has curHeight of curry.curHeight()+3=7
+	since there are 3 of the 6 params of that curry.
+	There are 6 params of that curry cuz its first param is unary(6).
+	curry.f(unary(6)).cur==5 cuz there are 5 more params of that curry.
+	*
+	public final int minCurHeight;
+	//TODO enforce this in Boot.optimize where it tests Example.lazyEval,
+	//and enforce this in setting Compiled.backup that the backup.minCurHeight<=this.minCurHeight.
+	*/
+	
+	/** This is Time.timeId() when the Compiled was instantiated.
+	A Compiled replaces another Compiled in the same sequence of params
+	by always taking the highest (double)sort that can be seen below,
+	but never replacing from higher param index to lower index.
+	<br><br>
+	timeIds are unique per computer, even across multiple JVM runs
+	unless your clock changes backward farther than you wait to run the program again
+	or if you run multiple JVMs at once (TODO check for that).
+	But for Compiled we only need it to be unique within run of the JVM
+	and to always increase so that the newest compatible Compiled is used
+	in each sequence of params (if fn.updateCompiledCache() after such changes).
+	<br><br>
+	timeId might be used for other systems such as I've been thinking of
+	making a database with only 1 table: <func,param,return,keepUntilAtLeast>
+	where all 4 of those things are a timeId,
+	and keepUntilAtLeast can be increased but not decreased
+	and may have ordering constraints similar to if this represented
+	a binary forest where func==L or func==R then keepUntilAtLeast
+	would have to be at least as big as max of the childs keepUntilAtLeast,
+	but that doesnt have to be true in <func,param,return> cuz
+	there can be cycles such as ((S I I)(S I I)) evals to itself and never halts
+	but you couldnt represent that as fn objects cuz they are ONLY halted states,
+	but maybe the table should also have a bit for is it halted or not.
+	and maybe also a second table <timeId,varSizeBinaryBlob>
+	*/
+	public final long timeId;
 	
 	/** A constraint is satisfied for a param if it halts (returns anything)
 	when called on that param, and is called at fn.cur()-1
@@ -108,6 +177,7 @@ public class Compiled{
 	
 	public Compiled(int cur, BinaryOperator<fn> constraintOrNull, BinaryOperator<fn> funcBody, Compiled backup){
 		this.cur = cur;
+		this.timeId = Time.timeId();
 		this.constraintOrNull = constraintOrNull;
 		this.funcBody = funcBody;
 		this.backup = backup;
@@ -141,5 +211,16 @@ public class Compiled{
 		if(!on && backup == null) throw new Error("Cant turn off the innermost Compiled");
 		this.on = on;
 	}
+	
+	/** FIXME equals by == and compareTo by minCurHeight might be
+	inconsistent with Comparable spec. If it is, dont use it.
+	*
+	public boolean equals(Object obj){
+		return this == obj;
+	}
+
+	public int compareTo(Compiled c){
+		return minCurHeight-c.minCurHeight;
+	}*/
 
 }
