@@ -58,6 +58,15 @@ public class ImportStatic{
 	
 	/////
 	
+	/** curry.cur() is this aka 0 *
+	public static final int CURRIES_VARARG = 0;
+	
+	public static final int CURRIES_BIGINT = Integer.MAX_VALUE-1;
+	
+	/** cbt0 and cbt1 and all fns at height1 to height3 take infinite curries. *
+	public static final int CURRIES_INFINITE = Integer.MAX_VALUE;
+	*/
+	
 	
 	
 	/** FIXME move this to mutable package */

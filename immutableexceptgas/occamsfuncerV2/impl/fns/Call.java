@@ -95,7 +95,7 @@ public class Call implements fn{
 		//and name it something other than int cur if cur() doesnt return it directly.
 		
 		
-		
+		//FIXME these comments need updating cuz they are from V1
 		if(myL == curry){ //then height must be at least 5 cuz Op.curry height is 4
 			//op = curry;
 			compiled = curry.compiled();

@@ -186,8 +186,22 @@ public strictfp interface fn{
 		return height()==0;
 	}
 	
+	public default fn G(fn newComment){
+		if(height() < 5) return this;
+		throw new Error("TODO");
+	}
+	
+	/** comment (may be any datastruct), 1 of the 3 childs G L R.
+	Comment is by default leaf,
+	and leaf.comment is always leaf, but anything else can have a comment,
+	or maybe only those above height 4 can have comment?
+	*/
+	public default fn G(){ return leaf; }
+	
+	/** left/func, 1 of the 3 childs G L R */
 	public fn L();
 	
+	/** right/param, 1 of the 3 childs G L R */
 	public fn R();
 	
 	/** Height while only considering left branches.
