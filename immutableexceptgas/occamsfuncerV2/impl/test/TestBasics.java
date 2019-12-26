@@ -244,14 +244,21 @@ public class TestBasics{
 	/** (lazig x y z) returns (x y) */
 	public static void testLazig(){
 		lg("Starting testLazig");
-		fn cbt01 = f(lazig, cbt0, cbt1, curry);
-		testEqq("lazigA", f(lazig, cbt0, cbt1, curry), cbt0.f(cbt1));
+		fn cbt01 = f(Example.lazig(), cbt0, cbt1, curry);
+		testEqq("lazigA", f(Example.lazig(), cbt0, cbt1, curry), cbt0.f(cbt1));
 	}
 	
 	public static void testLazyEval(){
 		lg("Starting testLazyEval");
 		fn lazyEval = Example.lazyEval();
 		testEqq("(lazyEval pair curry getp)", lazyEval.f(pair).f(curry).f(getp), pair.f(curry).f(getp));
+	}
+	
+	public static void testIfElse(){
+		lg("Starting testIfElse");
+		fn ifElse = Example.ifElse();
+		testEqq("f(ifElse,T,t(getp),t(curry))", f(ifElse,T,t(getp),t(curry)), getp);
+		testEqq("f(ifElse,F,t(getp),t(curry))", f(ifElse,F,t(getp),t(curry)), curry);
 	}
 	
 	public static void testUnaryAddWhichUsesCurryAndRecur(){
@@ -308,7 +315,7 @@ public class TestBasics{
 		testEqq("equalsC", equals.f(secondOp).f(copyOfFirstOp), F);
 		testEqq("equalsD", equals.f(copyOfFirstOp).f(secondOp), F);
 		fn sii = CP(CP(S,I),I);
-		fn copyOf_lazig_sii_sii = CP(CP(lazig,sii),sii);
+		fn copyOf_lazig_sii_sii = CP(CP(Example.lazig(),sii),sii);
 		//fn copyOf_lazyEval_sii_sii = CP(CP(lazyEval,sii),sii);
 		test(
 			"somethingLambdaFuncsCantDoCuzItWouldInfiniteLoop",
@@ -443,6 +450,7 @@ public class TestBasics{
 			testAnd();
 			testString();
 			testOcfnplug();
+			testIfElse();
 			testUnaryAddWhichUsesCurryAndRecur();
 			testLazys();
 			testLazig();

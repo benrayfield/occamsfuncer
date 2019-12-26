@@ -99,11 +99,11 @@ Level3 has 26 binary forest shapes.
 */
 public class Cache{
 	
-	private static final Map<CallAsKey,fn> funcParamReturn = new HashMap();
+	private static final Map<CallAsKey,fn> funcParamCommentReturn = new HashMap();
 	
 	public static fn[] allCachedFns(){
 		Set<fn> set = new HashSet();
-		for(Map.Entry<CallAsKey,fn> entry : funcParamReturn.entrySet()){
+		for(Map.Entry<CallAsKey,fn> entry : funcParamCommentReturn.entrySet()){
 			CallAsKey cak = entry.getKey();
 			set.add(cak.L);
 			set.add(cak.R);
@@ -126,16 +126,16 @@ public class Cache{
 	}*/
 	
 	/** null if not putFuncParamReturn yet */
-	public static fn getRetOfFuncParamElseNull(fn func, fn param){
-		return funcParamReturn.get(new CallAsKey(func,param));
+	public static fn getRetOfFuncParamCommentElseNull(fn func, fn param, fn comment){
+		return funcParamCommentReturn.get(new CallAsKey(func,param,comment));
 	}
 	
 	public static void putLRParent(fn parent){
-		funcParamReturn.put(new CallAsKey(parent), parent);
+		funcParamCommentReturn.put(new CallAsKey(parent), parent);
 	}
 	
-	public static void putFuncParamReturn(fn func, fn param, fn ret){
-		funcParamReturn.put(new CallAsKey(func,param), ret);
+	public static void putFuncParamCommentReturn(fn func, fn param, fn comment, fn ret){
+		funcParamCommentReturn.put(new CallAsKey(func,param,comment), ret);
 	}
 	
 	//FIXME this func was from another fork of occamsfuncer that had type:content leafs
@@ -152,7 +152,7 @@ public class Cache{
 		//but would slow down cache lookups cuz would have to get from 2 maps.
 		//For now I just want the system to work and will optimize later.
 		
-		Iterator<Map.Entry<CallAsKey,fn>> iter = funcParamReturn.entrySet().iterator();
+		Iterator<Map.Entry<CallAsKey,fn>> iter = funcParamCommentReturn.entrySet().iterator();
 		while(iter.hasNext()){
 			if(!iter.next().getKey().retIsThisPair) iter.remove();
 		}

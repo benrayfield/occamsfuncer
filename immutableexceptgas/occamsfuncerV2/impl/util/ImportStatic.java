@@ -40,11 +40,18 @@ public class ImportStatic{
 	
 	public static final fn pair = Boot.op(Op.pair.ordinal());
 	
-	public static final fn ifElse = Boot.op(Op.ifElse.ordinal());
+	/*public static final fn ifElse = Boot.op(Op.ifElse.ordinal());
 	//public static final fn bh = Boot.op(Op.bh.ordinal());
 	
 	//public static final fn lazyEval = Boot.op(Op.lazyEval.ordinal());
 	public static final fn lazig = Boot.op(Op.lazig.ordinal());
+	*/
+	
+	/** get comment */
+	public static final fn comment = Boot.op(Op.comment.ordinal());
+	
+	/** forkSet comment */
+	public static final fn COMMENT = Boot.op(Op.COMMENT.ordinal());
 	
 	/////
 	
@@ -80,7 +87,7 @@ public class ImportStatic{
 	}
 	
 	public static fn IF(fn condition, fn ifTrue, fn ifFalse){
-		return S(t(ifElse), condition, ifTrue, ifFalse);
+		return S(t(Example.ifElse()), condition, ifTrue, ifFalse);
 	}
 	
 	/*public static fn dedup(fn f){
@@ -91,20 +98,28 @@ public class ImportStatic{
 		return Cache.dedup(itsL, itsR);
 	}*/
 	
+	public static fn cp(fn itsL, fn itsR){
+		return cp(itsL, itsR, leaf);
+	}
+	
 	/** WARNING: using this where itsL.f(itsR) would have done something other than
 	create a call pair, breaks the system.
 	<br><br>
 	Wreate Call Pair without checking if it would execute, but do still dedup.
 	*/
-	public static fn cp(fn itsL, fn itsR){
-		fn f = Cache.getRetOfFuncParamElseNull(itsL,itsR);
-		if(f == null) Cache.putLRParent(f = new Call(itsL, itsR));
+	public static fn cp(fn itsL, fn itsR, fn comment){
+		fn f = Cache.getRetOfFuncParamCommentElseNull(itsL,itsR,comment);
+		if(f == null) Cache.putLRParent(f = new Call(itsL, itsR, comment));
 		return f;
 	}
 	
-	/** similar to cp(fn,fn) except doesnt dedup. just returns new Call */
 	public static fn CP(fn itsL, fn itsR){
-		return new Call(itsL, itsR);
+		return new Call(itsL, itsR, leaf);
+	}
+	
+	/** similar to cp(fn,fn) except doesnt dedup. just returns new Call */
+	public static fn CP(fn itsL, fn itsR, fn comment){
+		return new Call(itsL, itsR, comment);
 	}
 	
 	/** optimization of $(1) */
@@ -421,7 +436,7 @@ public class ImportStatic{
 	anything designed to happen when it gets leaf as its param.
 	*/
 	public static fn then(Object... obs){
-		return lazig.f(S(obs));
+		return Example.lazig().f(S(obs));
 	}
 	
 	/* l(...) is a literal linkedlist. L(...) is 1 s-lambda-level higher

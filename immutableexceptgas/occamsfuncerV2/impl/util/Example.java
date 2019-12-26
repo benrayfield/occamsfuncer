@@ -83,7 +83,7 @@ public class Example{
 	public static fn fnThatInfiniteLoopsForEveryPossibleParam(){
 		if(fnThatInfiniteLoopsForEveryPossibleParam == null){
 			fnThatInfiniteLoopsForEveryPossibleParam =
-				lazig.f(callParamOnItself()).f(callParamOnItself());
+				lazig().f(callParamOnItself()).f(callParamOnItself());
 		}
 		return fnThatInfiniteLoopsForEveryPossibleParam;
 	}
@@ -732,20 +732,39 @@ public class Example{
 		return lazys;
 	}
 	
-	/** lazig is now 1 of the 16 ops so dont derive it here.
-	/*private static fn lazig;
-	/** (lazig x y z) returns (x y), ignoring z. Its a lazy (x y),
-	unlike (Op.lazyEval x y z) which returns (x y z).
-	TODO use this to get Example.equals() working, by redefining Op.ifElse
-	to have 3 params instead of 5, and paramIfTrue and funcIfTrue are both leaf.
-	*
+	private static fn lazig;
+	/** (lazig x y z)->(x y) */
 	public static fn lazig(){
 		if(lazig == null){
-			//(lazig x y z) returns (x y)
 			lazig = f( ccc(), S(p(4),p(5)) ); //ignore p(6)
 		}
 		return lazig;
-	}*/
+	}
+	
+	private static fn ifElse;
+	/** UPDATE: If condition is not T or F then evals to (pair ifTrue ifElse condition),
+	or something similar to that TODO verify.
+	OLD... (ifElse condition ifTrue ifFalse)
+	evals to (ifTrue leaf) if condition==T,
+	evals to (ifFalse leaf) if condition==F,
+	else infloops.
+	Normally used with lazig and S. See Example.equals() andOr ImportStatic.IF(fn,fn,fn).
+	*/
+	public static fn ifElse(){
+		if(ifElse == null){
+			fn getCondition = p(4);
+			fn getIfTrue = p(5);
+			fn getIfFalse = p(6);
+			ifElse = f(
+				ccc(),
+				S(
+					ST(pair, getIfTrue, getIfFalse, getCondition),
+					t(leaf)
+				)
+			);
+		}
+		return ifElse;
+	}
 	
 	private static fn lazyEval;
 	/** (lazyEval x y z) returns (x y z) */
@@ -771,14 +790,14 @@ public class Example{
 			unaryAddUsingNondetEqq = f(
 				cc(),
 				S(
-					t(ifElse),
+					t(Example.ifElse()),
 					//condition. If second param is unary0
 					S(t(eqq().f(unary(0))),getP5),
 					//ifTrue
-					f(lazig, getP4),
+					f(Example.lazig(), getP4),
 					//ifFalse
 					f(
-						lazig,
+						Example.lazig(),
 						S(
 							recur,
 							S(t(unaryInc()),getP4),

@@ -22,7 +22,7 @@ import immutableexceptgas.occamsfuncerV2.impl.test.TestBasics;
 public class Boot{
 	
 	/** in order of height recursively (TODO verify) */
-	public static List<fn> upToDepthN(int n){
+	public static List<fn> upToDepthNWithAllCommentsAsLeaf(int n){
 		fn leaf = Leaf.instance;
 		Set<fn> nodesSet = Collections.newSetFromMap(new IdentityHashMap()); 
 		List<fn> nodesList = new ArrayList();
@@ -42,7 +42,7 @@ public class Boot{
 				for(fn nodeX : nodesArray){
 					for(fn nodeY : nodesArray){
 						//String newPair = pair(nodeX,nodeY);
-						fn newPair = cp(nodeX,nodeY);
+						fn newPair = cp(nodeX,nodeY,leaf);
 						int h = Math.max(height.get(nodeX),height.get(nodeY))+1;
 						//String disp = h+"`"+display.get(nodeX)+display.get(nodeY);
 						//String disp = h+display.get(nodeX)+display.get(nodeY);
@@ -124,7 +124,7 @@ public class Boot{
 	*/
 	public static void boot(){
 		if(booted) throw new Error("Already booted");
-		List<fn> fns = upToDepthN(4);
+		List<fn> fns = upToDepthNWithAllCommentsAsLeaf(4);
 		Compiled other = new Compiled(
 			1,
 			null,
@@ -250,6 +250,22 @@ public class Boot{
 					return r.f(x).f(y);
 				};
 			break;
+			case comment:
+				//(comment x) returns x.comment(), its third trinary branch.
+				cur = 1;
+				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
+					$();
+					return r.comment();
+				};
+			break;
+			case COMMENT:
+				//(COMMENT x newComment) forkEdits x to have third trinary child of newComment
+				cur = 2;
+				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
+					$();
+					return l.R().COMMENT(r);
+				};
+			break;
 			/*case bh:
 				//(bh cbtAsBitstring x) does x.L().R().L().L()...
 				//for each bit in sequence in the cbtAsBitstring.
@@ -270,7 +286,12 @@ public class Boot{
 				};
 			break;
 			*/
-			case ifElse:
+			/*case ifElse:
+				//ifElse and lazig are being replaced by comment and COMMENT
+				//since binary forest is changing to trinary forest,
+				//and those 2 arent ops anymore but will be derived in
+				//Excample.ifElse() and Example.lazig().
+				
 				//(ifElse condition ifTrue ifFalse)
 				//returns (ifTrue leaf) or (ifFalse leaf) depending on condition.
 				//See Example.equals() for how to use this to conditionally recurse.
@@ -287,31 +308,8 @@ public class Boot{
 						return infLoop();
 					}
 				};
-				
-				/*
-				//(ifElse condition funcIfTrue paramIfTrue funcIfFalse paramIfFalse)
-				//returns (funcIfTrue paramIfTrue) if condition.equals(T)
-				//else returns (funcIfFalse paramIfFalse) if condition.equals(F)
-				//else infloop.
-				cur = 5;
-				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
-					$();
-					lg("ifElse l="+l+" r="+r);
-					fn condition = l.L().L().L().R();
-					if(condition == T){
-						fn funcIfTrue = l.L().L().R();
-						fn paramIfTrue = l.L().R();
-						return funcIfTrue.f(paramIfTrue);
-					}else if(condition == F){
-						fn funcIfFalse = l.R();
-						fn paramIfFalse = r;
-						return funcIfFalse.f(paramIfFalse);
-					}else{
-						return infLoop();
-					}
-				};
-				*/
 			break;
+			*/
 			/*case lazyEval:
 				//(lazyEval x y r) returns (x y r)
 				cur = 3;
@@ -323,7 +321,12 @@ public class Boot{
 				};
 			break;
 			*/
-			case lazig:
+			/*case lazig:
+				//ifElse and lazig are being replaced by comment and COMMENT
+				//since binary forest is changing to trinary forest,
+				//and those 2 arent ops anymore but will be derived in
+				//Excample.ifElse() and Example.lazig().
+				
 				//(lazyEval x y r) returns (x y r)
 				cur = 3;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
@@ -333,6 +336,7 @@ public class Boot{
 					return x.f(y);
 				};
 			break;
+			*/
 			case curry:
 				//(curry cbtAsUnary constraint/k funcBody ...params...)
 				//This is the only func that has variable number of curries,
@@ -530,6 +534,9 @@ public class Boot{
 				};*
 			break;
 			*/
+			}
+			if(cur == -1){
+				throw new Error("didnt set cur");
 			}
 			f.setCompiled(new Compiled(cur, constraintOrNull, funcBody, null));
 			//this isnt true in n params of any op,

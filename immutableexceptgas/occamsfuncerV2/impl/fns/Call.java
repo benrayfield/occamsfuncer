@@ -14,7 +14,15 @@ import immutableexceptgas.occamsfuncerV2.impl.util.TinyMap;
 
 public class Call implements fn{
 	
-	public final fn myL, myR;
+	//TODO long keepUntilAtLeast (utc nanoseconds as in Time.nowNano())
+	//as way to organize garbcol in large p2p net in realtime,
+	//but for now make it do interesting things on 1 computer.
+	//Same use of long as in Compiled.timeId.
+	
+	/** myComment doesnt need to be stored in datastructs except a single bit if its leaf.
+	myCommentElseLeaf is leaf when height()<5 so it doesnt interfere with ops.
+	*/
+	public final fn myL, myR, myCommentElseLeaf;
 	
 	/** There are only 16 nontrivial ops,
 	but everything up to depth4 is considered an op.
@@ -73,15 +81,20 @@ public class Call implements fn{
 	//protected boolean fChecksConstraint;
 	
 	public Call(fn myL, fn myR){
+		this(myL, myR, leaf);
+	}
+	
+	public Call(fn myL, fn myR, fn myCommentElseLeaf){
 		this.myL = myL;
 		this.myR = myR;
+		this.myCommentElseLeaf = myCommentElseLeaf;
 		curHeight = myL.curHeight()+1;
 		//int h = Math.max(myL.height(),myR.height());
 		//height()==Integer.MAX_VALUE means doesnt fit in int and use heightBig() instead.
 		//TODO optimize. use long for height? Or limit height?
 		//height = h==Integer.MAX_VALUE ? Integer.MAX_VALUE : h+1;
 		//boolean isBig = h==Integer.MAX_VALUE;
-		height = Math.max(myL.height(),myR.height())+1;
+		height = Math.max(Math.max(myL.height(),myR.height()),myCommentElseLeaf.height())+1;
 		//if(height > MAX_HEIGHT) infLoop();
 		if(height<0){
 			//FIXME should isBig heights be allowed?
@@ -120,6 +133,9 @@ public class Call implements fn{
 			cur = Boot.bootCur(this);
 			isCbt = Boot.bootIsCbt(this);
 		}
+		if(cur == -1){
+			throw new Error("cur");
+		}
 		//lg("cur="+cur+" this="+this);
 	}
 	
@@ -128,7 +144,7 @@ public class Call implements fn{
 		if(cur == 0){
 			return cp(this,param); //this is Op.curry. param is normally a cbtAsUnary
 		}
-		fn ret = Cache.getRetOfFuncParamElseNull(this,param);
+		fn ret = Cache.getRetOfFuncParamCommentElseNull(this,param,leaf);
 		if(ret != null) return ret;
 		if(1 < cur){
 			if(cur == 2){
@@ -170,7 +186,7 @@ public class Call implements fn{
 		//FIXME verify all that fits together, else it will be detected in TestBasics.
 		ret = compiled.get().funcBody.apply(this,param);
 		//FIXME should this happen in op.compiled().apply instead?
-		Cache.putFuncParamReturn(this, param, ret);
+		Cache.putFuncParamCommentReturn(this, param, leaf, ret);
 		return ret;
 	}
 	
@@ -188,6 +204,16 @@ public class Call implements fn{
 
 	public fn R(){
 		return myR;
+	}
+	
+	public fn comment(){
+		return myCommentElseLeaf;
+	}
+	
+	public fn COMMENT(fn newComment){
+		//cant have comment below height 5 cuz interferes with ops.
+		if(myCommentElseLeaf == newComment || height() < 5) return this;
+		return cp(myL, myR, newComment);
 	}
 	
 	public int curHeight(){

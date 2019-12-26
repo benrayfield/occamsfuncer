@@ -1,5 +1,6 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutableexceptgas.occamsfuncerV2.impl.util;
+import static immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic.*;
 import immutableexceptgas.occamsfuncerV2.fn;
 import immutableexceptgas.occamsfuncerV2.impl.fns.Leaf;
 
@@ -31,7 +32,7 @@ public class CallAsKey{
 	and maybe also if its so small it fits in an id (fn.maxIdSize).
 	*/
 	
-	public final fn L, R;
+	public final fn L, R, comment;
 			
 	/** null until (func param) returns *
 	public fn val;
@@ -49,33 +50,35 @@ public class CallAsKey{
 	if a rootState isnt required, but rootState is the main usecase.
 	*/
 	
-	public CallAsKey(fn haltedLR){
-		if(haltedLR == Leaf.instance) throw new Error("Cant cache leaf cuz thats where fractal wraps around aka leaf.L()==I and leaf.R()==leaf, and I is made of calling leaf on itself a certain combo at height 4.");
+	public CallAsKey(fn haltedLRComment){
+		if(haltedLRComment == Leaf.instance) throw new Error("Cant cache leaf cuz thats where fractal wraps around aka leaf.L()==I and leaf.R()==leaf, and I is made of calling leaf on itself a certain combo at height 4.");
 		this.retIsThisPair = true;
-		this.L = haltedLR.L();
-		this.R = haltedLR.R();
+		this.L = haltedLRComment.L();
+		this.R = haltedLRComment.R();
+		this.comment = haltedLRComment.comment();
 	}
 	
-	public CallAsKey(fn L, fn R){
+	public CallAsKey(fn L, fn R, fn comment){
 		this.retIsThisPair = false;
 		this.L = L;
 		this.R = R;
+		this.comment = comment;
 	}
 	
 	public boolean equals(Object obj){
 		if(!(obj instanceof CallAsKey)) return false;
 		CallAsKey c = (CallAsKey)obj;
-		return c.L==L && c.R==R;
+		return c.L==L && c.R==R && c.comment==comment;
 	}
 	
 	public int hashCode(){
 		//this would call id() since hashCode is derived from it:  return func.hashCode()+param.hashCode();
-		return System.identityHashCode(L)+System.identityHashCode(R);
+		return System.identityHashCode(L)+System.identityHashCode(R)+System.identityHashCode(comment);
 		//throw new Error("TODO??? salt the hashes of the 2 childs, like probably did in other ocfn code in CacheFuncParamReturn class");
 	}
 	
 	public String toString(){
-		return "<"+L+","+R+">";
+		return comment==leaf ? "<"+L+","+R+">" : "<"+L+","+R+","+comment+">";
 	}
 
 }

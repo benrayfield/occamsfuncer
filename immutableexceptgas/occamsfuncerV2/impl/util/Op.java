@@ -315,8 +315,9 @@ public enum Op{
 	S( S(S(pair funcIfTrue funcIfFalse) condition) S(S(pair paramIfTrue paramIfFalse) condition) )
 	or something like that.
 	So I will keep the ifElse, since its intuitive.
+	*
+	ifElse(3,'?'),
 	*/
-	ifElse(3,'?'), 
 	
 	/** This will be derived instead of being an op, to make room for lazig.
 	(lazyEval x y z) aka (((lazyEval x) y) z) returns (x y z) aka ((x y) z).
@@ -328,8 +329,24 @@ public enum Op{
 	
 	/** (lazig x y z) returns (x y). Used in ifElse and curry and getp and recur.
 	In an earlier design lazyEval was used for that.
-	*/
+	*
 	lazig(3, 'Z'),
+	*/
+	
+	/*FIXME need G and setG ops, so make 2 of these not be ops and instead
+	derive them in Example class, and get the Compiled optimizations working
+	asap so that wont affect efficiency much. It cant be any 2 ops that
+	are needed in curry. Curry doesnt use ifElse or lazig, so it could be those.
+	Or it could be getp and recur since those could be derived by s and k,
+	but its easier to derive ifElse and lazig than to rederive getp and recur.
+	*/
+	
+	/** get comment, the third trinary branch like L and R */
+	comment(1,'m'),
+	
+	/** set comment, the third trinary branch like L and R */
+	COMMENT(2,'M'),
+	
 	
 	////////
 	
