@@ -5,6 +5,7 @@ import static immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic.*;
 import java.util.function.BinaryOperator;
 import java.util.function.IntConsumer;
 
+import immutableexceptgas.occamsfuncerV2.impl.util.Example;
 import immutableexceptgas.occamsfuncerV2.Compiled;
 import immutableexceptgas.occamsfuncerV2.fn;
 import immutableexceptgas.occamsfuncerV2.impl.util.Boot;
@@ -48,6 +49,8 @@ public class Call implements fn{
 	or [if L() is a cbt and R() is a cbt].
 	*/
 	public final boolean isCbt;
+	
+	public final boolean isUnaryCbt;
 	
 	/** except if done by Boot, the Compiled must generate the same
 	fns as if was called in interpreted mode, same id would be generated
@@ -114,6 +117,7 @@ public class Call implements fn{
 			compiled = curry.compiled();
 			cur = cbtToNonnegInt(myR)-1; //subtract (TODO how much) cuz already (curry cbtAsUnary)
 			isCbt = myL.isCbt() && myR.isCbt();
+			isUnaryCbt = false;
 		}else if(height > 4){ //this happens most often
 			//op = myL.op();
 			compiled = myL.compiled();
@@ -123,6 +127,7 @@ public class Call implements fn{
 			//FIXME should isBig heights be allowed? If so,
 			//must check height as fn/bigint instead of just height() here.
 			//if(isBig) throw new Error("TODO its expensive to cache isCbt when isBig aka height is Integer.MAX_VALUE. Maybe just shouldnt allow height bigger than that.");
+			isUnaryCbt = myL.isUnaryCbt() & myR.isUnaryCbt() && myL.height()==myR.height();
 		}else{ //height <= 4. Part of boot process.
 			//If its 1 of the 16 in Op enum, get cur from there. Else cur is 1.
 			//op = this;
@@ -132,6 +137,7 @@ public class Call implements fn{
 			
 			cur = Boot.bootCur(this);
 			isCbt = Boot.bootIsCbt(this);
+			isUnaryCbt = Boot.bootIsOp(this, Op.cbt1);
 		}
 		if(cur == -1){
 			throw new Error("cur");
@@ -283,6 +289,10 @@ public class Call implements fn{
 	public boolean isBigCbt(){
 		return isCbt() && height()==Integer.MAX_VALUE;
 	}
+	
+	public boolean isUnaryCbt(){
+		return isUnaryCbt;
+	}
 
 	/** You should probably use ArrayCbt and SmallCbt for efficient bitstrings,
 	but as of 2019-11 those arent working.
@@ -296,7 +306,8 @@ public class Call implements fn{
 	}
 
 	public int cbtSize(){
-		throw new Error("TODO");
+		if(!isCbt()) return 0;
+		return 1<<(height()-4);
 	}
 
 	public fn cbtSizeBig(){
@@ -334,20 +345,24 @@ public class Call implements fn{
 		String n = Boot.tempNames.get(this);
 		if(n != null) return n;
 		if(isCbt()){
-			if(isUnaryCbt(this)){
+			if(isUnaryCbt()){
 				return "<unary"+(height-4)+">";
 			}else if(isBitstring() && (bitstringSize()&7)==0){
 				return "<mayBeStr:"+str(this)+">";
 			}
 		}
-		//display as currylist such as (((a b)c)d) displays as (a b c d).
-		String l = L().toString();
-		if(l.startsWith("(") && l.endsWith(")")) l = l.substring(1,l.length()-1);
-		String ret = "("+l+R()+")";
-		/*if(!ret.contains("\t")){
-			ret = indentPseudocode(ret);
-		}*/
-		return ret;
+		if(myCommentElseLeaf == leaf){
+			//display as currylist such as (((a b)c)d) displays as (a b c d).
+			String l = L().toString();
+			if(l.startsWith("(") && l.endsWith(")")) l = l.substring(1,l.length()-1);
+			String ret = "("+l+R()+")";
+			/*if(!ret.contains("\t")){
+				ret = indentPseudocode(ret);
+			}*/
+			return ret;
+		}else{
+			return "{"+L()+","+R()+","+comment()+"}";
+		}
 	}
 	
 	/*public static String toString(fn x, int tabLevel){
@@ -402,6 +417,32 @@ public class Call implements fn{
 			}
 		}
 		return sb.toString();
+	}
+	
+	public boolean equals(Object o){
+		if(!(o instanceof fn)) return false;
+		fn O = (fn)o;
+		//TODO optimize this in Example.equals().compiled() instead of here
+		if(this == o) return true;
+		if(height() != O.height()) return false;
+		return Example.equals().f(this).f(o)==T;
+	}
+	
+	public int intAt(int cbtBitIndex){
+		int ret = 0;
+		for(int i=0; i<32; i++){
+			if(bitAt(cbtBitIndex+i)) ret |= (1<<(31-i));
+		}
+		return ret;
+	}
+	
+	public boolean bitAt(int cbtBitIndex){
+		if(!isCbt()) return false;
+		int cbtSize = cbtSize();
+		if(cbtBitIndex < 0 || cbtSize <= cbtBitIndex) return false;
+		if(cbtSize == 1) return this==cbt1;
+		if(cbtBitIndex < (cbtSize>>1)) return L().bitAt(cbtBitIndex);
+		return R().bitAt(cbtBitIndex-(cbtSize>>1));
 	}
 
 }

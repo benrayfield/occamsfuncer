@@ -82,6 +82,9 @@ public class Compiled /*implements Comparable<Compiled>*/{
 	*/
 	public final long timeId;
 	
+	/** TODO remove this var after Compiled class passes TestBasics tests. */
+	public String nameForTesting;
+	
 	/** A constraint is satisfied for a param if it halts (returns anything)
 	when called on that param, and is called at fn.cur()-1
 	compared to funcBody called at fn.cur(),
@@ -210,6 +213,10 @@ public class Compiled /*implements Comparable<Compiled>*/{
 	public void setOn(boolean on){
 		if(!on && backup == null) throw new Error("Cant turn off the innermost Compiled");
 		this.on = on;
+	}
+	
+	public String toString(){
+		return "[Compiled "+nameForTesting+" backup:"+backup+"]";
 	}
 	
 	/** FIXME equals by == and compareTo by minCurHeight might be

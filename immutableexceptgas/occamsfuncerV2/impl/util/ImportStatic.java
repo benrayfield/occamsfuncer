@@ -3,6 +3,7 @@ package immutableexceptgas.occamsfuncerV2.impl.util;
 
 import java.util.Arrays;
 
+import immutable.util.MathUtil;
 import immutable.util.Text;
 import immutableexceptgas.occamsfuncerV2.fn;
 import immutableexceptgas.occamsfuncerV2.impl.fns.Call;
@@ -341,12 +342,35 @@ public class ImportStatic{
 		if(ob instanceof String){
 			return f(Text.stringToBytes((String)ob));
 		}
+		if(ob instanceof Number){
+			if(ob instanceof Byte){
+				byte b = (byte)ob;
+				return byteToRawCbt((byte)ob);
+			}
+			if(ob instanceof Short){
+				short s = (short)ob;
+				return f((byte)(s>>>8)).f((byte)s);
+			}
+			if(ob instanceof Integer){
+				int i = (int)ob;
+				return f((short)(i>>>16)).f((short)i);
+			}
+			throw new Error("TODO");
+		}
 		if(ob instanceof byte[]){
 			//TODO optimize: use ArrayCbt or SmallCbt depending on its size,
 			//but for now 2019-11 only Leaf and Call are working.
 			byte[] a = (byte[])ob;
 			a = pad(a);
 			return wrapPowOf2SizeRange(pad(a), 0, a.length);
+		}
+		if(ob instanceof int[]){
+			if(1<2) throw new Error("FIXME in commentPic this is meant not as a bitstring but as a cbt of powOf4 size.");
+			//TODO optimize: use ArrayCbt or SmallCbt, similar to byte[]
+			//but for now will copy to byte[] which gets copied to
+			//interpreted complete binary tree with cbt0s and cbt1s
+			//instead of wrapping the int[] as it will later.
+			return f(MathUtil.intsToBytes((int[])ob));
 		}
 		throw new Error("TODO if prim array wrap in cbt. param="+ob);
 	}
@@ -489,7 +513,7 @@ public class ImportStatic{
 		return recurse;
 	}*/
 	
-	/** is this a complete binary tree of all cbt1s? */
+	/** is this a complete binary tree of all cbt1s? *
 	public static boolean isUnaryCbt(fn f){
 		//FIXME call $()?
 		//TODO optimize by caching this in Call instead of recursing.
@@ -497,7 +521,7 @@ public class ImportStatic{
 		//unless f.isCbt() is false then its constant cost.
 		return f.isCbt() && f.height()>=4 && (f==cbt1 || (isUnaryCbt(f.L()) && isUnaryCbt(f.R())));
 		
-	}
+	}*/
 	
 	public static byte[] bytes(fn f){
 		$();
@@ -515,6 +539,52 @@ public class ImportStatic{
 		return b;
 	}
 	
+	/** doesnt check if it is a tinymap or not, but wont infloop */
+	public static fn tinymapGetOrLeaf(fn tinymap, fn getKey){
+		fn tm = Example.tinymap();
+		while(tm.height() < tinymap.height()){
+			fn tinymapL = tinymap.L();
+			fn key = tinymapL.R();
+			if(getKey.equals(key)){
+				return tinymap.R(); //val of that key
+			}
+			tinymap = tinymapL.L(); //without the last 2 params
+		}
+		return leaf;
+	}
+	
+	/** My param is a fn.comment() datastruct,
+	which is Example.tinylist() called on alternating key val key val...
+	TODO emulate (and optimize with Compiled) this in Example.java,
+	will be same speed but at least then user level occamsfuncer code can call it
+	without going through op.nondet.
+	*/
+	public static fn commentTextOrLeaf(fn comment){
+		return tinymapGetOrLeaf(comment, Example.commentKeyForText());
+	}
+	
+	public static String commentText(fn comment){
+		return strNoThrow(commentTextOrLeaf(comment));
+	}
+	
+	
+	/** My param is a fn.comment() datastruct,
+	which is Example.tinylist() called on alternating key val key val...
+	*/
+	public static fn commentPicOrLeaf(fn comment){
+		return tinymapGetOrLeaf(comment, Example.commentKeyForPic());
+	}
+	
+	public static fn comment(String text, int[] pic){
+		return f(Example.tinymap(),
+			Example.commentKeyForText(), text,
+			Example.commentKeyForPic(), f(pic));
+	}
+	
+	public static fn commentPixel(int pixelARGB){
+		return f(Example.tinymap(), Example.commentKeyForPic(), f(pixelARGB));
+	}
+	
 	/**
 	011000010110001001100011 //string "abc"
 	01100001011000100110001110000000 //padded
@@ -522,11 +592,27 @@ public class ImportStatic{
 	*/
 	public static String str(fn f){
 		$();
-		if(!f.isBitstring()) {
+		if(!f.isBitstring()){
 			throw new Error("Not a bitstring so cant be a utf8 string");
 		}
 		//FIXME throw Gas instead?
 		return Text.bytesToString(bytes(f));
+	}
+	
+	/** returns "" if not a utf8 string */
+	public static String strNoThrow(fn f){
+		$();
+		if(!f.isBitstring() && (f.bitstringSize()&7)!=0) return "";
+		try{
+			//TODO optimize detect utf8 data format and return "" faster than throwing.
+			return Text.bytesToString(bytes(f));
+		}catch(Throwable t){
+			return "";
+		}
+	}
+	
+	public static fn pair(fn myCar, fn myCdr){
+		return pair.f(myCar).f(myCdr);
 	}
 	
 	public static final int curHeightOf_opCurry;

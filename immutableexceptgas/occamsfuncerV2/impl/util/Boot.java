@@ -150,6 +150,7 @@ public class Boot{
 			},
 			null
 		);
+		other.nameForTesting = "otherCompiled";
 		BinaryOperator<fn> cbtFuncBody = (fn l, fn r)->{
 			lg("cbtFuncBody of l="+l+" r="+r);
 			$();
@@ -538,7 +539,9 @@ public class Boot{
 			if(cur == -1){
 				throw new Error("didnt set cur");
 			}
-			f.setCompiled(new Compiled(cur, constraintOrNull, funcBody, null));
+			Compiled c = new Compiled(cur, constraintOrNull, funcBody, null);
+			c.nameForTesting = "op"+op+"Compiled";
+			f.setCompiled(c);
 			//this isnt true in n params of any op,
 			//but these are all ops or the forest below them.
 			f.compiled().func = f;
@@ -561,50 +564,56 @@ public class Boot{
 	by fn.setCompiled(Compiled) on certain fns.
 	*/
 	public static void optimize(){
+		if(lazyEvalCompiledRan) throw new Error("Already Boot.optimize(). Dont call this again, but new Compiles per fn at runtime is supported, which would be a JIT if it happened automatically (TODO)");
 		
-		/** (lazyEval x y z) returns (x y z) */
-		setCompiledAndThatTestVar(
-			Example.lazyEval(),
-			new Compiled(
-				Example.lazyEval().cur(),
-				null,
-				(BinaryOperator<fn>)(fn l, fn r)->{
-					lazyEvalCompiledRan = true;
-					$();
-					fn x = l.L().R();
-					fn y = l.R();
-					return x.f(x).f(y).f(r);
-				},
-				Example.lazyEval().compiled()
-			)
+		Compiled lzc2 = new Compiled(
+			Example.lazyEval().cur(),
+			null,
+			(BinaryOperator<fn>)(fn l, fn r)->{
+				boolean was = lazyEvalCompiledRan;
+				lazyEvalCompiledRan = true;
+				lg("lazyEvalCompiledRan="+lazyEvalCompiledRan+" was="+was);
+				$();
+				fn x = l.L().R();
+				fn y = l.R();
+				return x.f(y).f(r);
+			},
+			Example.lazyEval().compiled()
 		);
+		lzc2.nameForTesting = "lzc2";
+		/** (lazyEval x y z) returns (x y z) */
+		setCompiledAndThatTestVar(Example.lazyEval(), lzc2);
 		
 		long timeIdOfCurrysCompiled = curry.compiled().timeId;
 		long timeIdOfLazyevalsCompiled = Example.lazyEval().compiled().timeId;
 		if(timeIdOfCurrysCompiled >= timeIdOfLazyevalsCompiled) throw new Error(
 			"timeIdOfCurrysCompiled=="+timeIdOfCurrysCompiled+" >= timeIdOfLazyevalsCompiled=="+timeIdOfLazyevalsCompiled+". This shouldnt happen cuz timeIds are creating in increasing order.");
-		
-		TestBasics.testLazyEval();
-		if(lazyEvalCompiledRan) throw new Error("Already Boot.optimize(). Dont call this again, but new Compiles per fn at runtime is supported, which would be a JIT if it happened automatically (TODO)");
+		lg("lzc2.funcBody.apply(leaf,leaf);...");
+		lzc2.funcBody.apply(leaf,leaf);
+		if(!lazyEvalCompiledRan) throw new Error("BinaryOperator didnt set lazyEvalCompiledRan to true");
+		lg("setting lazyEvalCompiledRan to false");
+		lazyEvalCompiledRan = false;
+		TestBasics.testLazyEval(cbt0.f(cbt0.f(cbt1)));
 		Example.lazyEval().updateCompiledCache(); //I'm testing updateCompiledCache before doing it for all funcs
-		TestBasics.testLazyEval();
+		
+		
+		TestBasics.testLazyEval(cbt1.f(cbt0.f(cbt1)));
 		if(!lazyEvalCompiledRan) throw new Error("updateCompiledCache failed for Example.lazyEval(). This is the first test of optimizing, to make sure the optimization is actually used instead of the equal behaviors of the unoptimized form.");
 		
-		/** Remove "lazyEvalCompiledRan = true;" from Example.lazyEval(). */
-		setCompiledAndThatTestVar(
-			Example.lazyEval(),
-			new Compiled(
-				Example.lazyEval().cur(),
-				null,
-				(BinaryOperator<fn>)(fn l, fn r)->{
-					$();
-					fn x = l.L().R();
-					fn y = l.R();
-					return x.f(x).f(y).f(r);
-				},
-				Example.lazyEval().compiled()
-			)
+		Compiled lzc3 = new Compiled(
+			Example.lazyEval().cur(),
+			null,
+			(BinaryOperator<fn>)(fn l, fn r)->{
+				$();
+				fn x = l.L().R();
+				fn y = l.R();
+				return x.f(y).f(r);
+			},
+			Example.lazyEval().compiled()
 		);
+		lzc3.nameForTesting = "lzc3";
+		/** Remove "lazyEvalCompiledRan = true;" from Example.lazyEval(). */
+		setCompiledAndThatTestVar(Example.lazyEval(), lzc3);
 		
 		setCompiledAndThatTestVar(
 			Example.unaryAdd(),
@@ -625,15 +634,12 @@ public class Boot{
 		//update cache of fn.compiled() in every fn
 		for(fn x : Cache.allCachedFns()){
 			x.updateCompiledCache();
+			//FIXME might need to clear some parts of cache,
+			//but keep others (to not lose Compiled objects),
+			//after optimizations are added?
 		}
 		
-		/*TODO equals func will check height first,
-		then [use unoptimized equals, TODO instead compare by a secureHash id]
-		*
-		throw new Error("TODO");
-		*/
-		
-		//TODO
+		lg("Boot.optimize worked. TODO: JIT compiler specialized in this universal lambda can be built on this layer, such as using lwjgl opencl and javassist and int[] acyclicFlow (double,double)->double forest optimization such as for music tools.");
 	}
 	
 	/** Slow. Returns 0 if (.(..)) or 1 if ((..).), else -1 if its not part of an Op */
@@ -694,6 +700,14 @@ public class Boot{
 		return bootIsHeight3ChildOfOp(f.L());
 		TODO
 		*/
+	}
+	
+	public static boolean bootIsOp(fn f, Op op){
+		int height = f.height();
+		if(height < 4) return false;
+		if(height != 4) throw new Error("height is too big to be part of boot: "+height);
+		int o = bootOpIndexAtHeight4(f);
+		return o == op.ordinal();
 	}
 	
 	public static boolean bootIsCbt(fn f){

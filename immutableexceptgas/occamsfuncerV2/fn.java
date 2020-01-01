@@ -332,6 +332,11 @@ public strictfp interface fn{
 	/** efficient bitstrings. If isCbt but not isBitstring then is all cbt0. */
 	public boolean isCbt();
 	
+	/** true if this is a complete binary tree of all cbt1,
+	such as cbt1 or cbt1.f(cbt1).f(cbt1.f(cbt1)).
+	*/
+	public boolean isUnaryCbt();
+	
 	/** efficient bitstrings. cbt with a last cbt1 (not part of bitstring)
 	and the rest are cbt0s padding until the next higher powOf2.
 	If isCbt but not isBitstring then is all cbt0.
@@ -411,7 +416,14 @@ public strictfp interface fn{
 	/** cbt interpreted as a binary number (TODO which kind of binary number?) */
 	public fn heightBig();
 	
-	/** efficient bitstrings (if isCbt). This tells where the last cbt1 is,
+	/** returns 0 if not a cbt */
+	public default int cbtSize(){
+		if(!isCbt()) return 0;
+		return 1<<(height()-4);
+	}
+	
+	/** Returns -1 if is not a cbtBitstring.
+	TODO: Efficient bitstrings (if isCbt). This tells where the last cbt1 is,
 	or TODO return what if its a cbt with all 0s or if its not a cbt?
 	Cbt represents bitstring and I'm undecided how to view that as
 	signed integer as there are multiple ways it could be done.
@@ -419,12 +431,13 @@ public strictfp interface fn{
 	subclasses ArrayCbt and SmallCbt.
 	*/
 	public default int bitstringSize(){
-		if(!isCbt()) throw new Error("Not a cbt");
+		if(!isCbt()) return -1; //throw new Error("Not a cbt");
 		int cbtSize = 1<<(height()-4);
 		for(int i=cbtSize-1; i>=0; i--){
 			if(bitAt(i)) return i; //dont include last cbt1 in bitstring
 		}
-		throw new Error("No cbt1 found so is not a bitstring");
+		return -1;
+		//throw new Error("No cbt1 found so is not a bitstring");
 	}
 	
 	/** efficient bitstrings (if isCbt) */

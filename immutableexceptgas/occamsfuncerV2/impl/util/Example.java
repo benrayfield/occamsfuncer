@@ -757,10 +757,7 @@ public class Example{
 			fn getIfFalse = p(6);
 			ifElse = f(
 				ccc(),
-				S(
-					ST(pair, getIfTrue, getIfFalse, getCondition),
-					t(leaf)
-				)
+				ST(pair, getIfTrue, getIfFalse, getCondition, t(leaf))
 			);
 		}
 		return ifElse;
@@ -773,6 +770,47 @@ public class Example{
 			lazyEval = f( ccc(), S(p(4),p(5),p(6)) );
 		}
 		return lazyEval;
+	}
+	
+	private static fn tinylist;
+	/** a typeless datastruct of up to 251 params.
+	Next param causes it to return leaf.
+	*/
+	public static fn tinylist(){
+		if(tinylist == null){
+			tinylist = f(
+				c(252), //contains unary(255)
+				//is a func that when it gets those params returns leaf,
+				//but tinylist is not meant to ever get full.
+				t(leaf)
+			);
+		}
+		return tinylist;
+	}
+	
+	private static fn tinymap;
+	/** a tinylist with "tinymap" as its first item, then alternates key val key val */
+	public static fn tinymap(){
+		if(tinymap == null){
+			tinymap = tinylist().f("tinymap");
+		}
+		return tinymap;
+	}
+	
+	private static fn commentKeyForText;
+	public static fn commentKeyForText(){
+		if(commentKeyForText == null){
+			commentKeyForText = f("txt");
+		}
+		return commentKeyForText;
+	}
+	
+	private static fn commentKeyForPic;
+	public static fn commentKeyForPic(){
+		if(commentKeyForPic == null){
+			commentKeyForPic = f("pic");
+		}
+		return commentKeyForPic;
 	}
 	
 	

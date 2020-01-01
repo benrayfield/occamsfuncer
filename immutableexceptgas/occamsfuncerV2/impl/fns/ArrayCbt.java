@@ -218,6 +218,10 @@ public class ArrayCbt<T> implements fn{
 	public fn fIgnoreConstraint(fn param){
 		return f(param);
 	}
+
+	public boolean isUnaryCbt(){
+		throw new Error("TODO cache in a boolean, are all its bits 1s (usually this ends in NO quickly but could be a linear search)7?");
+	}
 	
 	
 	/*FIXME there might be a problem with double[] and float[]

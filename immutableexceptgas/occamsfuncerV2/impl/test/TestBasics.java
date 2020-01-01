@@ -3,6 +3,7 @@ package immutableexceptgas.occamsfuncerV2.impl.test;
 import static immutableexceptgas.occamsfuncerV2.impl.util.Example.*;
 import static immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic.*;
 
+import immutableexceptgas.occamsfuncerV2.Compiled;
 import immutableexceptgas.occamsfuncerV2.fn;
 import immutableexceptgas.occamsfuncerV2.impl.fns.Call;
 import immutableexceptgas.occamsfuncerV2.impl.util.Boot;
@@ -99,16 +100,16 @@ public class TestBasics{
 	public static void testIsUnaryCbt(){
 		lg("Starting testIsUnaryCbt");
 		for(int i=0; i<6; i++){
-			test("unary"+i, isUnaryCbt(unary(i)));
+			test("unary"+i, unary(i).isUnaryCbt());
 		}
-		test(!isUnaryCbt(leaf));
-		test(!isUnaryCbt(leaf.f(leaf)));
-		test(!isUnaryCbt(cbt0));
-		test(!isUnaryCbt(cbt1.f(cbt0)));
-		test(!isUnaryCbt(cbt0.f(cbt1)));
-		test(!isUnaryCbt(cbt1.f(cbt1.f(cbt1))));
-		test(!isUnaryCbt(S));
-		test(!isUnaryCbt(T));
+		test(!leaf.isUnaryCbt());
+		test(!leaf.f(leaf).isUnaryCbt());
+		test(!cbt0.isUnaryCbt());
+		test(!cbt1.f(cbt0).isUnaryCbt());
+		test(!cbt0.f(cbt1).isUnaryCbt());
+		test(!cbt1.f(cbt1.f(cbt1)).isUnaryCbt());
+		test(!S.isUnaryCbt());
+		test(!T.isUnaryCbt());
 	}
 	
 	public static void testLeaf(){
@@ -248,10 +249,16 @@ public class TestBasics{
 		testEqq("lazigA", f(Example.lazig(), cbt0, cbt1, curry), cbt0.f(cbt1));
 	}
 	
-	public static void testLazyEval(){
+	/** param differs so can test new things that havent been cached yet */
+	public static void testLazyEval(fn param){
 		lg("Starting testLazyEval");
 		fn lazyEval = Example.lazyEval();
-		testEqq("(lazyEval pair curry getp)", lazyEval.f(pair).f(curry).f(getp), pair.f(curry).f(getp));
+		lg("lazyEval.f(pair).compiled()="+lazyEval.f(pair).compiled());
+		lazyEval.f(pair).updateCompiledCache();
+		lg("lazyEval.f(pair).compiled()="+lazyEval.f(pair).compiled());
+		lazyEval.f(pair).f(curry).updateCompiledCache();
+		lg("lazyEval.f(pair).compiled()="+lazyEval.f(pair).compiled());
+		testEqq("(lazyEval pair curry param)", lazyEval.f(pair).f(curry).f(param), pair.f(curry).f(param));
 	}
 	
 	public static void testIfElse(){
@@ -259,6 +266,7 @@ public class TestBasics{
 		fn ifElse = Example.ifElse();
 		testEqq("f(ifElse,T,t(getp),t(curry))", f(ifElse,T,t(getp),t(curry)), getp);
 		testEqq("f(ifElse,F,t(getp),t(curry))", f(ifElse,F,t(getp),t(curry)), curry);
+		testEqq("f(ifElse,T,I,I)", f(ifElse,T,I,I), leaf);
 	}
 	
 	public static void testUnaryAddWhichUsesCurryAndRecur(){
@@ -348,6 +356,17 @@ public class TestBasics{
 		lg("Tests pass: testIota");
 	}
 	
+	/** 3 childs of each node are L R Comment but can only have non-leaf comment above height 4 */
+	public static void testTrinaryForest(){
+		lg("Starting testTrinaryForest");
+		testEqq("comment.f(leaf)", comment.f(leaf), leaf);
+		testEqq("comment.f(leaf.f(leaf))", comment.f(leaf.f(leaf)), leaf);
+		testEqq("comment.f(COMMENT.f(leaf.f(leaf)).f(cbt1))", comment.f(COMMENT.f(leaf.f(leaf)).f(cbt1)), leaf);
+		testEqq("comment.f(COMMENT.f(getp.f(curry)).f(cbt1))", comment.f(COMMENT.f(getp.f(curry)).f(cbt1)), cbt1);
+		testEqq("L.f(COMMENT.f(getp.f(curry)).f(cbt1))", L.f(COMMENT.f(getp.f(curry)).f(cbt1)), getp);
+		testEqq("R.f(COMMENT.f(getp.f(curry)).f(cbt1))", R.f(COMMENT.f(getp.f(curry)).f(cbt1)), curry);
+	}
+	
 	public static void testDoubleMultOptimized(){
 		throw new Error("TODO test Example.doubleMult()");
 	}
@@ -433,7 +452,10 @@ public class TestBasics{
 	
 	public static void main(String... args){
 		lg("Starting at utcSecondsBaseTen:"+Time.now());
+		/** change this param between the 2 loops so not all things are cached */
+		fn param = cbt0.f(cbt1);
 		for(int i=0; i<2; i++){
+			if(i==1) param = cbt1.f(cbt0);
 			boolean optimized = i!=0;
 			lg("OPTIMIZED="+optimized);
 			
@@ -454,12 +476,13 @@ public class TestBasics{
 			testUnaryAddWhichUsesCurryAndRecur();
 			testLazys();
 			testLazig();
-			testLazyEval();
+			testLazyEval(param);
 			testEqualsWithoutOptimizationsOrDedup();
 			testIota();
+			testTrinaryForest();
 			
-			lgErr("ending tests early so can build things before later tests fail");
-			if(1<2) return; //FIXME
+			//lgErr("ending tests early so can build things before later tests fail");
+			//if(1<2) return; //FIXME
 			
 			/*I could provide an id func so secure it would never be cracked
 			but it would be slow. from that maybe could bootstrap things

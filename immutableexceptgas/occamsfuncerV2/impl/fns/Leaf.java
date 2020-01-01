@@ -94,6 +94,10 @@ public class Leaf implements fn{
 	public boolean isCbt(){
 		return false;
 	}
+	
+	public boolean isUnaryCbt(){
+		return false;
+	}
 
 	public boolean isBigCbt(){
 		return false;
@@ -146,6 +150,13 @@ public class Leaf implements fn{
 	
 	public String toString(){
 		return ".";
+	}
+	
+	public boolean equals(Object obj){
+		//use == cuz theres only 1 leaf?
+		return this==obj;
+		//if(!(obj instanceof fn)) return false;
+		//return ((fn)obj).height() == 0;
 	}
 
 }

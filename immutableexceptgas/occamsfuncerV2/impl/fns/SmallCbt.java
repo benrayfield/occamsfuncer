@@ -25,7 +25,7 @@ public class SmallCbt implements fn{
 	}
 	
 	public SmallCbt(long data){
-		this((byte)10, data);
+		this((byte)10, data); //height is cbt1.height()+log2(sizeof(long))
 	}
 	
 	/** doubleToLongBits, not doubleToRawLongBits cuz must deterministic,
@@ -73,7 +73,7 @@ public class SmallCbt implements fn{
 		}
 	}
 
-	public fn R() {
+	public fn R(){
 		//height wont be 4 cuz cbt0 and cbt1 are Call instances.
 		//FIXME should cbt0 and cbt1 be SmallCbt instances?
 		if(height == 5){ //(00) or (01) or (10) or (11)
@@ -143,6 +143,12 @@ public class SmallCbt implements fn{
 
 	public fn op(){
 		return data<0 ? cbt1 : cbt0; //optimization of bitAt(0)?cbt1:cbt0
+	}
+
+	public boolean isUnaryCbt(){
+		int howManyBits = 1<<(height-4);
+		long unaryCbt = (-1L)<<(64-howManyBits); //11111...0000
+		return data==unaryCbt;
 	}
 	
 	//for height 5 (cbtSize1) use cbt0 or cbt1.

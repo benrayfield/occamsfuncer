@@ -774,5 +774,17 @@ public class MathUtil{
 		return true;
 	}
 	
+	public static byte[] intsToBytes(int[] ints){
+		byte[] b = new byte[ints.length*4];
+		for(int i=0; i<ints.length; i++){
+			int j = ints[i];
+			b[i<<2] = (byte)(j>>>24);
+			b[i<<2+1] = (byte)(j>>>16);
+			b[i<<2+2] = (byte)(j>>>8);
+			b[i<<2+3] = (byte)j;
+		}
+		return b;
+	}
+	
 }
 

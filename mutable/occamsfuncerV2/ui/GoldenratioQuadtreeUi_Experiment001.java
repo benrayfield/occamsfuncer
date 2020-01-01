@@ -20,16 +20,28 @@ and leafSecondHalf is color10 and T is color11.
 Get dragAndDrop working with mouse similar to in iotavm controls,
 and use mouse wheel to go in and out sizes.
 */
-public class GoldenratioQuadtreeUi extends JPanel{
+public class GoldenratioQuadtreeUi_Experiment001 extends JPanel{
+	
+	/*TODO??? do this as cccc() where first 2 params are either this same datastruct or leaf,
+	and third param can be anything (whose comment field is used for
+	text andOr intargb pixels), and thats the datastruct form,
+	and fourth param always infloops,
+	so it can branch in any num of dims such as 2 or 3.
+	Or add another param for mapreduce with a func of 2 params to 1 param
+	and thats constrained to be the 1 param generated from that field in
+	the 2 childs considering that they may be leafs.
+	For example, it could be a bayesnode with a random order of which dims
+	explored first and by redundant permutations verify its consistency.
+	*/
 	
 	public final Var<fn> var;
 	
 	protected Consumer<Var> listener;
 	
-	public GoldenratioQuadtreeUi(Var<fn> var){
+	public GoldenratioQuadtreeUi_Experiment001(Var<fn> var){
 		this.var = var;
 		var.startListening(listener = (Var v)->{
-			GoldenratioQuadtreeUi.this.repaint();
+			GoldenratioQuadtreeUi_Experiment001.this.repaint();
 		});
 	}
 	
@@ -101,7 +113,7 @@ public class GoldenratioQuadtreeUi extends JPanel{
 	public static void main(String[] args){
 		fn state = Example.equals();
 		Var<fn> v = new Var(state);
-		ScreenUtil.testDisplayWithoutExitOnClose(new GoldenratioQuadtreeUi(v));
+		ScreenUtil.testDisplayWithoutExitOnClose(new GoldenratioQuadtreeUi_Experiment001(v));
 	}
 
 }

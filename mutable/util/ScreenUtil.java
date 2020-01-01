@@ -2,8 +2,13 @@
 package mutable.util;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 
 import javax.swing.JFrame;
 
@@ -76,6 +81,18 @@ public class ScreenUtil{
 		sizeToFractionOfScreen(window,.5);
 		moveToScreenCenter(window);
 		window.setVisible(true);
+	}
+	
+	public static void paintOGIYXHW(ImageObserver obs, Graphics g, BufferedImage i, int y, int x, int h, int w){
+		double yMagnify = (double)h/i.getHeight();
+		double xMagnify = (double)w/i.getWidth();
+		if(g instanceof Graphics2D && (xMagnify != 1 || yMagnify != 1)){ //stretch to panel size
+			Graphics2D G = (Graphics2D)g;
+			AffineTransform aftrans = new AffineTransform(xMagnify, 0, 0, yMagnify, 0, 0);
+			G.drawImage(i, aftrans, obs);
+		}else{ //so you can see something but it may be wrong size
+			g.drawImage(i, 0, 0, obs);
+		}
 	}
 
 }
