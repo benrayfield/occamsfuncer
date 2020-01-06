@@ -223,7 +223,7 @@ public class TestBasics{
 		fn leafLeaf = leaf.f(leaf);
 		fn leafLeaf__2 = CP(leaf,leaf);
 		
-		fn plugEqqOfPair = nondet.f("ocfnplug:"+Example.class.getName()+".ocfnplugEqqOfPair");
+		fn plugEqqOfPair = nondet.f("ocfnplug").f(Example.class.getName()+".ocfnplugEqqOfPair");
 		testEqq("plugEqqAPair", plugEqqOfPair.f(pair.f(leafLeaf).f(leafLeaf__2)), F);
 		testEqq("plugEqqBPair", plugEqqOfPair.f(pair.f(leafLeaf__2).f(leafLeaf__2)), T);
 		

@@ -4,6 +4,7 @@ import static immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic.*;
 
 import java.util.function.BinaryOperator;
 
+import immutableexceptgas.occamsfuncerV2.impl.fns.Call;
 import immutableexceptgas.occamsfuncerV2.impl.fns.Leaf;
 import immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic;
 
@@ -349,7 +350,7 @@ public strictfp interface fn{
 	/** If true, you must use *Big bit indexs for cbt funcs instead of int indexs */
 	public boolean isBigCbt();
 	
-	public default boolean bitAt(int cbtBitIndex){
+	public default boolean bitAt(long cbtBitIndex){
 		if(!isCbt()) return false;
 		int cbtHeight = height()-4;
 		int cbtSize = 1<<cbtHeight;
@@ -359,7 +360,7 @@ public strictfp interface fn{
 		return R().bitAt(cbtBitIndex-(cbtSize>>1));
 	}
 	
-	public default byte byteAt(int cbtBitIndex){
+	public default byte byteAt(long cbtBitIndex){
 		int ret = 0;
 		for(int i=0; i<8; i++){
 			ret <<= 1;
@@ -377,12 +378,12 @@ public strictfp interface fn{
 	things like calling into opencl efficient for functional programming.
 	Maybe there should also be a longAt func.
 	*/
-	public default int intAt(int cbtBitIndex){
+	public default int intAt(long cbtBitIndex){
 		return (int)(longAt(cbtBitIndex)>>>32);
 	}
 	
 	/** Example: Double.longBitsToDouble(longAt(0)) */
-	public long longAt(int cbtBitIndex);
+	public long longAt(long cbtBitIndex);
 	
 	/** efficient bitstrings (if isCbt) */
 	public default int intAtBig(fn cbtBitIndex){
@@ -395,14 +396,14 @@ public strictfp interface fn{
 	/** FIXME can it throw? what if its a nonNormed float val (most of the nans and infinities, or extra precision near 0 theres some trick they do thats nonstandard).
 	This can be implemented more efficiently in ArrayCbt<float[]> and FloatCbt.
 	*/
-	public default float floatAt(int cbtBitIndex){
+	public default float floatAt(long cbtBitIndex){
 		return Float.intBitsToFloat(intAt(cbtBitIndex));
 	}
 	
 	/** see FIXME comment in floatAt(int).
 	This can be implemented more efficiently in ArrayCbt<double[]> and DoubleCbt.
 	*/
-	public default double doubleAt(int cbtBitIndex){
+	public default double doubleAt(long cbtBitIndex){
 		return Double.longBitsToDouble(longAt(cbtBitIndex));
 	}
 	
@@ -422,7 +423,29 @@ public strictfp interface fn{
 		return 1<<(height()-4);
 	}
 	
-	/** Returns -1 if is not a cbtBitstring.
+	public static final int maxHeightToUse_last1 = 66;
+	
+	/** value of last1 if !isCbt or (isCbt and has no cbt1) */
+	public static final long last1_notCbtBitstring = -1;
+	
+	/** value of last1 if isCbt and height()<maxHeightToUse_last1
+	so the bitstring contains indexs that dont fit in long,
+	so even if the last 1 would fit we dont use last1 var.
+	*/
+	public static final long last1_bigCbtBitstring = -2;
+	
+	/** Some of the higher range of long is not allowed */
+	public default boolean bitstringSizeFitsInLong(){
+		return height() <= maxHeightToUse_last1;
+	}
+	
+	/** This is very inefficient unless overridden in subclasses.
+	<br><br>
+	Returns last1_notCbtBitstring=-1 if is not a cbtBitstring,
+	or returns last1_bigCbtBitstring=-2
+	if is a cbtBitstring but its bigger than its last bit index
+	would fit in long.
+	<br><br>
 	TODO: Efficient bitstrings (if isCbt). This tells where the last cbt1 is,
 	or TODO return what if its a cbt with all 0s or if its not a cbt?
 	Cbt represents bitstring and I'm undecided how to view that as
@@ -430,13 +453,16 @@ public strictfp interface fn{
 	This default implementation is very slow and should be optimized in
 	subclasses ArrayCbt and SmallCbt.
 	*/
-	public default int bitstringSize(){
-		if(!isCbt()) return -1; //throw new Error("Not a cbt");
-		int cbtSize = 1<<(height()-4);
-		for(int i=cbtSize-1; i>=0; i--){
+	public default long bitstringSize(){
+		if(!isCbt()) return last1_notCbtBitstring; //throw new Error("Not a cbt");
+		//int cbtHeight = height()-4; //cbtSize = 2 exponent cbtHeight.
+		int h = height();
+		if(h > Call.maxHeightToUse_last1) return last1_bigCbtBitstring;
+		long cbtSize = 1L<<(h-4);
+		for(long i=cbtSize-1; i>=0; i--){
 			if(bitAt(i)) return i; //dont include last cbt1 in bitstring
 		}
-		return -1;
+		return last1_notCbtBitstring;
 		//throw new Error("No cbt1 found so is not a bitstring");
 	}
 	

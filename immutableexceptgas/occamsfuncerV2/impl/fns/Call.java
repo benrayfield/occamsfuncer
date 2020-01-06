@@ -44,11 +44,28 @@ public class Call implements fn{
 	
 	public final int height;
 	
+	/** If isCbt and height()<=maxHeightToUse_last1 (66)
+	then this is index of the last cbt1.
+	If height is 4 and isCbt then this is cbt0 or cbt1 (cbt size 1).
+	If height is 67 then cbt size is 2^63,
+	and if the last bit is 1 then last1 = 2^63-1.
+	A cbt is not required to have any 1, but if it does
+	then it can be interpreted as a cbtBitstring which is all the bits
+	until that last 1.
+	<br><br>
+	If !isCbt or there is no 1, then this is -1.
+	if isCbt but height is bigger than that, then last1 = -2;
+	*/
+	public final long last1;
+	
 	/** regardless of which javaclass represents it,
 	a binary forest of calls is a cbt if it is cbt0 or cbt1
 	or [if L() is a cbt and R() is a cbt].
 	*/
 	public final boolean isCbt;
+	
+	/** true if isCbt and contains a cbt1, even if !bitstringSizeFitsInLong() */
+	public final boolean isBitstring;
 	
 	public final boolean isUnaryCbt;
 	
@@ -118,6 +135,8 @@ public class Call implements fn{
 			cur = cbtToNonnegInt(myR)-1; //subtract (TODO how much) cuz already (curry cbtAsUnary)
 			isCbt = myL.isCbt() && myR.isCbt();
 			isUnaryCbt = false;
+			last1 = last1_notCbtBitstring; //cuz !isCbt
+			isBitstring = false;
 		}else if(height > 4){ //this happens most often
 			//op = myL.op();
 			compiled = myL.compiled();
@@ -128,6 +147,23 @@ public class Call implements fn{
 			//must check height as fn/bigint instead of just height() here.
 			//if(isBig) throw new Error("TODO its expensive to cache isCbt when isBig aka height is Integer.MAX_VALUE. Maybe just shouldnt allow height bigger than that.");
 			isUnaryCbt = myL.isUnaryCbt() & myR.isUnaryCbt() && myL.height()==myR.height();
+			if(isCbt){
+				if(height <= maxHeightToUse_last1){
+					long rs = myR.bitstringSize();
+					if(rs >= 0){ //not last1_notCbtBitstring or last1_bigCbtBitstring
+						//long cbtSize = 1L<<(height-4);
+						long leftCbtSize = 1L<<(height-5);
+						last1 = leftCbtSize+rs;
+					}else{
+						last1 = myL.bitstringSize();
+					}
+				}else{
+					last1 = last1_notCbtBitstring;
+				}
+			}else{
+				last1 = last1_notCbtBitstring;
+			}
+			isBitstring = last1 != last1_notCbtBitstring;
 		}else{ //height <= 4. Part of boot process.
 			//If its 1 of the 16 in Op enum, get cur from there. Else cur is 1.
 			//op = this;
@@ -138,6 +174,8 @@ public class Call implements fn{
 			cur = Boot.bootCur(this);
 			isCbt = Boot.bootIsCbt(this);
 			isUnaryCbt = Boot.bootIsOp(this, Op.cbt1);
+			last1 = isCbt ? (isUnaryCbt?0:last1_notCbtBitstring) : last1_notCbtBitstring;
+			isBitstring = last1==0;
 		}
 		if(cur == -1){
 			throw new Error("cur");
@@ -297,7 +335,7 @@ public class Call implements fn{
 	/** You should probably use ArrayCbt and SmallCbt for efficient bitstrings,
 	but as of 2019-11 those arent working.
 	*/
-	public long longAt(int cbtBitIndex){
+	public long longAt(long cbtBitIndex){
 		throw new Error("TODO");
 	}
 
@@ -323,9 +361,21 @@ public class Call implements fn{
 	public int bitstringSize(){
 		throw new Error("TODO should probably have separate class for cbt and not allow Call to be a small cbt but can be any cbt that has small cbts as childs");
 	}*/
+	
+	public long bitstringSize(){
+		return last1;
+	}
 
 	public fn bitstringSizeBig(){
 		throw new Error("TODO should probably have separate class for cbt and not allow Call to be a small cbt but can be any cbt that has small cbts as childs");
+	}
+	
+	public boolean isBitstring(){
+		if(bitstringSizeFitsInLong()){
+			return last1 >= 0;
+		}else{
+			return fn.super.isBitstring();
+		}
 	}
 
 	public int height(){

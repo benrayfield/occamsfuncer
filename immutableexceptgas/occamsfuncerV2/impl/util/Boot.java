@@ -102,6 +102,7 @@ public class Boot{
 		throw Gas.instance;
 	}*/
 	
+	
 	private static boolean booted;
 	
 	/** call this once when system starts to define the behaviors
@@ -497,7 +498,7 @@ public class Boot{
 				};
 			break;
 			case nondet:
-				cur = 2;
+				cur = 3;
 				funcBody = (BinaryOperator<fn>)(fn l, fn r)->{
 					//TODO sub-op for Gas.infLoop() IF doesnt have enough Gas.top
 					//See comments in Op.nondet for what these 2 params are for
@@ -510,7 +511,7 @@ public class Boot{
 					//return Leaf.instance;
 					
 					//does $(...), but FIXME??? is there a danger of infloop just by calling l.R() before nondet? Probably not.
-					return Nondet.nondet(l.R(), r);
+					return Nondet.nondet(l.L().R(), l.R(), r);
 					//return Nondet.nondet(l.L().R(), l.R(), r);
 				};
 			break;

@@ -103,7 +103,7 @@ public class Leaf implements fn{
 		return false;
 	}
 
-	public long longAt(int cbtBitIndex){
+	public long longAt(long cbtBitIndex){
 		return 0L;
 	}
 
@@ -123,7 +123,7 @@ public class Leaf implements fn{
 		return false;
 	}
 
-	public int bitstringSize(){
+	public long bitstringSize(){
 		return 0;
 	}
 

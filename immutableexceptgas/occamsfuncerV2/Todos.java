@@ -9,6 +9,149 @@ todo copy from phonedoc soon to here too.
 */
 public class Todos{
 	
+	/*See "MUTABLEWRAPPERLAMBDASPEC" farther below.
+	TODO mutableWrapperLambda as a way to webcall eachother.
+	Digsig (such as by ed25519) will be verified using curry constraint
+	that infloops if the sig isnt verified,
+	but there will be another way to use it by nondet.
+	The correct way to do it is for each possible param of a pubkey
+	to only ever at most 1 value,
+	but I cant prevent them from signing multiple values
+	for the same key and I cant sync it perfectly to prevent that,
+	so I have to define an unambiguous way to solve such conflicts
+	which will either be some way of comparing them and take the smaller
+	or that if 2 values are ever found for the same param then
+	value becomes leaf.
+	I choose the leaf design, that if 2 values are ever found
+	for the same param that the value becomes leaf,
+	BUT I still have to decide if its ALL values for all params
+	of that pubkey or if its per pubkey.param.
+	I choose for it to be for that pubkey, to basically blacklist
+	it the first time it doesnt obey the spec.
+	You can of course create unlimited number of other pubkeys
+	as its blacklisting per pubkey not considering network address,
+	and fns can be designed to take pubkeys as param
+	so they arent hardcoded to any specific pubkey,
+	or you can point at a specific pubkey.
+	Param of op.nondet will be something like
+	linkedlist or pair of "mutableWrapperLambda" pubkey,
+	where pubkey is any recogFunc of 3 things: signature, param, return,
+	or maybe recogFunc of (tinylist signature param return)
+	or maybe a different order of those params or something.
+	digsigPubKey should be some structure of curry
+	that uses curry constraint to infloop unless signature is verified
+	and the thing its signing is id of (pair param return),
+	but that means the curry must also include param of idGenerator,
+	and must have another param since curry constraint is verified
+	at second last param.
+	(curry unary(TODO) constraint funcBody
+		idGenerator param return signature ignoreThis) infloops.
+	(curry unary(TODO) constraint funcBody
+		idGenerator param return signature) exists only if digsigPubkey signed param return.
+	(curry unary(TODO) constraint funcBody) is a digsigPubkey, stored in funcBody,
+		or maybe funcBody should be considered the digsigPubkey.
+	As I'm going to use multihash as part of ids (prefixed by 1 byte)
+	and multihash already has a prefix for ed25519 pubkey,
+	is there a way to use that instead of needing all these other objects?
+	Probably not cuz it makes the size of an id nonstandard, exceeds the 35 bytes.
+	Signature is one of the params and in some cases would be cbtBitstring that ed25519 uses,
+	and funcBody would be (ed25519Verify cbtBitstringOfEd25519PubKey)
+	where ed25519Verify is some derived func.
+	So there is a place to put in the binary ed25519 pubkey and binary signature,
+	so it could be optimized by a Compiled IF Op.nondet had another param
+	instead of making you use (pair "mutableWrapperLambda" pubkey) as the param.
+	How many params should Op.nondet have? Currently it has 2, and I'm thinking of
+	expanding it to 3, but should it be more? How many would ever be needed?
+	(nondet type instance param)?
+	(nondet "mutableWrapperLambda" pubkey) is a func that can be used for web calls?
+	If (nondet "mutableWrapperLambda" pubkey x) ever returns 2 different things
+	then all params of it return leaf forever after that is known.
+	If you want to return different values for the same param
+	then a workaround is to use (pair time param) instead of param directly
+	or (pair randomNum param).
+	Simplify digsigPubkey to any func that takes 2 params and on the first
+	does not infloop when that first param is (tinylist signature param return),
+	so digsigPubkey could recognize anything even if its not a tinylist
+	and thats part of the trinaryForestBloomFilter
+	but (nondet "mutableWrapperLambda")
+	only counts (tinylist signature param return).
+	BUT FIXME where to put idGenerator?
+	Instead, digsigPubkey recognizes 2 params and infloops on the third...
+	(aDigsigpubkey idGenerator (tinylist signature param return))
+		is second last param where curry constraint is verified and infloops if not satisfied.
+	(aDigsigpubkey idGenerator (tinylist signature param return) ignoreThis) infloops.
+	Make web calls on (nondet "mutableWrapperLambda" (aDigsigpubkey idGenerator)).
+	...
+	MUTABLEWRAPPERLAMBDASPEC:
+	If this exists: (aDigsigpubkey idGenerator (tinylist signature "hello" "world"))
+	and theres no 2 values for same param,
+	then: (nondet "mutableWrapperLambda" (aDigsigpubkey idGenerator) "hello") returns "world".
+	else (nondet "mutableWrapperLambda" (aDigsigpubkey idGenerator) anything) returns leaf.
+	Or how it will be normally written...
+	(nondet "mutableWrapperLambda" (aDigsigpubkey idGenerator))#bob
+	(bob (pair 23423542435 "hello")) returns "world".
+	...
+	Or maybe should add an extra param for timeOrRandomNum so (bob 23423542435) is a func
+	so you could ((bob 23423542435) "hello") returns "world".
+	If you dont want to use the time param you could use time 0 for everything,
+	but maybe it shouldnt require that extra param.
+	That might have come from anywhere. It doesnt have to identify itself,
+	and a response doesnt have to be given. The param might contain
+	instructions where to respond such as one of alice's pubkeys.
+	Thats why the first call is to "bob" instead of mentioning "alice" first
+	which is normal in crypto talk that alice first sends a message to bob.
+	Its merkle data integrity but if you want crypto you'll have to derive it yourself
+	such as to send a cbtBitstring that happens to contain encrypted bits
+	that are public to everyone in the network.
+	...
+	Like http, these can be cached, but unlike http,
+	they are normally cached forever unless its discovered that a pubkey gave to values
+	for same param which is not allowed by the spec so from then on every param
+	of that pubkey returns leaf.
+	...
+	There will be a nondet func to return the lowest sorted pair of conflicting
+	things signed by a pubkey, else it will wait until that is found,
+	so by nondet spend call it can check if a digsigPubkey is still obeying the rules
+	as far as is known locally.
+	...
+	UPDATE: instead of returning leaf when pubkey breaks the spec,
+	define that pubkey as all calls take forever so its closer to standard lambda math
+	in that its acting like its infinitely inefficient,
+	but that doesnt fix that multiple computers might have got different return values
+	for the same pubkey and param before that.
+	*/
+	
+	
+	
+	
+	
+	
+	
+	/*Decide on the details of how to partial dedup without using id of every cbt
+	but instead using == comparing of big cbts, and treemaps will still use
+	a param idGenerator for sorting keys. Its enough dedup for the forests of s
+	to not expand exponentially and for that to go through multiple curry calls
+	recursively still deduping. The id of any cbt up to 256 bits,
+	including cbtRaw or cbtBitstring up to 256 (with an extra bit if is cbtBitstring)
+	contains those bits literally, but still might need to create a part of
+	Cache.java to dedup those cbts so for example if you're computing
+	fibonacci recursively then it will have linear cost instead of exponential,
+	and that can work even for ids or bigints up to 256 bits.
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/*Redesigning occamsfuncer to have comment field at start of every op,
 	and most importantly to be able to put a datastruct there containing string and pic (cbt intARGB pixels)
 	and for quadtree (branching factor 2 but twice as deep) to be above those in the standard ui datastruct

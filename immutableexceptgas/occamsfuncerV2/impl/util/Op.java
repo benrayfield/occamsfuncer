@@ -465,7 +465,14 @@ public enum Op{
 	*/
 	recur(1,'U'),
 	
-	/** First param is normally a cbt thats either an arbitrary
+	/** UPDATE: (nondet type instance param), has 3 params instead of
+	the 2 params occamsfuncerV1 had. This change is to make it
+	more optimizable by Compiled.java which will normally go in
+	(nondet someType).
+	<br><br>
+	OLD...
+	<br><br>
+	First param is normally a cbt thats either an arbitrary
 	bitstring or maybe a type:content bitstring or whatever you want it
 	to be, and second param is the param of that func (nondet someCbt),
 	so if you wanted to wrap the type:content kind of occamsfuncer
@@ -542,7 +549,7 @@ public enum Op{
 	*
 	nondetGet('Q');
 	*/
-	nondet(2,'Q');
+	nondet(3,'Q');
 	/*TODO update comments. like explained in Nondet.java,
 	the first param of nondet is always a type:content
 	such as "image/jpeg:...bytesOfJpgFile..."

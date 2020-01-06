@@ -20,6 +20,7 @@ I'm going to call those combos using java.
 */
 public class Example{
 	private Example(){}
+			
 	
 	/** TODO port the older version of https://github.com/benrayfield/smartblob
 	to occamsfuncer, as a proof of concept of opencl and javassist optimization

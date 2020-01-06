@@ -187,7 +187,7 @@ public class ArrayCbt<T> implements fn{
 		throw new Error("TODO");
 	}
 
-	public long longAt(int cbtBitIndex){
+	public long longAt(long cbtBitIndex){
 		throw new Error("TODO");
 	}
 
@@ -203,7 +203,7 @@ public class ArrayCbt<T> implements fn{
 		throw new Error("TODO");
 	}
 
-	public int bitstringSize(){
+	public long bitstringSize(){
 		throw new Error("TODO");
 	}
 

@@ -120,7 +120,7 @@ public class SmallCbt implements fn{
 		return false;
 	}
 
-	public long longAt(int cbtBitIndex){
+	public long longAt(long cbtBitIndex){
 		//FIXME can cbtBitIndex ever be negative?
 		return data<<cbtBitIndex;
 	}

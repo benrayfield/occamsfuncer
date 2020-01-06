@@ -528,7 +528,9 @@ public class ImportStatic{
 		if(!f.isBitstring()) throw new Error("Not a bitstring: "+f);
 		int cbtSize = 1<<(f.height()-4);
 		$(cbtSize);
-		int bitstringSize = f.bitstringSize();
+		long bs = f.bitstringSize();
+		if(bs > Integer.MAX_VALUE) throw new Error("TODO a few times bigger than that should work cuz its bit indexed not byte indexed, even though java arrays cant be bigger than int");
+		int bitstringSize = (int)bs;
 		if((bitstringSize&7)!=0) throw new Error("not a multiple of 8 bits");
 		//FIXME also throw if not a multiple of 8 bits
 		//FIXME throw Gas instead?
@@ -541,7 +543,7 @@ public class ImportStatic{
 	
 	/** doesnt check if it is a tinymap or not, but wont infloop */
 	public static fn tinymapGetOrLeaf(fn tinymap, fn getKey){
-		fn tm = Example.tinymap();
+		fn tm = Example.tinyMap();
 		while(tm.height() < tinymap.height()){
 			fn tinymapL = tinymap.L();
 			fn key = tinymapL.R();
@@ -576,13 +578,13 @@ public class ImportStatic{
 	}
 	
 	public static fn comment(String text, int[] pic){
-		return f(Example.tinymap(),
+		return f(Example.tinyMap(),
 			Example.commentKeyForText(), text,
 			Example.commentKeyForPic(), f(pic));
 	}
 	
 	public static fn commentPixel(int pixelARGB){
-		return f(Example.tinymap(), Example.commentKeyForPic(), f(pixelARGB));
+		return f(Example.tinyMap(), Example.commentKeyForPic(), f(pixelARGB));
 	}
 	
 	/**
