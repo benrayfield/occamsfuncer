@@ -3,6 +3,8 @@ package immutableexceptgas.occamsfuncerV2;
 import static immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic.*;
 
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import immutableexceptgas.occamsfuncerV2.impl.fns.Call;
 import immutableexceptgas.occamsfuncerV2.impl.fns.Leaf;
@@ -121,7 +123,7 @@ be stored in <func,param,return>.
 (MapSingle key val)
 EmptyMap
 */
-public strictfp interface fn{
+public strictfp interface fn extends Function<Object,fn>{
 	
 	/** the whole occamsfuncer software can be used from this,
 	including the wrapping of large 1d primitive arrays or strings
@@ -174,6 +176,11 @@ public strictfp interface fn{
 	then it doesnt need to run the constraint part of MapPair, so its faster.
 	*/
 	public fn fIgnoreConstraint(fn param);
+	
+	/** UnaryOperator<fn> */
+	public default fn apply(Object param){
+		return f(param);
+	}
 	
 	/** Convenience function to wrap param's bits
 	(but not its number of array dimensions or their sizes etc)

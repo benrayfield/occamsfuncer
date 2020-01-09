@@ -1490,13 +1490,28 @@ public class Example{
 		return a==b ? T : F;
 	}
 	
-	public static fn eqq;
+	private static fn eqq;
 	public static fn eqq(){
 		if(eqq == null){
 			//eqq = cc().f(nondet.f("ocfnplug:"+Example.class.getName()+".ocfnplugEqq"));
 			eqq = cc().f(nondet.f("ocfnplug").f(Example.class.getName()+".ocfnplugEqq"));
 		}
 		return eqq;
+	}
+	
+	private static fn defaultServerState;
+	/** First value of (Var<fn>)mutable.occmsfuncerV2.Network.serverState,
+	which should be saved and restored between runs of JVM,
+	can potentially be used for the rest of your life,
+	forked, merged, or use as many of them as you want,
+	or build your own.
+	*/
+	public static fn defaultServerState(){
+		if(defaultServerState == null){
+			//defaultServerState = TODO;
+			throw new Error("TODO");
+		}
+		return defaultServerState;
 	}
 	
 	/*TODO some of those fun experimental jar files in my q18 dir

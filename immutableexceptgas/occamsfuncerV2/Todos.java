@@ -1,13 +1,46 @@
 package immutableexceptgas.occamsfuncerV2;
 
-import javax.xml.stream.events.Comment;
-
 /** this class doesnt do anything. its just a place to put comments.
 Get it out of the top level package of occamsfuncer asap,
 but I dont want to lose these plans.
 todo copy from phonedoc soon to here too.
 */
 public class Todos{
+	
+	/*
+	TODOS for mutable.occamsfuncerV2.Network
+	
+	TODO hook into occamserver using http instead of https
+	since all security is done inside the fn objects,
+	though you could use https if you want (TODO) such as run
+	occamsfuncer inside Tomcat or ApacheHttpCore instead of occamserver,
+	which would give you privacy across peer hops but
+	since any fns that cross the network are considered public
+	there shouldnt be a need for privacy in that
+	and if you want privacy you encrypt cbt bits
+	and have privacy of that array
+	or build a homomorphic crypto system on top of
+	the universal lambda function (at user level,
+	not modifying occamsfuncer VM).
+	People will probably want https just to make their browsers etc
+	stop complaining that they dont understand what kind of security it is.
+	Part of the security is that the security can evolve
+	in turingComplete ways,
+	such as fn.id(fn idGenerator) can use any fn as an idGenerator
+	or multiple idGenerators at once.
+	...
+	Hook that into serve(byte[]) func,
+	where the http headers (if any) are ignored and only use the content.
+	
+	TODO if am subscribed to 10000 of 4 bytes per cycle each
+	at 32 hz each (so 128 bytes per second each),
+	how should those be efficiently organized without allocating
+	fn objects for each of them? Cuz fn objects are too expensive
+	to allocate for every few bytes.
+	This is needed for mmgMouseai and mmgOfBendyLoopsClimbingEachother
+	and maybe networked music tools	(maybe should be openOSC compatible?)
+	and other experimental games.
+	*/
 	
 	/*See "MUTABLEWRAPPERLAMBDASPEC" farther below.
 	TODO mutableWrapperLambda as a way to webcall eachother.
