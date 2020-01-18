@@ -3,6 +3,8 @@ import static immutableexceptgas.occamsfuncerV2.impl.util.Example.cc;
 import static immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic.*;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import immutableexceptgas.occamsfuncerV2.fn;
 
@@ -33,9 +35,7 @@ public class Example{
 		}
 		return bouncingSpringy2dPolygonsLikeInSmartblobGame;
 	}
-	
-	
-	
+
 	/** TODO use "Op.nondetGet cbtAsStringPlug (ocfnplug)"
 	by prefixing all of these with ocfn,
 	like ocfnplugEquals, ocfnplugCdr, etc?
@@ -46,15 +46,17 @@ public class Example{
 	like ocfnplugReflectExample(String funcName)
 	Example: ocfnplugReflectExample("cdr") returns Example.cdr().
 	*/
-	public static fn ocfnplugReflectExample(String funcName){
+	public static fn ocfnplugReflectExample(fn funcName){
 		$();
+		String funcNameS = str(funcName);
 		try{
-			return (fn) Example.class.getMethod(funcName).invoke(null);
+			return (fn) Example.class.getMethod(funcNameS).invoke(null);
 		}catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
 				| SecurityException e){
 			return infLoop();
 		}
 	}
+	
 	
 	private static fn iota;
 	/** This has the same param/return mapping as
@@ -842,19 +844,50 @@ public class Example{
 		return tinylist;
 	}
 	
+	private static Map<String,fn> contentTypePrefixes = new HashMap();
+	/** curry 1 or more things as this is a typeList with 1 param */
+	public static fn contentType(String contentType){
+		fn ret = contentTypePrefixes.get(contentType);
+		if(ret == null){
+			ret = typeList().f(utf8ToBitstring(contentType));
+			contentTypePrefixes.put(contentType, ret);
+		}
+		return ret;
+	}
+	
+	public static fn stringPrefix(){
+		return contentType("text/plain;charset=UTF-8"); //TODO verify thats the right way to write utf8
+	}
+
+	public static fn doubleTextPrefix(){
+		//https://www.reddit.com/r/AskProgramming/comments/eqjabk/whats_the_contenttype_of_the_64_bits_of_an/
+		return contentType("text/x-IEEE754-double-base10");
+		
+	}
+	public static fn doublePrefix(){
+		//https://www.reddit.com/r/AskProgramming/comments/eqjabk/whats_the_contenttype_of_the_64_bits_of_an/
+		return contentType("application/x-IEEE754-double"); //TODO verify thats the right way to write utf8
+	}
+	
+	
 	private static fn tinyMap;
 	/** a tinylist with "tinymap" as its first item, then alternates key val key val */
 	public static fn tinyMap(){
 		if(tinyMap == null){
-			tinyMap = typeList().f("tinyMap");
+			//tinyMap = typeList().f("tinyMap");
+			//tinyMap = typeList().f(utf8ToBitstring("tinyMap"));
+			tinyMap = contentType("application/x-occamsfuncerV2-tinyMap");
 		}
 		return tinyMap;
 	}
 	
+	//FIXME should the tinymap instead be a list of typeList
+	//which each have a type and a suffix of 0 or more values,
+	//in this case would always be 1 value?
 	private static fn commentKeyForText;
 	public static fn commentKeyForText(){
 		if(commentKeyForText == null){
-			commentKeyForText = f("txt");
+			commentKeyForText = f("txt"); //TODO use contentType(String)? Dont want contentType of the contentType's name recursively
 		}
 		return commentKeyForText;
 	}
@@ -862,9 +895,39 @@ public class Example{
 	private static fn commentKeyForPic;
 	public static fn commentKeyForPic(){
 		if(commentKeyForPic == null){
-			commentKeyForPic = f("pic");
+			commentKeyForPic = f("pic"); //TODO use contentType(String)? Dont want contentType of the contentType's name recursively
 		}
 		return commentKeyForPic;
+	}
+	
+	/** contentType (tinyList key) for datastruct for the long[4]/byte[32] in
+	https://github.com/benrayfield/mouseSwarm
+	(and it may have other datastructs for other variants of mouse-like swarming
+	such as the 2d moving window where pixels quickly become a constant color
+	by sortedPointer norm 1 colorDim display (see Util.java i wrote about that 2020-1-13,
+	but anything like that would be a DIFFERENT contentType.
+	<br><br>
+	Example: (mouseSwarmY2020M1Prefix() the32Bytes)
+	aka (typeList() itsContentType the32Bytes)
+	*/
+	public static fn mouseSwarmY2020M1Prefix;
+	public static fn mouseSwarmY2020M1Prefix(){
+		if(mouseSwarmY2020M1Prefix == null){
+			mouseSwarmY2020M1Prefix = f(typeList(),"mouseSwarmY2020M1");
+		}
+		return mouseSwarmY2020M1Prefix;
+	}
+	
+	/** returns F if first param < second param, else T,
+	where those 2 params are each like (mouseSwarmY2020M1Prefix() the32Bytes).
+	*/
+	public static fn mouseSwarmY2020M1Comparator;
+	public static fn mouseSwarmY2020M1Comparator(){
+		if(mouseSwarmY2020M1Comparator == null){
+			throw new Error("TODO");
+			//mouseSwarmY2020M1Comparator = TODO
+		}
+		return mouseSwarmY2020M1Comparator;
 	}
 	
 	

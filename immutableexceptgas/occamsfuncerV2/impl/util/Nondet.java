@@ -49,6 +49,7 @@ public class Nondet{
 
 	
 	public static fn nondet(fn type, fn instance, fn param){
+		
 		if(Gas.forceDeterminism){
 			return infLoop();
 		}else{

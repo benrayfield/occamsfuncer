@@ -389,8 +389,19 @@ public strictfp interface fn extends Function<Object,fn>{
 		return (int)(longAt(cbtBitIndex)>>>32);
 	}
 	
-	/** Example: Double.longBitsToDouble(longAt(0)) */
-	public long longAt(long cbtBitIndex);
+	/** Example: Double.longBitsToDouble(longAt(0))
+	<br><br>
+	You should probably use ArrayCbt and SmallCbt for efficient bitstrings,
+	but as of 2019-11 those arent working.
+	*/
+	public default long longAt(long cbtBitIndex){
+		long g = 0;
+		for(int i=0; i<64; i++){
+			g <<= 1;
+			if(bitAt(cbtBitIndex+i)) g |= 1;
+		}
+		return g;
+	}
 	
 	/** efficient bitstrings (if isCbt) */
 	public default int intAtBig(fn cbtBitIndex){

@@ -332,13 +332,6 @@ public class Call implements fn{
 		return isUnaryCbt;
 	}
 
-	/** You should probably use ArrayCbt and SmallCbt for efficient bitstrings,
-	but as of 2019-11 those arent working.
-	*/
-	public long longAt(long cbtBitIndex){
-		throw new Error("TODO");
-	}
-
 	public long longAtBig(fn cbtBitIndex){
 		throw new Error("TODO");
 	}
@@ -398,7 +391,7 @@ public class Call implements fn{
 			if(isUnaryCbt()){
 				return "<unary"+(height-4)+">";
 			}else if(isBitstring() && (bitstringSize()&7)==0){
-				return "<mayBeStr:"+str(this)+">";
+				return "<mayBeStr:"+toRawString(this)+">";
 			}
 		}
 		if(myCommentElseLeaf == leaf){
@@ -433,6 +426,7 @@ public class Call implements fn{
 		return "("+l+x.R()+")";
 	}*/
 	
+	/** as of 2020-1-15 this doesnt indent correctly, didnt finish this code. */
 	public static String indentPseudocode(String s){
 		StringBuilder sb = new StringBuilder();
 		int tabLevel = 0;

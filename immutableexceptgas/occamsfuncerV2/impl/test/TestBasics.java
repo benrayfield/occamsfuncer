@@ -9,9 +9,10 @@ import immutableexceptgas.occamsfuncerV2.impl.fns.Call;
 import immutableexceptgas.occamsfuncerV2.impl.util.Boot;
 import immutableexceptgas.occamsfuncerV2.impl.util.Example;
 import immutableexceptgas.occamsfuncerV2.impl.util.Gas;
+import immutableexceptgas.occamsfuncerV2.impl.util.TempOcfnplugs;
 import mutable.util.Time;
 
-public class TestBasics{
+public strictfp class TestBasics{
 	
 	public static void test(boolean x){
 		if(!x) throw new Error("Test failed");
@@ -24,6 +25,20 @@ public class TestBasics{
 	}
 	
 	public static void testEqq(String name, Object a, Object b){
+		if(a != b){
+			throw new Error("Test failed: "+name+" a["+a+"] b["+b+"]");
+		}
+		lg("test pass: "+name);
+	}
+	
+	public static void testEqq(String name, long a, long b){
+		if(a != b){
+			throw new Error("Test failed: "+name+" a["+a+"] b["+b+"]");
+		}
+		lg("test pass: "+name);
+	}
+	
+	public static void testEqq(String name, double a, double b){
 		if(a != b){
 			throw new Error("Test failed: "+name+" a["+a+"] b["+b+"]");
 		}
@@ -367,6 +382,31 @@ public class TestBasics{
 		testEqq("R.f(COMMENT.f(getp.f(curry)).f(cbt1))", R.f(COMMENT.f(getp.f(curry)).f(cbt1)), curry);
 	}
 	
+	public static void testOcfnplugDoubleMathRaw_stuffThatWillBeReplacedByUserLevelCodeLater(){
+		lg("Starting testOcfnplugDoubleMathRaw_stuffThatWillBeReplacedByUserLevelCodeLater");
+		fn dMulRaw = cc().f(nondet.f("ocfnplug").f(TempOcfnplugs.class.getName()+".ocfnplugDoubleMultiplyRaw"));
+		fn dAddRaw = cc().f(nondet.f("ocfnplug").f(TempOcfnplugs.class.getName()+".ocfnplugDoubleAddRaw"));
+		//FIXME should .f(double) wrap it using contentType(...).f(bitstring)
+		//vs should it just be that 64 bit bitstring (raw)?
+		//For now I'll make it unambiguous using doubleToBitstring(double).
+		fn raw2 = doubleToBitstring(2.);
+		fn raw3 = doubleToBitstring(3.);
+		fn raw2p34 = doubleToBitstring(2.34);
+		fn raw3p45 = doubleToBitstring(3.45);
+		testEqq("raw3 as long bits of double", raw3.longAt(0), Double.doubleToLongBits(3.));
+		testEqq("raw3 as double is 3", raw3.doubleAt(0), 3.);
+		testEqq("dMulRaw 2 3", dMulRaw.f(raw2).f(raw3).doubleAt(0), 6.);
+		testEqq("dMulRaw 2.34 3.45", dMulRaw.f(raw2p34).f(raw3p45).doubleAt(0), 2.34*3.45);
+		testEqq("dAddRaw 2 3", dAddRaw.f(raw2).f(raw3).doubleAt(0), 5.);
+		testEqq("dAddRaw 2.34 3.45", dAddRaw.f(raw2p34).f(raw3p45).doubleAt(0), 2.34+3.45);
+	}
+	
+	public static void testOcfnplugDoubleMathByContentType_stuffThatWillBeReplacedByUserLevelCodeLater(){
+		lg("Starting testOcfnplugDoubleMathByContentType_stuffThatWillBeReplacedByUserLevelCodeLater");
+		fn dMul = cc().f(nondet.f("ocfnplug").f(TempOcfnplugs.class.getName()+".ocfnplugDoubleMultiply"));
+		testEqq("dMul 2 3", dMul.f(2.).f(3.), Example.doublePrefix().f(6.));
+	}
+	
 	public static void testDoubleMultOptimized(){
 		throw new Error("TODO test Example.doubleMult()");
 	}
@@ -501,7 +541,8 @@ public class TestBasics{
 			
 			
 			
-			
+			testOcfnplugDoubleMathRaw_stuffThatWillBeReplacedByUserLevelCodeLater();
+			testOcfnplugDoubleMathByContentType_stuffThatWillBeReplacedByUserLevelCodeLater();
 			
 			
 			

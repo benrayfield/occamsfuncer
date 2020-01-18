@@ -7,6 +7,16 @@ todo copy from phonedoc soon to here too.
 */
 public class Todos{
 	
+	/** moved from Nondet.java
+	TODO check for type is "mutableWrapperLambda",
+	and where do Spend and Wallet (and maybe SpendIf) calls go?
+		
+	TODO, if theres enough compile resources left (max 2^16 java classes
+	per classloader, for example, but multiple classloaders can interact
+	through an interface they both share) to generate the lambdas in
+	a Compiled for calling the func looked up here by reflection.
+	*/
+	
 	/*
 	TODOS for mutable.occamsfuncerV2.Network
 	

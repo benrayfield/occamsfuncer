@@ -336,6 +336,28 @@ public class ImportStatic{
 		return getp.f(comment).f(unary(paramIndex));
 	}
 	
+	/** The first usecase of this is to wrap a String's utf8 bits
+	in a cbtBitstring without Example.contentType(...) prefix,
+	cuz Example.contentType() has to write the contentType in raw form
+	to avoid infiniteLoop.
+	*/
+	public static fn utf8ToBitstring(String x){
+		return f(Text.stringToBytes(x));
+	}
+	
+	public static fn doubleToBitstring(double d){
+		return longToBitstring(Double.doubleToLongBits(d)); //normed bits
+	}
+	
+	public static fn longToBitstring(long j){
+		//TODO optimize using SmallCbt.
+		//Dont forget its (in abstract math but not storage) a cbt of size 128
+		//padded with 1 then 63 0s meaning its a bitstring size 64.
+		byte[] b = new byte[8];
+		MathUtil.copyLongIntoByteArray(b, 0, j);
+		return wrapPowOf2Size(b);
+	}
+	
 	/** wrap. If its primitive array, loses the type and dim sizes but keeps the bits. */
 	public static fn f(Object ob){
 		if(ob instanceof fn) return (fn)ob;
@@ -343,17 +365,20 @@ public class ImportStatic{
 			return f(Text.stringToBytes((String)ob));
 		}
 		if(ob instanceof Number){
+			if(ob instanceof Double){
+				return Example.doublePrefix().f(doubleToBitstring((Double)ob));
+			}
 			if(ob instanceof Byte){
 				byte b = (byte)ob;
-				return byteToRawCbt((byte)ob);
+				return byteToRawCbt((byte)ob); //FIXME use ImportStatic.doublePrefix() etc. contentType.
 			}
 			if(ob instanceof Short){
 				short s = (short)ob;
-				return f((byte)(s>>>8)).f((byte)s);
+				return f((byte)(s>>>8)).f((byte)s);  //FIXME use ImportStatic.doublePrefix() etc.  contentType.
 			}
 			if(ob instanceof Integer){
 				int i = (int)ob;
-				return f((short)(i>>>16)).f((short)i);
+				return f((short)(i>>>16)).f((short)i);  //FIXME use ImportStatic.doublePrefix() etc.  contentType.
 			}
 			throw new Error("TODO");
 		}
@@ -373,6 +398,10 @@ public class ImportStatic{
 			return f(MathUtil.intsToBytes((int[])ob));
 		}
 		throw new Error("TODO if prim array wrap in cbt. param="+ob);
+	}
+	
+	public static fn wrapPowOf2Size(byte[] b){
+		return wrapPowOf2SizeRange(b, 0, b.length);
 	}
 	
 	public static fn wrapPowOf2SizeRange(byte[] b, int start, int endExcl){
@@ -586,24 +615,41 @@ public class ImportStatic{
 	public static fn commentPixel(int pixelARGB){
 		return f(Example.tinyMap(), Example.commentKeyForPic(), f(pixelARGB));
 	}
-	
-	/**
-	011000010110001001100011 //string "abc"
+
+	/** 011000010110001001100011 //string "abc"
 	01100001011000100110001110000000 //padded
 	(01(10)(00(01))(01(10)(00(10)))(01(10)(00<unary1>)(10(00)(00(00))))) //fn of padded
 	*/
-	public static String str(fn f){
-		$();
-		if(!f.isBitstring()){
+	public static String toRawString(fn x){
+		$(); //TODO depend on string len
+		if(!x.isBitstring()){
 			throw new Error("Not a bitstring so cant be a utf8 string");
 		}
 		//FIXME throw Gas instead?
-		return Text.bytesToString(bytes(f));
+		//wrong direction: return Example.stringPrefix().f(x);
+		return Text.bytesToString(bytes(x));
+	}
+	
+
+	public static String str(fn x){
+		$(); //TODO depend on string len
+		if(x.L()==Example.stringPrefix()){
+			x = x.R();
+		}
+		if(!x.isBitstring()){
+			throw new Error("Not a bitstring so cant be a utf8 string");
+		}
+		//FIXME throw Gas instead?
+		//wrong direction: return Example.stringPrefix().f(x);
+		return Text.bytesToString(bytes(x));
 	}
 	
 	/** returns "" if not a utf8 string */
 	public static String strNoThrow(fn f){
-		$();
+		$(); //TODO depend on string len
+		if(f.L()==Example.stringPrefix()){
+			f = f.R();
+		}
 		if(!f.isBitstring() && (f.bitstringSize()&7)!=0) return "";
 		try{
 			//TODO optimize detect utf8 data format and return "" faster than throwing.
@@ -623,5 +669,6 @@ public class ImportStatic{
 		Boot.boot();
 		curHeightOf_opCurry = curry.curHeight();
 		lg("Occamsfuncer booted.");
+		//TODO Boot.optimize(), but calling that here would prevent TestBasics from testing it before optimizations
 	}
 }
