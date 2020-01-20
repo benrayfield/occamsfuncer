@@ -49,6 +49,7 @@ public class Gas extends RuntimeException{
 	*/
 	public static double top;
 	
+	
 	static{
 		memToComRatio = 1;
 		top = 1L<<53;

@@ -196,7 +196,12 @@ public strictfp interface fn extends Function<Object,fn>{
 	
 	public default fn COMMENT(fn newComment){
 		if(height() < 5) return this;
-		throw new Error("TODO");
+		throw new Error("TODO this is implemented in Call.java, should this have a default in fn interface?");
+	}
+	
+	public default fn COMMENT(Object newComment){
+		if(height() < 5) return this;
+		return COMMENT(f(newComment));
 	}
 	
 	/** comment (may be any datastruct), 1 of the 3 childs COMMENT L R.

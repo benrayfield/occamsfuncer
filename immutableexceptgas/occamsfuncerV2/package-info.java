@@ -1,4 +1,14 @@
 /** https://github.com/benrayfield/occamsfuncer
+V2 has no comment param in any of the 16 ops and instead
+has 3 childs instead of how V1 has 2 childs,
+and the third child is read and written by 2 ops
+which replaced the ifElse and lazig ops which
+are instead derived in Example.java
+and can be (in Boot.optimize(), TODO) optimized to
+the same speed as if they were ops.
+<br><br>
+OLD...
+<br><br>
 Different universal lambda functions get different occamsfuncer
 version numbers, such as occamsfuncerV1,
 and this (incomplete, TODO get same testcases working) is occamsfuncerV2.

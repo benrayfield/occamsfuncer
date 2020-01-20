@@ -36,7 +36,7 @@ public class Example{
 		return bouncingSpringy2dPolygonsLikeInSmartblobGame;
 	}
 
-	/** TODO use "Op.nondetGet cbtAsStringPlug (ocfnplug)"
+	/** OLD... TODO use "Op.nondetGet cbtAsStringPlug (ocfnplug)"
 	by prefixing all of these with ocfn,
 	like ocfnplugEquals, ocfnplugCdr, etc?
 	Or I could use these funcs to create the fns
@@ -76,7 +76,7 @@ public class Example{
 	private static fn callParamOnItself;
 	public static fn callParamOnItself(){
 		if(callParamOnItself == null){
-			callParamOnItself = S.f(I).f(I);
+			callParamOnItself = S.f(I).f(I);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("callParamOnItself");
 		}
 		return callParamOnItself;
 	}
@@ -85,7 +85,8 @@ public class Example{
 	public static fn fnThatInfiniteLoopsForEveryPossibleParam(){
 		if(fnThatInfiniteLoopsForEveryPossibleParam == null){
 			fnThatInfiniteLoopsForEveryPossibleParam =
-				lazig().f(callParamOnItself()).f(callParamOnItself());
+				lazig().f(callParamOnItself()).f(callParamOnItself())
+					;//comments in simplest few funcs might be causing infloops todo fix.COMMENT("fnThatInfiniteLoopsForEveryPossibleParam");
 		}
 		return fnThatInfiniteLoopsForEveryPossibleParam;
 	}
@@ -110,7 +111,7 @@ public class Example{
 				//cuz (curry cbtAsUnary constraint funcBody params...)
 				unary(4),
 				T //no constraint
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix .COMMENT("c");
 		}
 		return c;
 	}
@@ -124,7 +125,7 @@ public class Example{
 				//cuz (curry cbtAsUnary constraint funcBody params...)
 				unary(5),
 				T //no constraint
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("cc");
 		}
 		return cc;
 	}
@@ -138,7 +139,7 @@ public class Example{
 				//cuz (curry cbtAsUnary constraint funcBody params...)
 				unary(6),
 				T //no constraint
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("ccc");
 		}
 		return ccc;
 	}
@@ -152,7 +153,7 @@ public class Example{
 				//cuz (curry cbtAsUnary constraint funcBody params...)
 				unary(7),
 				T //no constraint
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("cccc");;
 		}
 		return cccc;
 	}
@@ -169,6 +170,12 @@ public class Example{
 			unary(3+funcParams),
 			T //no constraint
 		);
+		//comments in simplest few funcs might be causing infloops todo fix
+		/*String c = "";
+		for(int i=0; i<funcParams; i++) c += 'c';
+		if(funcParams > 4) c = "c"+funcParams; //compatible with c() to cccc(), todo replace those with this
+		ret = ret.COMMENT(c);
+		*/
 		if(isSmall) currysWithoutConstraints[funcParams] = ret;
 		return ret;
 	}
@@ -187,9 +194,25 @@ public class Example{
 					p(5), //if p4 is T
 					t(F) //if p4 is F
 				)
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("and");
 		}
 		return and;
+	}
+	
+	private static fn and3;
+	/** (and3 T T T) returns T. (and3 T F T) returns F. */
+	public static fn and3(){
+		if(and3 == null){
+			and3 = f(
+				ccc(),
+				ST(
+					and(),
+					ST(and(), p(4), p(5)),
+					p(6)
+				)
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("and3");
+		}
+		return and3;
 	}
 	
 	private static fn or;
@@ -197,17 +220,32 @@ public class Example{
 	TODO optimize: use ifelse for shortcircuiting.
 	*/
 	public static fn or(){
-		if(and == null){
-		and = f(
+		if(or == null){
+			or = f(
 				cc(),
 				S(
 					p(4),
-					t(F), //if p4 is T
+					t(T), //if p4 is T
 					p(5) //if p4 is F
 				)
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("or");
 		}
-		return and;
+		return or;
+	}
+	
+	private static fn or3;
+	public static fn or3(){
+		if(or3 == null){
+			or3 = f(
+				ccc(),
+				ST(
+					or(),
+					ST(or(), p(4), p(5)),
+					p(6)
+				)
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("or3");
+		}
+		return or3;
 	}
 	
 	private static fn unaryInc;
@@ -215,7 +253,7 @@ public class Example{
 	public static fn unaryInc(){
 		if(unaryInc == null){
 			//FIXME should this verify it is a unary (cbt of all cbt1)?
-			unaryInc = callParamOnItself;
+			unaryInc = callParamOnItself();//comments in simplest few funcs might be causing infloops todo fix.COMMENT("unaryInc");
 		}
 		return unaryInc;
 	}
@@ -247,19 +285,19 @@ public class Example{
 						ST(L, p(5)) //1 lower cbt than p5. R would work too.
 					)
 				)
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("unaryAdd");
 		}
 		return unaryAdd;
 	}
 	
 	//private static boolean experimentalEqualsCode = true;
-	private static fn equals;
-	public static fn equals(){
-		if(equals == null){
+	private static fn equalsIgnoringComments;
+	public static fn equalsIgnoringComments(){
+		if(equalsIgnoringComments == null){
 			fn getP4 = p(4);
 			fn getP5 = p(5);
 			fn p5IsLeaf = S(t(isLeaf),getP5);
-			equals = f(
+			equalsIgnoringComments = f(
 				cc(),
 				IF(
 					S(t(isLeaf),getP4),
@@ -274,7 +312,33 @@ public class Example{
 						)
 					))
 				)
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("equalsIgnoringComments");
+		}
+		return equalsIgnoringComments;
+	}
+	
+	private static fn equals;
+	public static fn equals(){
+		if(equals == null){
+			fn getP4 = p(4);
+			fn getP5 = p(5);
+			equals = f(
+				cc(),
+				IF(
+					ST(isLeaf,p(4)),
+					thenT(isLeaf,p(5)),
+					then(IF(
+						ST(isLeaf,p(5)),
+						tt(F),
+						thenT(
+							and3(),
+							S(recur, S(t(L),p(4)), S(t(L),p(5)) ),
+							S(recur, S(t(R),p(4)), S(t(R),p(5)) ),
+							S(recur, S(t(comment),p(4)), S(t(comment),p(5)) )
+						)
+					))
+				)
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("equals");
 		}
 		return equals;
 	}
@@ -718,7 +782,7 @@ public class Example{
 	(lazys x y z) returns (x y)
 	TODO? (S(lazys w x) y z) returns (S(w x) y), and (S(lazys w x) y) is halted.
 	FIXME is that possible?
-	*/
+	*
 	private static fn lazys;
 	public static fn lazys(){
 		if(lazys == null){
@@ -732,13 +796,13 @@ public class Example{
 			);
 		}
 		return lazys;
-	}
+	}*/
 	
 	private static fn lazig;
 	/** (lazig x y z)->(x y) */
 	public static fn lazig(){
 		if(lazig == null){
-			lazig = f( ccc(), S(p(4),p(5)) ); //ignore p(6)
+			lazig = f( ccc(), S(p(4),p(5)) );//comments in simplest few funcs might be causing infloops todo fix.COMMENT("lazig"); //ignore p(6)
 		}
 		return lazig;
 	}
@@ -760,7 +824,7 @@ public class Example{
 			ifElse = f(
 				ccc(),
 				ST(pair, getIfTrue, getIfFalse, getCondition, t(leaf))
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("ifElse");
 		}
 		return ifElse;
 	}
@@ -769,12 +833,12 @@ public class Example{
 	/** (lazyEval x y z) returns (x y z) */
 	public static fn lazyEval(){
 		if(lazyEval == null){
-			lazyEval = f( ccc(), S(p(4),p(5),p(6)) );
+			lazyEval = f( ccc(), S(p(4),p(5),p(6)) );//comments in simplest few funcs might be causing infloops todo fix.COMMENT("lazyEval");
 		}
 		return lazyEval;
 	}
 	
-	private static fn tinylist;
+	private static fn typeList;
 	/** (renaming this from tinylist to typeList).
 	A variable size list with no constraints or executable behaviors,
 	whose first param is suggested to be interpreted as contentType
@@ -831,8 +895,8 @@ public class Example{
 	]
 	*/
 	public static fn typeList(){
-		if(tinylist == null){
-			tinylist = leaf.f(leaf).f(leaf.f(leaf));
+		if(typeList == null){
+			typeList = leaf.f(leaf).f(leaf.f(leaf));
 			/*tinylist = f(
 				c(252), //contains unary(255)
 				//is a func that when it gets those params returns leaf,
@@ -841,7 +905,7 @@ public class Example{
 			);
 			*/
 		}
-		return tinylist;
+		return typeList;
 	}
 	
 	private static Map<String,fn> contentTypePrefixes = new HashMap();
@@ -876,10 +940,28 @@ public class Example{
 		if(tinyMap == null){
 			//tinyMap = typeList().f("tinyMap");
 			//tinyMap = typeList().f(utf8ToBitstring("tinyMap"));
-			tinyMap = contentType("application/x-occamsfuncerV2-tinyMap");
+			tinyMap = contentType("x-list/x-occamsfuncerV2-tinyMap");
 		}
 		return tinyMap;
 	}
+	
+	private static fn tinyMapGet;
+	public static fn tinyMapGet(){
+		if(tinyMapGet == null){
+			throw new Error("TODO");
+		}
+		return tinyMapGet;
+	}
+	
+	private static fn tinyMapPut;
+	public static fn tinyMapPut(){
+		if(tinyMapPut == null){
+			throw new Error("TODO");
+		}
+		return tinyMapPut;
+	}
+	
+	
 	
 	//FIXME should the tinymap instead be a list of typeList
 	//which each have a type and a suffix of 0 or more values,
@@ -960,7 +1042,7 @@ public class Example{
 						)
 					)
 				)	
-			);
+			);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("unaryAddUsingNondetEqq");
 			
 			/*this is using the old 5 param kind of ifElse (redesigned to 3 params)
 			unaryAddUsingNondetEqq = f(
@@ -1039,7 +1121,7 @@ public class Example{
 			//(pair x y) is Lxyz.zyx
 			//(car (pair x y)) is x
 			//(car (pair x y)) is La.aT
-			car = S.f(I).f(t(T));
+			car = S.f(I).f(t(T));//comments in simplest few funcs might be causing infloops todo fix.COMMENT("car");
 		}
 		return car;
 	}
@@ -1051,7 +1133,7 @@ public class Example{
 	public static fn cdr(){
 		if(cdr == null){
 			//see comment in car()
-			car = S.f(I).f(t(F));
+			car = S.f(I).f(t(F));//comments in simplest few funcs might be causing infloops todo fix.COMMENT("cdr");
 		}
 		return cdr;
 	}
@@ -1065,7 +1147,7 @@ public class Example{
 	*/
 	public static fn nil(){
 		if(nil == null){
-			nil = pair.f(T).f(T);
+			nil = pair.f(T).f(T); //cant .COMMENT("nil") cuz wouldnt equal churchEncoding nil
 		}
 		return nil;
 	}
@@ -1079,7 +1161,9 @@ public class Example{
 	*/
 	public static fn isNil(){
 		if(isNil == null){
-			isNil = equals().f(nil());
+			//better than churchEncoding of nil cuz doesnt break when its param is not a pair,
+			//but when param is a pair, same as churchEncoding.
+			isNil = equals().f(nil());//comments in simplest few funcs might be causing infloops todo fix.COMMENT("isNil"); 
 		}
 		return isNil;
 	}
@@ -1557,7 +1641,8 @@ public class Example{
 	public static fn eqq(){
 		if(eqq == null){
 			//eqq = cc().f(nondet.f("ocfnplug:"+Example.class.getName()+".ocfnplugEqq"));
-			eqq = cc().f(nondet.f("ocfnplug").f(Example.class.getName()+".ocfnplugEqq"));
+			eqq = cc().f(nondet.f("ocfnplug").f(Example.class.getName()+".ocfnplugEqq"))
+				;//comments in simplest few funcs might be causing infloops todo fix.COMMENT("==");
 		}
 		return eqq;
 	}
@@ -1599,6 +1684,49 @@ public class Example{
 	without much Human attention to them. Need an automatic generator
 	of list of such funcs.
 	*/
+	
+	/*
+	private static fn enforceType;
+	/** infloops if whats returned by second param causes first param to infloop,
+	else returns whats returned by second param.
+	See TestOpencl. Its going to be used there to enforce array size and primitive type of its contents???
+	*
+	public static fn enforceType(){
+		if(enforceType == null){
+			throw new Error("TODO");
+		}
+		return enforceType;
+	}*/
+	
+	/** Its first param is cbtBitstring of the correct size (sparsely stored).
+	Its second param is the cbtBitstring to return only if its that size,
+	else infloop. First param could come from ImportStatic.bitstringOfAll0sAndSize.
+	*
+	private static fn enforceIsCertainSizeOfFloatArray;
+	public static fn enforceIsCertainSizeOfFloatArray(){
+		if(enforceIsCertainSizeOfFloatArray == null){
+			throw new Error("TODO");
+		}
+		return enforceIsCertainSizeOfFloatArray;
+	}*/
+	
+	private static fn enforceType;
+	/** enforceType().f(type).f(value) returns value if type.f(value) halts
+	else infloops.
+	For example, enforce that its a normed float array (no strange NaN or infinity values)
+	of a certain cbtBitstring size (multiple of 32 bits),
+	such as will be used in TestOpencl.
+	<br><br>
+	This is simply (S T) <with a comment> since (S T type value)
+	evals to ((T value)(type value)), and (T value anything) evals to value,
+	unless (type value) doesnt halt.
+	*/
+	public static fn enforceType(){
+		if(enforceType == null){
+			enforceType = S.f(T);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("enforceType");
+		}
+		return enforceType;
+	}
 
 }
 

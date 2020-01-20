@@ -136,6 +136,23 @@ public class ImportStatic{
 		Gas.top = newTopGas;
 	}
 	
+	private static boolean trustedmode = false;
+	public static boolean isTrustedMode() {
+		return trustedmode;
+	}
+	
+	/** for running unverified code strings such as openclNdrangeKernel code
+	or the subset of java code that javassist compiles etc.
+	This design requiring trust is temporary as code verifiers should be
+	put into the occamsfuncer JIT compiler (Compiled.java) to
+	run formalVerification on generated code so it doesnt
+	need to be trusted, conditional on the systems it calls into
+	work as their spec describes.
+	*/
+	public static void setTrustedMode(boolean trust){
+		trustedmode = trust;
+	}
+	
 	public static fn infLoop() throws Gas{
 		throw Gas.instance();
 	}
@@ -362,7 +379,7 @@ public class ImportStatic{
 	public static fn f(Object ob){
 		if(ob instanceof fn) return (fn)ob;
 		if(ob instanceof String){
-			return f(Text.stringToBytes((String)ob));
+			return f(Text.stringToBytes((String)ob)); //FIXME wrap in Example.stringPrefix()?
 		}
 		if(ob instanceof Number){
 			if(ob instanceof Double){
@@ -490,6 +507,13 @@ public class ImportStatic{
 	*/
 	public static fn then(Object... obs){
 		return Example.lazig().f(S(obs));
+	}
+	
+	/** the ST form of then(...). ST just does t(...) to its first param
+	and other than that is the same as S(...).
+	*/
+	public static fn thenT(Object... obs){
+		return Example.lazig().f(ST(obs));
 	}
 	
 	/* l(...) is a literal linkedlist. L(...) is 1 s-lambda-level higher
@@ -661,6 +685,28 @@ public class ImportStatic{
 	
 	public static fn pair(fn myCar, fn myCdr){
 		return pair.f(myCar).f(myCdr);
+	}
+	
+	/** bitstring ends with cbt1 then padded with cbt0s until next powOf2 size */
+	public static fn bitstringOfAll0sAndSize(long size){
+		//FIXME check max bitstring size which Call.last1 can represent
+		if(size < 0) throw new Error("neg size "+size);
+		if(size == 0) return cbt1;
+		if(size == 1) return cbt0.f(cbt1);
+		//recurse todo 
+		throw new Error("TODO build this of log number of nodes starting with cbt0");
+	}
+	
+	/** Returns a call of Example.enforceType() which takes 1 more param,
+	the value to pass through as is vs infloop if its not that type.
+	For now make this a call of nondet, but todo implement it without nondet.
+	arraySize is in units of primType, not bits as usual in cbtBitstring.
+	*/
+	public static fn enforceType(Class primType, int arraySize){
+		if(primType == float.class){
+			throw new Error("TODO");
+		}
+		throw new Error("TODO");
 	}
 	
 	public static final int curHeightOf_opCurry;
