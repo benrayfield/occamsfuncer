@@ -1,9 +1,10 @@
 package mutable.occamsfuncerV2;
-import static immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic.*;
+import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
-import immutableexceptgas.occamsfuncerV2.fn;
+
+import immutableexceptgas.occamsfuncerV2Spec.fn;
 import mutable.util.Var;
 
 /** a mutable object whose state, input, and output are each a fn.

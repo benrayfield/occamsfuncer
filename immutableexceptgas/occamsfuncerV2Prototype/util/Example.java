@@ -1,10 +1,11 @@
-package immutableexceptgas.occamsfuncerV1.impl.util;
-import static immutableexceptgas.occamsfuncerV1.impl.util.Example.cc;
-import static immutableexceptgas.occamsfuncerV1.impl.util.ImportStatic.*;
+package immutableexceptgas.occamsfuncerV2Prototype.util;
+import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
-import immutableexceptgas.occamsfuncerV1.fn;
+import immutableexceptgas.occamsfuncerV2Spec.fn;
 
 /** This is NOT part of the occamsfuncer spec since all these
 could be derived using the simpler ops (at most height4)
@@ -20,7 +21,6 @@ I'm going to call those combos using java.
 */
 public class Example{
 	private Example(){}
-			
 	
 	/** TODO port the older version of https://github.com/benrayfield/smartblob
 	to occamsfuncer, as a proof of concept of opencl and javassist optimization
@@ -34,10 +34,8 @@ public class Example{
 		}
 		return bouncingSpringy2dPolygonsLikeInSmartblobGame;
 	}
-	
-	
-	
-	/** TODO use "Op.nondetGet cbtAsStringPlug (ocfnplug)"
+
+	/** OLD... TODO use "Op.nondetGet cbtAsStringPlug (ocfnplug)"
 	by prefixing all of these with ocfn,
 	like ocfnplugEquals, ocfnplugCdr, etc?
 	Or I could use these funcs to create the fns
@@ -47,15 +45,17 @@ public class Example{
 	like ocfnplugReflectExample(String funcName)
 	Example: ocfnplugReflectExample("cdr") returns Example.cdr().
 	*/
-	public static fn ocfnplugReflectExample(String funcName){
+	public static fn ocfnplugReflectExample(fn funcName){
 		$();
+		String funcNameS = str(funcName);
 		try{
-			return (fn) Example.class.getMethod(funcName).invoke(null);
+			return (fn) Example.class.getMethod(funcNameS).invoke(null);
 		}catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
 				| SecurityException e){
 			return infLoop();
 		}
 	}
+	
 	
 	private static fn iota;
 	/** This has the same param/return mapping as
@@ -67,7 +67,7 @@ public class Example{
 	*/
 	public static fn iota(){
 		if(iota == null){
-			iota = pair.f(S).f(T);
+			iota = pair.f(S).f(T).COMMENT("iota");
 		}
 		return iota;
 	}
@@ -75,7 +75,7 @@ public class Example{
 	private static fn callParamOnItself;
 	public static fn callParamOnItself(){
 		if(callParamOnItself == null){
-			callParamOnItself = S.f(I).f(I);
+			callParamOnItself = S.f(I).f(I).COMMENT("callParamOnItself");
 		}
 		return callParamOnItself;
 	}
@@ -84,7 +84,8 @@ public class Example{
 	public static fn fnThatInfiniteLoopsForEveryPossibleParam(){
 		if(fnThatInfiniteLoopsForEveryPossibleParam == null){
 			fnThatInfiniteLoopsForEveryPossibleParam =
-				lazig.f(callParamOnItself()).f(callParamOnItself());
+				lazig().f(callParamOnItself()).f(callParamOnItself())
+					.COMMENT("fnThatInfiniteLoopsForEveryPossibleParam");
 		}
 		return fnThatInfiniteLoopsForEveryPossibleParam;
 	}
@@ -109,7 +110,7 @@ public class Example{
 				//cuz (curry cbtAsUnary constraint funcBody params...)
 				unary(4),
 				T //no constraint
-			);
+			).COMMENT("c1");
 		}
 		return c;
 	}
@@ -123,7 +124,7 @@ public class Example{
 				//cuz (curry cbtAsUnary constraint funcBody params...)
 				unary(5),
 				T //no constraint
-			);
+			).COMMENT("c2");
 		}
 		return cc;
 	}
@@ -137,7 +138,7 @@ public class Example{
 				//cuz (curry cbtAsUnary constraint funcBody params...)
 				unary(6),
 				T //no constraint
-			);
+			).COMMENT("c3");
 		}
 		return ccc;
 	}
@@ -151,7 +152,7 @@ public class Example{
 				//cuz (curry cbtAsUnary constraint funcBody params...)
 				unary(7),
 				T //no constraint
-			);
+			).COMMENT("c4");;
 		}
 		return cccc;
 	}
@@ -167,7 +168,7 @@ public class Example{
 			//cuz (curry cbtAsUnary constraint funcBody params...)
 			unary(3+funcParams),
 			T //no constraint
-		);
+		).COMMENT("c"+funcParams);
 		if(isSmall) currysWithoutConstraints[funcParams] = ret;
 		return ret;
 	}
@@ -186,9 +187,25 @@ public class Example{
 					p(5), //if p4 is T
 					t(F) //if p4 is F
 				)
-			);
+			).COMMENT("and");
 		}
 		return and;
+	}
+	
+	private static fn and3;
+	/** (and3 T T T) returns T. (and3 T F T) returns F. */
+	public static fn and3(){
+		if(and3 == null){
+			and3 = f(
+				ccc(),
+				ST(
+					and(),
+					ST(and(), p(4), p(5)),
+					p(6)
+				)
+			).COMMENT("and3");
+		}
+		return and3;
 	}
 	
 	private static fn or;
@@ -196,17 +213,32 @@ public class Example{
 	TODO optimize: use ifelse for shortcircuiting.
 	*/
 	public static fn or(){
-		if(and == null){
-		and = f(
+		if(or == null){
+			or = f(
 				cc(),
 				S(
 					p(4),
-					t(F), //if p4 is T
+					t(T), //if p4 is T
 					p(5) //if p4 is F
 				)
-			);
+			).COMMENT("or");
 		}
-		return and;
+		return or;
+	}
+	
+	private static fn or3;
+	public static fn or3(){
+		if(or3 == null){
+			or3 = f(
+				ccc(),
+				ST(
+					or(),
+					ST(or(), p(4), p(5)),
+					p(6)
+				)
+			).COMMENT("or3");
+		}
+		return or3;
 	}
 	
 	private static fn unaryInc;
@@ -214,7 +246,7 @@ public class Example{
 	public static fn unaryInc(){
 		if(unaryInc == null){
 			//FIXME should this verify it is a unary (cbt of all cbt1)?
-			unaryInc = callParamOnItself;
+			unaryInc = callParamOnItself().COMMENT("unaryInc");
 		}
 		return unaryInc;
 	}
@@ -246,19 +278,19 @@ public class Example{
 						ST(L, p(5)) //1 lower cbt than p5. R would work too.
 					)
 				)
-			);
+			).COMMENT("unaryAdd");
 		}
 		return unaryAdd;
 	}
 	
 	//private static boolean experimentalEqualsCode = true;
-	private static fn equals;
-	public static fn equals(){
-		if(equals == null){
+	private static fn equalsIgnoringComments;
+	public static fn equalsIgnoringComments(){
+		if(equalsIgnoringComments == null){
 			fn getP4 = p(4);
 			fn getP5 = p(5);
 			fn p5IsLeaf = S(t(isLeaf),getP5);
-			equals = f(
+			equalsIgnoringComments = f(
 				cc(),
 				IF(
 					S(t(isLeaf),getP4),
@@ -273,9 +305,74 @@ public class Example{
 						)
 					))
 				)
-			);
+			).COMMENT("equalsIgnoringComments");//comments in simplest few funcs might be causing infloops todo fix.COMMENT("equalsIgnoringComments");
+		}
+		return equalsIgnoringComments;
+	}
+	
+	private static fn equals;
+	public static fn equals(){
+		if(equals == null){
+			fn getP4 = p(4);
+			fn getP5 = p(5);
+			equals = f(
+				cc(),
+				IF(
+					ST(isLeaf,p(4)),
+					thenT(isLeaf,p(5)),
+					then(IF(
+						ST(isLeaf,p(5)),
+						tt(F),
+						thenT(
+							and3(),
+							S(recur, S(t(L),p(4)), S(t(L),p(5)) ),
+							S(recur, S(t(R),p(4)), S(t(R),p(5)) ),
+							S(recur, S(t(comment),p(4)), S(t(comment),p(5)) )
+						)
+					))
+				)
+			).COMMENT("equals");//comments in simplest few funcs might be causing infloops todo fix.COMMENT("equals");
 		}
 		return equals;
+	}
+	
+	private static fn forestLessThan;
+	/** FIXME test this */
+	public static fn forestLessThan(){
+		if(forestLessThan == null){
+			forestLessThan = plug(TempOcfnplugs.class.getName()+".forestLessThan", 2);
+		}
+		return forestLessThan;
+	}
+	
+	
+	private static fn comparator;
+	/** returns a cbtBitstring size 32
+	(TODO verify its not just a cbt size 32,
+	since the cbtBitstring would be padded to size 64 but not store most of that),
+	an int which is -1, 0, or 1 if the 2 params are < = or > to eachother,
+	same as in java.util.Comparator except that allows any negative or positive
+	instead of just -1 or 1, and 0 means the same.
+	FIXME test this.
+	*/
+	public static fn comparator(){
+		if(comparator == null){
+			comparator = f(
+				cc(),
+				IF(
+					ST(forestLessThan(), p(4), p(5)),
+					t(intToBitstring(-1)),
+					then(
+						IF(
+							ST(forestLessThan(), p(5), p(4)),
+							t(intToBitstring(1)),
+							t(intToBitstring(0))
+						)
+					)
+				)
+			).COMMENT("comparatorByForestLessThan");
+		}
+		return comparator;
 	}
 	
 	private static fn funcParamReturn;
@@ -717,7 +814,7 @@ public class Example{
 	(lazys x y z) returns (x y)
 	TODO? (S(lazys w x) y z) returns (S(w x) y), and (S(lazys w x) y) is halted.
 	FIXME is that possible?
-	*/
+	*
 	private static fn lazys;
 	public static fn lazys(){
 		if(lazys == null){
@@ -731,30 +828,227 @@ public class Example{
 			);
 		}
 		return lazys;
-	}
+	}*/
 	
-	/** lazig is now 1 of the 16 ops so dont derive it here.
-	/*private static fn lazig;
-	/** (lazig x y z) returns (x y), ignoring z. Its a lazy (x y),
-	unlike (Op.lazyEval x y z) which returns (x y z).
-	TODO use this to get Example.equals() working, by redefining Op.ifElse
-	to have 3 params instead of 5, and paramIfTrue and funcIfTrue are both leaf.
-	*
+	private static fn lazig;
+	/** (lazig x y z)->(x y) */
 	public static fn lazig(){
 		if(lazig == null){
-			//(lazig x y z) returns (x y)
-			lazig = f( ccc(), S(p(4),p(5)) ); //ignore p(6)
+			lazig = f( ccc(), S(p(4),p(5)) ).COMMENT("lazig"); //ignore p(6)
 		}
 		return lazig;
-	}*/
+	}
+	
+	private static fn ifElse;
+	/** UPDATE: If condition is not T or F then evals to (pair ifTrue ifElse condition),
+	or something similar to that TODO verify.
+	OLD... (ifElse condition ifTrue ifFalse)
+	evals to (ifTrue leaf) if condition==T,
+	evals to (ifFalse leaf) if condition==F,
+	else infloops.
+	Normally used with lazig and S. See Example.equals() andOr ImportStatic.IF(fn,fn,fn).
+	*/
+	public static fn ifElse(){
+		if(ifElse == null){
+			fn getCondition = p(4);
+			fn getIfTrue = p(5);
+			fn getIfFalse = p(6);
+			ifElse = f(
+				ccc(),
+				ST(pair, getIfTrue, getIfFalse, getCondition, t(leaf))
+			).COMMENT("ifElse");
+		}
+		return ifElse;
+	}
 	
 	private static fn lazyEval;
 	/** (lazyEval x y z) returns (x y z) */
 	public static fn lazyEval(){
 		if(lazyEval == null){
-			lazyEval = f( ccc(), S(p(4),p(5),p(6)) );
+			lazyEval = f( ccc(), S(p(4),p(5),p(6)) );//comments in simplest few funcs might be causing infloops todo fix.COMMENT("lazyEval");
 		}
 		return lazyEval;
+	}
+	
+	private static fn typeList;
+	/** (renaming this from tinylist to typeList).
+	A variable size list with no constraints or executable behaviors,
+	whose first param is suggested to be interpreted as contentType
+	such as (tinylist() "image/jpeg" cbtBitstringOfJpgBytes)
+	where quotes are utf8 of cbtBitstring, but not all types need be string.
+	<br><br>
+	This is where a variety of other data types can hook in
+	if function behaviors arent enough to define them
+	such as a .jpg file is just a bitstring without knowing
+	that its supposed to generate pixels,
+	and you could create a function to get a pixel by its y and x coordinates,
+	but you might still want the semantic that the size 32 bits cbt
+	of a "pixel" is meant to be displayed as opacity red green blue.
+	Another example is (tinylist() "tinymap" key val key val...)
+	<br><br>
+	This returns ((..)(..)) which is not in the childs recursively
+	of any of the 16 ops but can of course be generated by them.
+	<br><br>
+	There will be storage optimizations for ((..)(..)) with 2 params,
+	and maybe with any num of params,
+	as I want the p2p net to send many small pieces of self contained data
+	to eachother, optimizing for shared prefixes.
+	(. . (..) "image/jpeg" bytesOfJpgFile) should therefore
+	have the same prefix as
+	(. . (..) "image/jpeg bytesOfAnotherJpgFile),
+	if I design it well (TODO).
+	<br><br>
+	Wrote 2020-1-4 while deciding on that design[
+	I might want ((..)(..)) to be used for semantics,
+	such as ( ((..)(..)) "doubleXStart doubleXEnd doubleYStart doubleYEnd doubleTimeStart doubleTimeEnd byteRed byteGreen byteBlue, color is whichever of these has max doubleSha256 of the cbtBitstring" cbtOfThatType )
+	or such as ( ((..)(..)) "image/jpeg" cbtBitstringOfJpgBytes ).
+	((..)(..)) is not part of any of the 16 ops but would come up automatically
+	in many possible explorations of all possible funcs. Still those could
+	be designed to avoid ((..)(..)).
+	On the other hand, I could remove one of the ops,
+	such as I (identityFunc) and replace it with (S T T) and Compiled optimize that,
+	but (S T T) costs more space than I.
+	Since ((..)(..)) doesnt have any special behaviors,
+	its not an op any more than the childs of L or childs of getp are ops,
+	so it uses the same Compiled as all the others between height1 and height3.
+	At height 2 theres only (.(..)) and ((..).) and ((..)(..)).
+	Actuall ((..)(..)) would be a good replacement for Exmaple.tinylist()
+	since it can have unlimited curries.
+	Maybe I should use it that way and its first param is always interpreted
+	as a contentType (loosely, such as "tinymap" could be a contentType
+	such as ( ((..)(..)) "tinymap" key val key val... ) ).
+	Thats what I'll do. ((..)(..)) is tinylist and its first param is always
+	interpreted as a contentType,
+	...
+	and TODO how will i optimize it so things like
+	"doubleXStart doubleXEnd doubleYStart doubleYEnd doubleTimeStart doubleTimeEnd byteRed byteGreen byteBlue, color is whichever of these has max doubleSha256 of the cbtBitstring"
+	for massively multiplayer proofOfWork paint
+	have a very small header when many objects
+	]
+	*/
+	public static fn typeList(){
+		if(typeList == null){
+			typeList = leaf.f(leaf).f(leaf.f(leaf));
+			/*tinylist = f(
+				c(252), //contains unary(255)
+				//is a func that when it gets those params returns leaf,
+				//but tinylist is not meant to ever get full.
+				t(leaf)
+			);
+			*/
+		}
+		return typeList;
+	}
+	
+	private static Map<String,fn> contentTypePrefixes = new HashMap();
+	/** curry 1 or more things as this is a typeList with 1 param */
+	public static fn contentType(String contentType){
+		fn ret = contentTypePrefixes.get(contentType);
+		if(ret == null){
+			ret = typeList().f(utf8ToBitstring(contentType));
+			contentTypePrefixes.put(contentType, ret);
+		}
+		return ret;
+	}
+	
+	private static boolean stringPrefixHasBeenCalled = false;
+	public static boolean stringPrefixHasBeenCalled(){
+		return stringPrefixHasBeenCalled;
+	}
+	
+	public static fn stringPrefix(){
+		fn ret = contentType("text/plain;charset=UTF-8"); //TODO verify thats the right way to write utf8
+		stringPrefixHasBeenCalled = true;
+		return ret;
+	}
+
+	public static fn doubleTextPrefix(){
+		//https://www.reddit.com/r/AskProgramming/comments/eqjabk/whats_the_contenttype_of_the_64_bits_of_an/
+		return contentType("text/x-IEEE754-double-base10");
+		
+	}
+	public static fn doublePrefix(){
+		//https://www.reddit.com/r/AskProgramming/comments/eqjabk/whats_the_contenttype_of_the_64_bits_of_an/
+		return contentType("application/x-IEEE754-double"); //TODO verify thats the right way to write utf8
+	}
+	
+	
+	private static fn tinyMap;
+	/** a tinylist with "tinymap" as its first item, then alternates key val key val */
+	public static fn tinyMap(){
+		if(tinyMap == null){
+			//tinyMap = typeList().f("tinyMap");
+			//tinyMap = typeList().f(utf8ToBitstring("tinyMap"));
+			tinyMap = contentType("x-list/x-occamsfuncerV2-tinyMap");
+		}
+		return tinyMap;
+	}
+	
+	private static fn tinyMapGet;
+	public static fn tinyMapGet(){
+		if(tinyMapGet == null){
+			throw new Error("TODO");
+		}
+		return tinyMapGet;
+	}
+	
+	private static fn tinyMapPut;
+	public static fn tinyMapPut(){
+		if(tinyMapPut == null){
+			throw new Error("TODO");
+		}
+		return tinyMapPut;
+	}
+	
+	
+	
+	//FIXME should the tinymap instead be a list of typeList
+	//which each have a type and a suffix of 0 or more values,
+	//in this case would always be 1 value?
+	private static fn commentKeyForText;
+	public static fn commentKeyForText(){
+		if(commentKeyForText == null){
+			commentKeyForText = w("txt"); //TODO use contentType(String)? Dont want contentType of the contentType's name recursively
+		}
+		return commentKeyForText;
+	}
+	
+	private static fn commentKeyForPic;
+	public static fn commentKeyForPic(){
+		if(commentKeyForPic == null){
+			commentKeyForPic = w("pic"); //TODO use contentType(String)? Dont want contentType of the contentType's name recursively
+		}
+		return commentKeyForPic;
+	}
+	
+	/** contentType (tinyList key) for datastruct for the long[4]/byte[32] in
+	https://github.com/benrayfield/mouseSwarm
+	(and it may have other datastructs for other variants of mouse-like swarming
+	such as the 2d moving window where pixels quickly become a constant color
+	by sortedPointer norm 1 colorDim display (see Util.java i wrote about that 2020-1-13,
+	but anything like that would be a DIFFERENT contentType.
+	<br><br>
+	Example: (mouseSwarmY2020M1Prefix() the32Bytes)
+	aka (typeList() itsContentType the32Bytes)
+	*/
+	public static fn mouseSwarmY2020M1Prefix;
+	public static fn mouseSwarmY2020M1Prefix(){
+		if(mouseSwarmY2020M1Prefix == null){
+			mouseSwarmY2020M1Prefix = f(typeList(),"mouseSwarmY2020M1");
+		}
+		return mouseSwarmY2020M1Prefix;
+	}
+	
+	/** returns F if first param < second param, else T,
+	where those 2 params are each like (mouseSwarmY2020M1Prefix() the32Bytes).
+	*/
+	public static fn mouseSwarmY2020M1Comparator;
+	public static fn mouseSwarmY2020M1Comparator(){
+		if(mouseSwarmY2020M1Comparator == null){
+			throw new Error("TODO");
+			//mouseSwarmY2020M1Comparator = TODO
+		}
+		return mouseSwarmY2020M1Comparator;
 	}
 	
 	
@@ -772,14 +1066,14 @@ public class Example{
 			unaryAddUsingNondetEqq = f(
 				cc(),
 				S(
-					t(ifElse),
+					t(Example.ifElse()),
 					//condition. If second param is unary0
 					S(t(eqq().f(unary(0))),getP5),
 					//ifTrue
-					f(lazig, getP4),
+					f(Example.lazig(), getP4),
 					//ifFalse
 					f(
-						lazig,
+						Example.lazig(),
 						S(
 							recur,
 							S(t(unaryInc()),getP4),
@@ -787,7 +1081,7 @@ public class Example{
 						)
 					)
 				)	
-			);
+			).COMMENT("unaryAddUsingNondetEqq");
 			
 			/*this is using the old 5 param kind of ifElse (redesigned to 3 params)
 			unaryAddUsingNondetEqq = f(
@@ -865,8 +1159,9 @@ public class Example{
 		if(car == null){
 			//(pair x y) is Lxyz.zyx
 			//(car (pair x y)) is x
-			//car is La.aT
-			car = S.f(I).f(t(T));
+			//(car (pair x y)) is La.aT
+			car = S.f(I).f(t(T)).COMMENT("car");
+			Boot.tempNames.put(car, "<car>");
 		}
 		return car;
 	}
@@ -878,7 +1173,8 @@ public class Example{
 	public static fn cdr(){
 		if(cdr == null){
 			//see comment in car()
-			cdr = S.f(I).f(t(F));
+			cdr = S.f(I).f(t(F)).COMMENT("cdr");
+			Boot.tempNames.put(cdr, "<cdr>");
 		}
 		return cdr;
 	}
@@ -892,7 +1188,8 @@ public class Example{
 	*/
 	public static fn nil(){
 		if(nil == null){
-			nil = pair.f(T).f(T);
+			nil = pair.f(T).f(T); //cant .COMMENT("nil") cuz wouldnt equal churchEncoding nil
+			Boot.tempNames.put(nil, "<nil>");
 		}
 		return nil;
 	}
@@ -906,7 +1203,9 @@ public class Example{
 	*/
 	public static fn isNil(){
 		if(isNil == null){
-			isNil = equals().f(nil());
+			//better than churchEncoding of nil cuz doesnt break when its param is not a pair,
+			//but when param is a pair, same as churchEncoding.
+			isNil = equals().f(nil());//comments in simplest few funcs might be causing infloops todo fix.COMMENT("isNil"); 
 		}
 		return isNil;
 	}
@@ -1375,17 +1674,34 @@ public class Example{
 	
 	public static fn ocfnplugEqq(fn madeByCurry){
 		$();
-		fn a = getParam(4,madeByCurry);
-		fn b = getParam(5,madeByCurry);
+		fn a = getp(4,madeByCurry);
+		fn b = getp(5,madeByCurry);
 		return a==b ? T : F;
 	}
 	
-	public static fn eqq;
+	private static fn eqq;
 	public static fn eqq(){
 		if(eqq == null){
-			eqq = cc().f(nondet.f("ocfnplug:"+Example.class.getName()+".ocfnplugEqq"));
+			//eqq = cc().f(nondet.f("ocfnplug:"+Example.class.getName()+".ocfnplugEqq"));
+			eqq = cc().f(nondet.f("ocfnplug").f(Example.class.getName()+".ocfnplugEqq"))
+				;//comments in simplest few funcs might be causing infloops todo fix.COMMENT("==");
 		}
 		return eqq;
+	}
+	
+	private static fn defaultServerState;
+	/** First value of (Var<fn>)mutable.occmsfuncerV2.Network.serverState,
+	which should be saved and restored between runs of JVM,
+	can potentially be used for the rest of your life,
+	forked, merged, or use as many of them as you want,
+	or build your own.
+	*/
+	public static fn defaultServerState(){
+		if(defaultServerState == null){
+			//defaultServerState = TODO;
+			throw new Error("TODO");
+		}
+		return defaultServerState;
 	}
 	
 	/*TODO some of those fun experimental jar files in my q18 dir
@@ -1410,6 +1726,49 @@ public class Example{
 	without much Human attention to them. Need an automatic generator
 	of list of such funcs.
 	*/
+	
+	/*
+	private static fn enforceType;
+	/** infloops if whats returned by second param causes first param to infloop,
+	else returns whats returned by second param.
+	See TestOpencl. Its going to be used there to enforce array size and primitive type of its contents???
+	*
+	public static fn enforceType(){
+		if(enforceType == null){
+			throw new Error("TODO");
+		}
+		return enforceType;
+	}*/
+	
+	/** Its first param is cbtBitstring of the correct size (sparsely stored).
+	Its second param is the cbtBitstring to return only if its that size,
+	else infloop. First param could come from ImportStatic.bitstringOfAll0sAndSize.
+	*
+	private static fn enforceIsCertainSizeOfFloatArray;
+	public static fn enforceIsCertainSizeOfFloatArray(){
+		if(enforceIsCertainSizeOfFloatArray == null){
+			throw new Error("TODO");
+		}
+		return enforceIsCertainSizeOfFloatArray;
+	}*/
+	
+	private static fn enforceType;
+	/** enforceType().f(type).f(value) returns value if type.f(value) halts
+	else infloops.
+	For example, enforce that its a normed float array (no strange NaN or infinity values)
+	of a certain cbtBitstring size (multiple of 32 bits),
+	such as will be used in TestOpencl.
+	<br><br>
+	This is simply (S T) <with a comment> since (S T type value)
+	evals to ((T value)(type value)), and (T value anything) evals to value,
+	unless (type value) doesnt halt.
+	*/
+	public static fn enforceType(){
+		if(enforceType == null){
+			enforceType = S.f(T);//comments in simplest few funcs might be causing infloops todo fix.COMMENT("enforceType");
+		}
+		return enforceType;
+	}
 
 }
 

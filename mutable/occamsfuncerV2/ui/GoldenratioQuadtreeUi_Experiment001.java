@@ -1,5 +1,5 @@
 package mutable.occamsfuncerV2.ui;
-import static immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic.*;
+import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 
 import javax.swing.JPanel;
 
-import immutableexceptgas.occamsfuncerV2.fn;
-import immutableexceptgas.occamsfuncerV2.impl.util.Example;
+import immutableexceptgas.occamsfuncerV2Prototype.util.Example;
+import immutableexceptgas.occamsfuncerV2Spec.fn;
 import mutable.util.Rand;
 import mutable.util.ScreenUtil;
 import mutable.util.Var;

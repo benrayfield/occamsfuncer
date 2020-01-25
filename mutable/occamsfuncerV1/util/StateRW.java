@@ -1,5 +1,5 @@
 package mutable.occamsfuncerV1.util;
-import immutableexceptgas.occamsfuncerV2.fn;
+import immutableexceptgas.occamsfuncerV2Spec.fn;
 
 /** STATE Reading and Writing as occamsfuncer objects (fn),
 an alternative to java.io.Serializable.

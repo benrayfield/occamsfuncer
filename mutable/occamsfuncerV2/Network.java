@@ -1,10 +1,11 @@
 package mutable.occamsfuncerV2;
-import static immutableexceptgas.occamsfuncerV2.impl.util.ImportStatic.*;
-import immutableexceptgas.occamsfuncerV2.*;
-import immutableexceptgas.occamsfuncerV2.impl.util.Example;
+import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import java.util.Map;
 import java.util.Set;
+
+import immutableexceptgas.occamsfuncerV2Prototype.util.Example;
+import immutableexceptgas.occamsfuncerV2Spec.*;
 
 /** Static funcs to access network in safe ways
 (that malicious code in occamsfuncer sandbox
