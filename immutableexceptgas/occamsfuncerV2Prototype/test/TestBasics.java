@@ -10,6 +10,7 @@ import immutableexceptgas.occamsfuncerV2Prototype.util.TempOcfnplugs;
 import immutableexceptgas.occamsfuncerV2Spec.Compiled;
 import immutableexceptgas.occamsfuncerV2Spec.Gas;
 import immutableexceptgas.occamsfuncerV2Spec.fn;
+import mutable.util.Rand;
 import mutable.util.Time;
 
 public strictfp class TestBasics{
@@ -453,6 +454,61 @@ public strictfp class TestBasics{
 		testEqq("isNil_[list_getp_recur_L]", isNil.f(list_getp_recur_L), F);
 	}
 	
+	/** See comment in Nondet.nondet(fn,fn.fn) about the design sacrifices
+	being considered about the interaction between nondet and caching
+	and the design so far (2020-1-26), which makes it harder to use,
+	is that some nondet ops (wallet and spend, maybe others) take a salt param,
+	and that salt has to be computed deterministicly as it flows through the code
+	depending on which path the salt goes.
+	I very much want a way to do it without manually flowing salt through
+	the code that sometime later may call nondet and instead
+	generating it randomly from (nondet nondet nondet size) at the time,
+	but I dont know how to (and maybe its logically impossible)
+	cache the right calls of nondet (that (nondet nondet nondet size) generates salt for)
+	as other code still needs to use the result derived from whatever the nondet returned,
+	but other calls of nondet are meant to be called differently.
+	Since all ops except nondet are pure deterministic (unless they call nondet
+	and you cant know if they will or not every time cuz of haltingProblem,
+	but you can run in pure deterministic mode (Gas.forceDeterminism)
+	so nondet always costs infinite time).... Since all ops except nondet
+	are pure deterministic, and thats built into the kind of caching
+	that it needs to not take exponential time to do a small thing,
+	the interactions between determinism, nondeterminism, and caching
+	are very hard to design.
+	*/
+	public static void testLimitComputeResources(){
+		lg("Starting testLimitComputeResources");
+		fn spend = cccc().f(nondet.f("limitComputeResources").f("spend"));
+		//(spend salt maxSpend try catch) returns either (try leaf) or (catch leaf).
+		fn wallet = nondet.f("limitComputeResources").f("wallet");
+		//(wallet salt) returns Gas.top
+		
+		fn nondetNondetNondet = nondet.f(nondet).f(nondet);
+		fn unary7 = unary(7); //just to make sure its the same object. caching is being tested.
+		fn saltA = nondetNondetNondet.f(unary7);
+		fn saltB = nondetNondetNondet.f(unary7);
+		if(saltA.equals(saltB)){
+			throw new Error("2 randoms equal, even when done directly by nondetNondetNondet: "+saltA);
+		}
+		lg("(nondet nondet nondet <unary7>) correctly gave 2 different cbts when called twice.");
+		
+		fn nextSalt = Example.nextRandCbt128_callMeOnLeaf();
+		
+		fn saltC = nextSalt.f(leaf);
+		fn saltD = nextSalt.f(leaf);
+		if(saltC.equals(saltD)) throw new Error("2 randoms equal (but earlier test passed that generates randoms by (nondet nondet nondet <unary7>) but theres maybe no way around needing to manually compute salt many places deterministicly): "+saltC);
+		/*fn loop = cc().f(
+			IF(),
+			saltA
+		);
+		
+		double gasStart = Gas.top;
+		
+		double gasEnd = Gas.top;
+		*/
+		lg("nextRandCbt128_callMeOnLeaf gave 2 different salts, but that doesnt solve the cache problem of not trying to call it multiple times");
+	}
+	
 	public static void testOcfnplugDoubleMathRaw_stuffThatWillBeReplacedByUserLevelCodeLater(){
 		lg("Starting testOcfnplugDoubleMathRaw_stuffThatWillBeReplacedByUserLevelCodeLater");
 		fn dMulRaw = cc().f(nondet.f("ocfnplug").f(TempOcfnplugs.class.getName()+".ocfnplugDoubleMultiplyRaw"));
@@ -583,7 +639,7 @@ public strictfp class TestBasics{
 			testIsUnaryCbt();
 			testGetp();
 			testAnd();
-			testEqualsWithoutDedup(false);
+			testEqualsWithoutDedup(true);
 			testString();
 			testOcfnplug();
 			testIfElse();
@@ -591,7 +647,7 @@ public strictfp class TestBasics{
 			//obsolete: testLazys();
 			testLazig();
 			testLazyEval(param);
-			testEqualsWithoutDedup(true);
+			testEqualsWithoutDedup(false);
 			testIota();
 			testTrinaryForest();
 			testConsCarCdr();
@@ -651,6 +707,9 @@ public strictfp class TestBasics{
 			//FIXME make sure see "lazyEval.compiled" in program output,
 			//then commentOut that lg in Boot.optimize() of Example.lazyEval().
 		}
+		
+		testLimitComputeResources();
+		
 		
 		lg("The loop of tests to do before optimizing and again after optimizing, all passed.");
 		

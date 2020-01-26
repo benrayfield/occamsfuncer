@@ -2,6 +2,7 @@
 package immutableexceptgas.occamsfuncerV2Spec;
 
 public class Gas extends RuntimeException{
+	private Gas(){}
 	
 	/** Think of this as simulating free market trading
 	between memory and compute cycles, both paid in units of Gas.top.

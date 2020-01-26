@@ -356,7 +356,23 @@ public enum Op{
 	
 	////////
 	
-	/** (curry cbtAsUnary constraint/T funcBody ...params...)
+	/** (curry cbtAsUnary constraint/T funcBody ...params...),
+	where first param is recommended to be saltElseLeaf_forNondet
+	as in (written in comments of Nondet.java 2020-1-26)[
+		It is decided, at least until I find a better solution
+		but probably never will find a better solution, decided that:
+		(curry cbtUnary constraint funcbody optionalSaltElseLeaf_forNondet params...)
+		and cccc().f(nondet.f("limitComputeResources").f("spend"))
+		.f(saltElseLeaf_forNondet).f(maxSpend).f(doIfEnoughWallet).f(elseDo)
+		and nondet.f("limitComputeResources").f("wallet").f(saltElseLeaf_forNondet)
+		but since saltElseLeaf_forNondet doesnt require any changes to
+		the curry op, only to params of nondet (wallet and spend etc),
+		this will only be recommended in the comment of curry op,
+		and it maybe will in some ways of using the system
+		automatically pass the salt param from each curry to child curry(s)
+		each with a different transform, optionally.
+	]
+	<br><br>
 	I chose that order of params so Call constructor
 	will know its number of curries right away other than if its Op.curry
 	whose number of curries is 0 (vararg).

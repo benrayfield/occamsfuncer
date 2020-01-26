@@ -52,6 +52,8 @@ public class CallAsKey{
 	*/
 	
 	public CallAsKey(fn haltedLRComment){
+		//no need to verify haltedLRComment.L() != leftCantBeThis
+		//cuz no return value has (nondet nondet nondet) as its L.
 		if(haltedLRComment == Leaf.instance) throw new Error("Cant cache leaf cuz thats where fractal wraps around aka leaf.L()==I and leaf.R()==leaf, and I is made of calling leaf on itself a certain combo at height 4.");
 		this.retIsThisPair = true;
 		this.L = haltedLRComment.L();
@@ -59,11 +61,20 @@ public class CallAsKey{
 		this.comment = haltedLRComment.comment();
 	}
 	
-	public CallAsKey(fn L, fn R, fn comment){
+	/** If left is this, it should instantly eval to the random cbt bits
+	instead of being cached.
+	*
+	public static fn leftCantBeThis = Boot.cantCacheIfLeftIsThis();
+	*/
+	
+	public CallAsKey(fn myL, fn myR, fn myComment){
+		//if(L == leftCantBeThis){
+		//if(!Cache.canCacheCall(myL, myR, myComment))
+		//	throw new Error("TODO see "+Nondet.class+" about (nondet nondet nondet aCbt) being a noncachable source of randomness. This constructor shouldnt have been called with that param, as Cache.java should have checked for, or where else might it be called from?");
 		this.retIsThisPair = false;
-		this.L = L;
-		this.R = R;
-		this.comment = comment;
+		this.L = myL;
+		this.R = myR;
+		this.comment = myComment;
 	}
 	
 	public boolean equals(Object obj){

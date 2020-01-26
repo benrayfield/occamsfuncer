@@ -7,6 +7,54 @@ todo copy from phonedoc soon to here too.
 */
 public class Todos{
 	
+	
+	
+	
+	/** This comment moved from Cache.java
+	 
+	TODO make ids this way asap.
+	
+	About ids...
+	perfectDedupOfCbtUpToHeight is 13 cuz its needed to dedup ids and
+	small string literals used as var names.
+	Cbt0 and cbt1 are height 4. Height 13 is cbts size 512.
+	Ids are normally 36 bytes, including 4 bytes of header and up to 256 bytes of literal.
+	They can contain a multihash (such as used in ipfs)
+	or a rawCbt from 1 to 256 bits (only powOf2 sizes)
+	or a cbtBitstring from 0 (1 with padding) to 256 (257 with padding) bits.
+	The choice of multihash vs cbtRaw vs cbtBitstring,
+	and the multihash header, go in the extra 4 bytes.
+	Its meant to fit in 9 ints so there will be padding in the 4 bytes sometimes.
+	Since rawCbt has to be a powOf2, despite that Id like to use
+	doubleSha224 instead of doubleSha256,
+	still have to add header past any powOf2 size,
+	and since ipfs (at least it did years ago) by default uses sha256,
+	I'm trying the default kind of ids being 1 byte of my kind of header,
+	to say the type of thing, then up to 3 bytes of multihash header, etc.
+	<br><br>
+	Also unaryCbt will be deduped if dedupAllUnaryCbt, nomatter their height.
+	There will be a special kind of id for them which doesnt store their content,
+	only stores their height, maybe in an int24 or int32 or maybe an int256?
+	<br><br>
+	FIXME this perfect dedup does not include childs of a cbt except
+	that ids are always perfect dedup and its possible to cache all ids
+	BUT it seems too expensive to cache all the childs of a wrapped array,
+	those being the left and right halfs of it recursively. 
+	*
+	public static final byte perfectDedupUpToHeight = 13;
+	TODO
+	
+	/** FIXME should this be true?
+	These can be deduped by height in int range using Call.isUnaryCbt and Call.height,
+	both in Cache.java and ids.
+	*
+	public static final boolean dedupAllUnaryCbtUpToInt32Height = false;
+	*/
+	
+	
+	
+	
+	
 	/*Moved this from Example.mapPair[
 	TODO now that I have double math working with ocfnplugs
 	(todo do it as user level code to avoid op.nondet things

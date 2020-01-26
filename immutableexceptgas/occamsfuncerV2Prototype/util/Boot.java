@@ -93,6 +93,11 @@ public class Boot{
 		return ops[i];
 	}
 	
+	/*public static fn cantCacheIfLeftIsThis(){
+		fn nondet = op(Op.nondet.ordinal());
+		return cp(cp(nondet,nondet),nondet);
+	}*/
+	
 	/** Use Gas.infLoop() instead.
 	will not actually infloop but this means avoid running out of
 	compute resources by ending whatever you're doing, same as would

@@ -1,5 +1,7 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutableexceptgas.occamsfuncerV2Prototype.util;
+import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.nondet;
+
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -98,43 +100,6 @@ Level2 has 5 binary forest shapes.
 Level3 has 26 binary forest shapes.
 */
 public class Cache{
-	
-	/** About ids...
-	perfectDedupOfCbtUpToHeight is 13 cuz its needed to dedup ids and
-	small string literals used as var names.
-	Cbt0 and cbt1 are height 4. Height 13 is cbts size 512.
-	Ids are normally 36 bytes, including 4 bytes of header and up to 256 bytes of literal.
-	They can contain a multihash (such as used in ipfs)
-	or a rawCbt from 1 to 256 bits (only powOf2 sizes)
-	or a cbtBitstring from 0 (1 with padding) to 256 (257 with padding) bits.
-	The choice of multihash vs cbtRaw vs cbtBitstring,
-	and the multihash header, go in the extra 4 bytes.
-	Its meant to fit in 9 ints so there will be padding in the 4 bytes sometimes.
-	Since rawCbt has to be a powOf2, despite that Id like to use
-	doubleSha224 instead of doubleSha256,
-	still have to add header past any powOf2 size,
-	and since ipfs (at least it did years ago) by default uses sha256,
-	I'm trying the default kind of ids being 1 byte of my kind of header,
-	to say the type of thing, then up to 3 bytes of multihash header, etc.
-	<br><br>
-	Also unaryCbt will be deduped if dedupAllUnaryCbt, nomatter their height.
-	There will be a special kind of id for them which doesnt store their content,
-	only stores their height, maybe in an int24 or int32 or maybe an int256?
-	<br><br>
-	FIXME this perfect dedup does not include childs of a cbt except
-	that ids are always perfect dedup and its possible to cache all ids
-	BUT it seems too expensive to cache all the childs of a wrapped array,
-	those being the left and right halfs of it recursively. 
-	*
-	public static final byte perfectDedupUpToHeight = 13;
-	TODO
-	
-	/** FIXME should this be true?
-	These can be deduped by height in int range using Call.isUnaryCbt and Call.height,
-	both in Cache.java and ids.
-	*
-	public static final boolean dedupAllUnaryCbtUpToInt32Height = false;
-	*/
  
 	
 	private static final Map<CallAsKey,fn> funcParamCommentReturn = new HashMap();
@@ -148,6 +113,14 @@ public class Cache{
 			set.add(entry.getValue());
 		}
 		return set.toArray(new fn[0]);
+	}
+	
+	public static boolean canCacheCall(fn aFunc, fn aParam, fn aComment){
+		//TODO optimize by remembering leftCantBeThis but creating it after Boot
+		
+		//is not (nondet nondet nondet), but cant just say that
+		//cuz CallAsKey happens very early in boot.
+		return aFunc.height()!=6 || aFunc.R()!=nondet || aFunc.L().R()!=nondet || aFunc.L().L()!=nondet;
 	}
 	
 	/*FIXME should it be dedup by <func,param>, using map of <func,param,return>?
@@ -172,8 +145,14 @@ public class Cache{
 		funcParamCommentReturn.put(new CallAsKey(parent), parent);
 	}
 	
-	public static void putFuncParamCommentReturn(fn func, fn param, fn comment, fn ret){
+	/** returns boolean of did it cache, depending on canCacheCall */
+	public static boolean putFuncParamCommentReturn(fn func, fn param, fn comment, fn ret){
+		//TODO optimize only check this in Call.f etc.
+		if(!canCacheCall(func,param,comment))
+			return false;
+			//throw new Error("Not cachable: func"+func+" param"+param+" comment"+comment);
 		funcParamCommentReturn.put(new CallAsKey(func,param,comment), ret);
+		return true;
 	}
 	
 	//FIXME this func was from another fork of occamsfuncer that had type:content leafs
@@ -295,6 +274,10 @@ public class Cache{
 	
 	/** nodes from depth0 to to the given depth. This func is not cached. */
 	public static BigInteger nodes(int depth){
+		//FIXME this is only true for binary forest,
+		//which exists at heights 0 to 4, but at height 5
+		//it becomes trinary forest.
+		//Below that the comment branches are all leaf.
 		BigInteger x = BigInteger.ONE;
 		for(int i=1; i<=depth; i++){
 			x = x.multiply(x).add(BigInteger.ONE);

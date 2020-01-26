@@ -1769,6 +1769,20 @@ public class Example{
 		}
 		return enforceType;
 	}
+	
+	private static fn nextRandCbt128_callMeOnLeaf;
+	/** Call this on leaf to get next.
+	FIXME this might be incompatible with caching. See TestBasics.testLimitComputeResources.
+	Or maybe its compatible? Cuz Cache.java is not allowed to
+	cache any CallAsKey whose L is (nondet nondet nondet).
+	*/
+	public static fn nextRandCbt128_callMeOnLeaf(){
+		if(nextRandCbt128_callMeOnLeaf == null){
+			nextRandCbt128_callMeOnLeaf =
+				lazig().f(nondet.f(nondet).f(nondet)).f(unary(11));
+		}
+		return nextRandCbt128_callMeOnLeaf;
+	}
 
 }
 

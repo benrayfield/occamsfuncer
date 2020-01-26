@@ -17,6 +17,7 @@ a listener of (prevState param return nextState)
 aState.f(param).f(T) is output.
 aState.f(param).f(F) is nextState.
 For example, return (pair output nextState).
+(or is that backward?)
 */
 public final class Mut implements Function<Object,fn>{
 	

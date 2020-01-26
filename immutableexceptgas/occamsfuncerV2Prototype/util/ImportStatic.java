@@ -68,6 +68,13 @@ public class ImportStatic{
 	
 	/////
 	
+	
+	
+	/*
+	public static fn randCbt128(){
+		return nondet.f(nondet).f(nondet).f(unary(11));
+	}*/
+	
 	/** curry.cur() is this aka 0 *
 	public static final int CURRIES_VARARG = 0;
 	
@@ -90,7 +97,7 @@ public class ImportStatic{
 	}
 	
 	public static fn IF(fn condition, fn ifTrue, fn ifFalse){
-		return S(t(Example.ifElse()), condition, ifTrue, ifFalse);
+		return ST(Example.ifElse(), condition, ifTrue, ifFalse);
 	}
 	
 	/*public static fn dedup(fn f){
