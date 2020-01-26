@@ -234,28 +234,34 @@ public class Nondet{
 				String instanceS = str(instance);
 				if(instanceS.equals("wallet")){
 					return w(Gas.top);
-				}else if(typeS.equals("spend")){
+				}else if(instanceS.equals("spend")){
 					fn madeByCurry = param;
 					double storeGas = 0;
+					fn elseDo = getp(7,madeByCurry);
 					try{
 						//param is only a madeByCurry if the nondet call
 						//is wrapped in a curry so it can have more params,
 						//such as ccc().f(nondet.f("limitComputeResources").f("spend"))
-						//	.f(maxSpend).f(doIfEnoughWallet).f(elseDo)
-						double maxSpend = getp(4,madeByCurry).doubleAt(0);
+						//	.f(salt).f(maxSpend).f(doIfEnoughWallet).f(elseDo)
+						
+						//ignore salt at getp(4,madeByCurry) here,
+						//but Cache.java wont ignore it.
+						double maxSpend = getp(5,madeByCurry).R().doubleAt(0);
 						double haveGas = Gas.top;
 						maxSpend = Math.min(Math.max(0,maxSpend), haveGas); //TODO a little less than that?
 						storeGas = haveGas-maxSpend;
 						Gas.top = maxSpend;
-						fn doIfEnoughWallet = getp(5,madeByCurry);
-						return doIfEnoughWallet.f(leaf); //doIfEnoughWallet is often a lazig
+						fn doIfEnoughWallet = getp(6,madeByCurry);
+						fn ret = doIfEnoughWallet.f(leaf); //doIfEnoughWallet is often a lazig
+						Gas.top += storeGas;
+						lg("spend.try finished Gas.top += "+storeGas+", total "+Gas.top);
+						return ret;
 					}catch(Gas g){
+						Gas.top += storeGas;
+						lg("spend.else starting, Gas.top += "+storeGas+", total "+Gas.top);
 						//catch Gas.instance, for efficienjcy without filling
 						//in stacktrace reuses same Gas throwable every time.
-						fn elseDo = getp(6,madeByCurry);
 						return elseDo.f(leaf); //elseDo is often a lazig
-					}finally{
-						Gas.top += storeGas;
 					}
 				}
 			}

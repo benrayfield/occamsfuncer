@@ -1779,7 +1779,7 @@ public class Example{
 	public static fn nextRandCbt128_callMeOnLeaf(){
 		if(nextRandCbt128_callMeOnLeaf == null){
 			nextRandCbt128_callMeOnLeaf =
-				lazig().f(nondet.f(nondet).f(nondet)).f(unary(11));
+				lazig().f(nondet.f(nondet).f(nondet)).f(unary(7));
 		}
 		return nextRandCbt128_callMeOnLeaf;
 	}

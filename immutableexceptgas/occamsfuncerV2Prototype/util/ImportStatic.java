@@ -581,6 +581,10 @@ public class ImportStatic{
 		return T.f(param);
 	}
 	
+	public static fn t(Object param){
+		return T.f(param);
+	}
+	
 	public static fn tt(fn param){
 		return t(t(param));
 	}

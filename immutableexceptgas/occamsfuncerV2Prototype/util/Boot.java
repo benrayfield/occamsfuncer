@@ -159,7 +159,7 @@ public class Boot{
 		);
 		other.nameForTesting = "otherCompiled";
 		BinaryOperator<fn> cbtFuncBody = (fn l, fn r)->{
-			lg("cbtFuncBody of l="+l+" r="+r);
+			//lg("cbtFuncBody of l="+l+" r="+r);
 			$();
 			//TODO optimize for efficient bitstrings
 			return cp(l,r);

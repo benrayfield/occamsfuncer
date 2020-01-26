@@ -63,7 +63,7 @@ public strictfp class TestBasics{
 	/** WARNING: modifies Gas.top without conserving Gas */
 	public static void testInfiniteLoopEndsCuzRunsOutOfGas(){
 		lg("Starting testInfiniteLoopEndsCuzRunsOutOfGas");
-		Gas.top = 1000;
+		Gas.top = 1500;
 		try{
 			fn returned = fnThatInfiniteLoopsForEveryPossibleParam().f(leaf);
 			throw new Error("testInfiniteLoopEndsCuzRunsOutOfGas failed. What should have infinite looped (until reach its resource limit) returned "+returned);
@@ -491,13 +491,40 @@ public strictfp class TestBasics{
 			throw new Error("2 randoms equal, even when done directly by nondetNondetNondet: "+saltA);
 		}
 		lg("(nondet nondet nondet <unary7>) correctly gave 2 different cbts when called twice.");
+
+		//.R() unwraps from contentType, and .doubleAt(0) gets those bits.
+		double walletFirst = wallet.f(saltA).R().doubleAt(0);
+		double walletSecond = wallet.f(saltB).R().doubleAt(0);
+		double walletThird = wallet.f(saltA).R().doubleAt(0);
+		lg("walletFirst="+walletFirst);
+		lg("walletSecond="+walletSecond);
+		lg("walletThird="+walletThird);
+		if(walletFirst == walletSecond) throw new Error("Wallet is same despite it costs a little to read wallet.");
+		if(walletFirst != walletThird) throw new Error("Same salt must return cached value from wallet call.");
+
+		fn x = spend.f(nondetNondetNondet.f(unary7)).f(1000.)
+			.f(fnThatInfiniteLoopsForEveryPossibleParam())
+			.f(t("theElse"));
+		if(!x.equals(w("theElse"))){
+			throw new Error("Spend didnt return cbt1. It returned: "+x);
+		}
+		lg("Spend returned: "+x);
+				
 		
+		/*fn loop = cc().f(
+			IF(
+				
+			),
+			saltA
+		);*/
+		
+		
+		/*
 		fn nextSalt = Example.nextRandCbt128_callMeOnLeaf();
-		
 		fn saltC = nextSalt.f(leaf);
 		fn saltD = nextSalt.f(leaf);
 		if(saltC.equals(saltD)) throw new Error("2 randoms equal (but earlier test passed that generates randoms by (nondet nondet nondet <unary7>) but theres maybe no way around needing to manually compute salt many places deterministicly): "+saltC);
-		/*fn loop = cc().f(
+		/fn loop = cc().f(
 			IF(),
 			saltA
 		);
@@ -505,8 +532,10 @@ public strictfp class TestBasics{
 		double gasStart = Gas.top;
 		
 		double gasEnd = Gas.top;
-		*/
+		*
 		lg("nextRandCbt128_callMeOnLeaf gave 2 different salts, but that doesnt solve the cache problem of not trying to call it multiple times");
+		*/
+		lg("WARNING: testLimitComputeResources needs alot more tests cuz the design of mixing determinism (15 ops other than op.nondet), nondeterminism (op.nondet), and caching... that design is not completely decided and likely buggy as of 2020-1-26. Also, stackOverflow happens without throwing Gas, so maybe Spend should also check for that and throw Gas instead, or maybe I should simulate a stack on the heap using some kind of pairlike datastruct, run occamsfuncer like a forest based turing machine instead of any part of it using the java stack?");
 	}
 	
 	public static void testOcfnplugDoubleMathRaw_stuffThatWillBeReplacedByUserLevelCodeLater(){
@@ -708,13 +737,15 @@ public strictfp class TestBasics{
 			//then commentOut that lg in Boot.optimize() of Example.lazyEval().
 		}
 		
-		testLimitComputeResources();
-		
 		
 		lg("The loop of tests to do before optimizing and again after optimizing, all passed.");
 		
+		
+		Gas.top = 1e6;
+		testLimitComputeResources();
+		
 		if(1<2){
-			lg("The next tests never passed as of 2020-1-20 so ending early.");
+			lg("The next tests never passed as of 2020-1-26 so ending early.");
 			return;
 		}
 		
