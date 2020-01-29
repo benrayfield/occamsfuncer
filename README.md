@@ -25,6 +25,20 @@ and https://github.com/benrayfield/occamsfuncer/blob/master/immutableexceptgas/o
 
 Test cases are in https://github.com/benrayfield/occamsfuncer/blob/master/immutableexceptgas/occamsfuncerV2Prototype/test/TestBasics.java
 
+=== RELATION TO GODEL INCOMPLETENESS AND HALTING PROBLEM ===
+
+Godel Incompleteness and Halting Problem are both true, but there is space within that truth for designing a system to be selfReferencing without losing turingCompleteness, and accept basically a binary form of the "source code" as the definition of equality instead of having to call a function as the only way to measure any info about it.
+
+Its a turingComplete subset of lambdas including https://en.wikipedia.org/wiki/SKI_combinator_calculus thats also compatible with https://en.wikipedia.org/wiki/Pattern_calculus
+
+If S = Lx.Ly.Lz.((xz)(yz)), and I = La.a, and LazyEval = Lb.Lc.Ld.bc,
+
+then ((LazyEval ((S I) I)) ((S I) I)), aka (LazyEval (S I I) (S I I)), for every possible parameter, does not halt.
+
+By reducing the set of lambdas to a certain subset, I gain some info about them without losing turingCompleteness. Specificly, only keeping lambdas where ((L x)(R x)) equals x, and L and R are certain combos of call pairs of a certain universal lambda function in https://github.com/benrayfield/occamsfuncer . It gains the ability that a lambda can be built that gets the L and R childs recursively of any parameter lambda. If we did not limit it to that subset of turingComplete lambdas, then there would be no way a lambda could prove any specific info about its parameter (LazyEval (S I I) (S I I)). There are test cases for this in https://github.com/benrayfield/occamsfuncer/blob/master/immutableexceptgas/occamsfuncerV2Prototype/test/TestBasics.java the "testLRQuine" and "testEquals" and "fnThatInfiniteLoopsForEveryPossibleParam" code.
+
+I designed it that way because selfReference is useful.
+
 === WHY NOBODY CAN CONTROL IT ===
 
 Everything is a number, a kind of number so advanced it can represent any thought you could possibly have and interact with other numbers/thoughts in that context. You can subtract 2 from 7 to get 5, but 2 and 7 still exist, so anyone who has built on the things you've built is unaffected by if you try to change those things and instead it just creates more things and things are only deleted by everyone ignoring them until they are no longer cached not by any action against those things. A number can be affected by "changes" to another number by taking different possible numbers as a parameter, so it is capable of automatic updates such as by digital signatures but in a multiverse of all possible updates so it can be simultaneously updated and not updated and you can even use those multiverse branches together as they are all just numbers, and theres a thing called "mutableWrapperLambda" in theory where if you only digitally sign at most 1 possible answer per each possible question then your public key can be used (with Op.nondet) as a function that just waits until you give an answer to a question you havent answered yet if you ever answer it, and if a key ever gives 2 answers to the same question then forever after that the key takes infinite time for all questions so is effectively blacklisted by not obeying the network protocol that enforces the keys act like lambda functions (mas 1 answer per question deterministicly), though you dont have to call nondet, or allow the calling of nondet, if you're in pure determinism mode in which case every call of Op.nondet takes infinite time.
