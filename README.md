@@ -27,7 +27,7 @@ Test cases are in https://github.com/benrayfield/occamsfuncer/blob/master/immuta
 
 === RELATION TO GODEL INCOMPLETENESS AND HALTING PROBLEM ===
 
-Godel Incompleteness and Halting Problem are both true, but there is space within that truth for designing a system to be selfReferencing without losing turingCompleteness, and accept basically a binary form of the "source code" as the definition of equality instead of having to call a function as the only way to measure any info about it.
+Godel Incompleteness and Halting Problem are both true, such as the halting problem is a statement about parameter/return mappings in the space of all posible functions, and godel incompleteness about a system's ability to prove its own correctness, but this system does not attempt to prove anything and instead only computes <function,parameter,return> triples with a certain selfReferencing design constraint always being true, and it can not detect in advance if a function will halt but it can emulate the next n steps of a function call given as a parameter without calling either of them, and there is space within that (godel incompleteness and halting problem) truth for designing a system to be selfReferencing without losing turingCompleteness, and accept basically a binary form of the "source code" as the definition of equality instead of having to call a function as the only way to measure any info about it.
 
 Its a turingComplete subset of lambdas including https://en.wikipedia.org/wiki/SKI_combinator_calculus thats also compatible with https://en.wikipedia.org/wiki/Pattern_calculus
 
