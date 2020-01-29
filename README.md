@@ -37,7 +37,7 @@ then ((LazyEval ((S I) I)) ((S I) I)), aka (LazyEval (S I I) (S I I)), for every
 
 By reducing the set of lambdas to a certain subset, I gain some info about them without losing turingCompleteness. Specificly, only keeping lambdas where ((L x)(R x)) equals x, and L and R are certain combos of call pairs of a certain universal lambda function in https://github.com/benrayfield/occamsfuncer . It gains the ability that a lambda can be built that gets the L and R childs recursively of any parameter lambda. If we did not limit it to that subset of turingComplete lambdas, then there would be no way a lambda could prove any specific info about its parameter (LazyEval (S I I) (S I I)). There are test cases for this in https://github.com/benrayfield/occamsfuncer/blob/master/immutableexceptgas/occamsfuncerV2Prototype/test/TestBasics.java the "testLRQuine" and "testEquals" and "fnThatInfiniteLoopsForEveryPossibleParam" code.
 
-I designed it that way because selfReference is useful.
+I designed it that way because selfReference is useful, not to change anyone's mind about the possible variations of these academic abstractions.
 
 === WHY NOBODY CAN CONTROL IT ===
 
