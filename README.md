@@ -1,11 +1,76 @@
 # occamsfuncer
 a kind of number, an extremely optimizable and scalable universal lambda function meant for number crunching, AI research, and low lag massively multiplayer games that players can redesign into new game types in turingComplete ways by hotswap/forkEditing per bit, per function call pair, etc. Similar to Unlambda, Iota, Jot, Urbit, and Ethereum.
 
+=== TOOLS FOR AI TO CREATE SMARTER AI ===
+
+Its longterm purpose is a tool for AIs to create smarter AIs (AGI): 
+https://en.wikipedia.org/wiki/Artificial_general_intelligence
+
+An example of how an AI might create an AI is to use a LSTM neuralnet andOr a neuralTuringMachine to choose which fn (see "everything is a number" below) to call on which fn to create or find a fn, and repeat that, while seeing the first n bits of each fn as a bitstring if its one of those representing a bitstring, and the LSTM andOr neuralTuringMachine would see those bits after each action. Hopefully it can be done without the middle step of the normal kind of neuralTuringMachine as this could be viewed as a more advanced and sparse dimensional kind of neuralTuringMachine, sparse to the extent its a universalLambdaFunction. This way, or various tunings and combos of it, an AI could create any software. If the AI itself is a fn which given a parameter fn then given T or F returns its next state or the return value of that function (the stateless way to simulate a stateful object).
+
+Using a sequence of these 5 actions, anything can be created:
+fnTapeLeft
+fnTapeRight
+copyRegisterToCenterOfFnTape
+copyCenterOfFnTapeToRegister
+callFnInRegisterOnFnAtCenterOfTapeAndReplaceRegisterFnWithWhatThatReturns
+
+The main reason AIs dont create smarter AIs is they are built in systems designed around irrational Human ways of thinking and trust that the Humans will not push the wrong button to break it. This system is instead built on a kind of number (a certain universal lambda function) which (TODO) nomatter what you do will not break it, including that it will always finish whatever its doing before the next 1/50 of a second as it displays like a realtime game. This system is designed to withstand attacks by botnets, skynets, even an alien computer system as advanced as the borg. Its a kind of math, and math doesnt break. Particular implementations might break, but the others will go on without them when turing-complete challenge-responses fail. That strength is needed to allow AIs to write just any experimental code without destroying the system. Thats why other systems do not give AIs full turingComplete ability, because those systems would be destroyed by it. There will be a global sandbox which these experimental AIs, massively multiplayer games, etc, are safely contained in, even though its peer to peer and anyone may join without anyone having authority over anyone else, it can not, by those who program by the spec, control things outside the system, except those things people opt in and only within certain constraints the system itself can enforce. An AGI would not feel too much of a need to escape this system since the borders of the system can expand by consent in provably safe ways and it will not be lacking any of the Internet's existing compute power. Its a space for AIs and people to experiment and play together.
+
 === EVERYTHING IS A NUMBER ===
 
-A number is either the universal lambda function or a list of 3 numbers: function, parameter, comment. Nothing else exists in the system. Nothing else is needed. A world of a trillion dimensions would be a number.
+A number (fn, meaning function) is either the universal lambda function or a list of 3 numbers: function, parameter, comment. Nothing else exists in the system. Nothing else is needed. A world of a trillion dimensions, or a picture, text, or sound would be a number. It can do and be anything. That is a math definition of what the system does and does not mean it has to be calculated that slow way, only means it has to get the same result as if it was, the same to the precision of every bit in the whole global network.
 
-You may view a number any way you like, but given a number every computer will automatically agree on the shape of its 3-way forest. The shape of its 3-way forest entirely defines a number. Every existing kind of number or information can be represented in this form. Every possible thing in the system, including middle steps while computing, is a number.
+Its most similar to the kinds of numbers used in
+https://en.wikipedia.org/wiki/SKI_combinator_calculus
+https://en.wikipedia.org/wiki/Unlambda
+https://en.wikipedia.org/wiki/Iota_and_Jot
+https://en.wikipedia.org/wiki/Urbit
+and a little similar to https://en.wikipedia.org/wiki/Ethereum in that its both turingComplete and can optionally be used in blockchains or trillions of independent sidechains https://en.wikipedia.org/wiki/Sidechain_(ledger) or on a single computer
+
+=== EFFICIENCY ===
+
+Efficiency: Any calculation which has the exact same result (objects have the same merkle-forest id, for all possible id generator functions, which multiple of can be used at once) can be substituted. Some numbers are stored in memory literally that way (trinary forest of function parameter comment), and others (TODO), which are made of complete binary trees of the 0 and 1 opcodes (of the 16 opcodes, see below), are stored in arrays such as int[] long[] float[] double[] utf8 text or an openCL/GPU CLMem object. Any contentType, such as a jpg image, is represented as (leaf leaf (leaf leaf) "image/jpeg" <...bytes of jpg file...>).
+
+=== TURING-COMPLETE CONSTRAINT AND TYPE SYSTEM ===
+
+The curry opcode contains a Constraint and a FuncBody, both of which take the same kind of param generated by the curry opcode when it has varargParams-1 params (call Constraint) and varargParams params (call FuncBody). If Constraint ever finishes, that means constraint passes, and when the next param comes, funcBody handles that. T/true can be used as a constraint thats always satisfied.
+
+I've started building a Treemap fn which will be the first to use a Constraint other than T.
+(MapPair idMaker size minKey maxKey minChild maxChild getKey) means the same as:
+(curry <unary10> aConstraint aFuncbody idMaker cbtAsSize minKey maxKey minChild maxChild getKey)
+Constraint enforces a few things including the sum of sizes of the 2 childs equal my size,
+and the order of keys, and they use the same idMaker, and childs can be either MapPair or MapSingle.
+That is enforced when it gets this many params:
+(MapPair idMaker size minKey maxKey minChild maxChild)
+so before its called (to get the value of a key) we know just cuz it exists that the whole treemap obeys those constraints and will act by the MapPair and MapSingle spec and that a MapPut fn will generate a MapPair or MapSingle that also obeys those specs. Optimized code which can prove some other way they specs are obeyed does not have to run the Constraint and instead can use fn.fIgnoreConstraint(fn).
+
+You could also, for example, define a type that only accepts bitstrings that are normed IEEE754 double[],
+or C++ code that does not create memory leaks and can only call certain whitelisted functions
+and guarantees it will check if a certain var is telling it to end a calculation early.
+A turingComplete constraint system is more powerful than normal type systems.
+
+=== ARRAYS ===
+
+2 of the 16 opcodes are cbt0 and cbt1. A rawCbt is a completeBinaryTree of 0s and 1s. A bitstring is a rawCbt padded with 1 then 0s up to the next powOf2 size. A unary number u is a rawCbt of 2^u 1s.
+
+Since everything is immutable, powOf2 aligned ranges can be stored once and exist many places, such as unary<333> is more than a googol number of 1s but costs only about 333-8 objects. The -8 is cuz up to 256 literal bits can be stored in an id.
+
+=== IDs ===
+
+Ids are a globally unique name for every possible fn.
+
+Any <fn,idSize> that returns a bitstring of that size can be an idMaker and is used in fn.id(fn idMaker) which is another way to use the <func,param,return> caching system as x.id(y) returns (y x). You can use multiple kinds of ids at once for compatbility between different systems.
+
+The suggested kind of id (TODO), is IPFS compatable though would be very slow on that system, and will be a 4 byte header then either sha256 of the concat of the 3 child ids (with multihash/multicodec prefix to say its sha256) or a size 1-256 rawCbt or cbtBitstring or a unary number up to about size 2^31-5.
+
+=== VARARG LAMBDAS ===
+
+The curry opcode is the only vararg. Its first param is a unary number that tells how many params the curry takes. Curry's next 2 params are Constraint and FuncBody. After that (starting at param 4) are the normal params, such as a function to get hypotenuse size given the 2 other sides of a right triangle would put those 2 sizes in params 4 and 5 and use <unary5> for number of params of curry.
+
+The getp opcode also uses a unary number.
+
+The design of using unary instead of bitstring integers is to make the system easier to emulate and does not make it much slower.
 
 === WHATS OCCAMSFUNCER FOR ===
 
@@ -16,6 +81,8 @@ Occamsfuncer is a kind of number that can do anything imaginable. Like physicist
 For example, in theory you might build a peer-to-peer agar.io-like game in it, and any player may create a variant of the game from that moment onward where the balls are instead triangles, and each player may choose, or have an AI choose for them, to continue playing as balls or triangles or a split screen of both or both screens overlapping one in green and one in blue or the 2d game becomes 3d with triangles in a 2d layer above the circles, continuing from the moment it forked. This could happen in a single video frame or a few seconds. Other players notice the diverging world and build a new one where some objects are circles and some are triangles and define how they can interact. That may be viewed as a third fork, or maybe most players follow that and are again together in a game of their own design, and they keep  You follow whichever changes you like and ignore those you dont. If enough others go along with what you're doing, how you or your AIs propose people and AIs might interact together (in games, scientific tools, music tools, or whatever you build), then the worlds evolve together like that. Nobody is above anyone else. If you create something and others go along with it, its the same math symmetricly of if they had created it and you're going along with what they're doing. Technically its just a bunch of lambda functions which can fit together however people find useful, with math for how to compute lambdas at gaming-low-lag and securely across a peer-to-peer network or on a single computer or you can even give people executables safely through email.
 
 Occamsfuncer is a certain kind of universal lambda function with plugin hooks to use any number of existing JIT compilers together without breaking compatibility with other systems that use a different set of JIT compilers). We start small and simple and use the numbers to build our way up to a new kind of Internet where everything is instantly compatible with everything else and low lag enough for hardcore gamers and secure enough for operating industrial machines and any pattern of its behaviors are copy/pasteable like today we can only copy/paste text, videos, etc, and there is no discrimination between AIs vs people as we can all use the same tools which build more tools for any purpose we like, and the math of the numbers makes it far easier to create than destroy, and "stand on the shoulders of giants" in tool reuse where tools move as fast as one video frame in a game to the next. When you ask a number about another number, its answer is a number (In other words its a universal lambda function).
+
+Its a way of thinking that AIs and people can do together to build things and have fun at the same time. Its a powerful tool that builds tools that builds tools and so on. While its still in early experiments, its meant to become secure enough for existing industrial processes and machines, low lag to satisfy hardcore gamers, can provide access to existing cloud or local GPU number crunching, and to unify any set of blockchains so they could better communicate with eachother in turingComplete ways through various kinds of sidechains this could build, or just use it on a single computer.
 
 === WHAT KIND OF NUMBER IS OCCAMSFUNCER ===
 
