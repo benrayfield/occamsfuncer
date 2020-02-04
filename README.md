@@ -6,7 +6,7 @@ a kind of number, an extremely optimizable and scalable universal lambda functio
 Its longterm purpose is a tool for AIs to create smarter AIs (AGI): 
 https://en.wikipedia.org/wiki/Artificial_general_intelligence
 
-An example of how an AI might create an AI is to use a LSTM neuralnet andOr a neuralTuringMachine to choose which fn (see "everything is a number" below) to call on which fn to create or find a fn, and repeat that, while seeing the first n bits of each fn as a bitstring if its one of those representing a bitstring, and the LSTM andOr neuralTuringMachine would see those bits after each action. Hopefully it can be done without the middle step of the normal kind of neuralTuringMachine as this could be viewed as a more advanced and sparse dimensional kind of neuralTuringMachine, sparse to the extent its a universalLambdaFunction. This way, or various tunings and combos of it, an AI could create any software. If the AI itself is a fn which given a parameter fn then given T or F returns its next state or the return value of that function (the stateless way to simulate a stateful object).
+An example of how an AI might create an AI is to use a LSTM neuralnet andOr a neuralTuringMachine to choose which fn (see "everything is a number" below) to call on which fn to create or find a fn, and repeat that, while seeing the first n bits of each fn as a bitstring if its one of those representing a bitstring, and the LSTM andOr neuralTuringMachine would see those bits after each action. Hopefully it can be done without the middle step of the normal kind of neuralTuringMachine as this could be viewed as a more advanced and sparse dimensional kind of neuralTuringMachine, sparse to the extent its a universalLambdaFunction. This way, or various tunings and combos of it, an AI could create any software. If the AI itself is a fn which given a parameter fn then given T or F returns its next state or the return value of that function (the stateless way to simulate a stateful object), then AI could be self-aware and improve its own code while trying many variations, none of which it has to continue using if it doesnt like what they do or if its chosen formal-verification processes dont allow those changes.
 
 Using a sequence of these 5 actions, anything can be created:
 fnTapeLeft
@@ -28,7 +28,7 @@ https://en.wikipedia.org/wiki/Iota_and_Jot
 https://en.wikipedia.org/wiki/Urbit
 and a little similar to https://en.wikipedia.org/wiki/Ethereum in that its both turingComplete and can optionally be used in blockchains or trillions of independent sidechains https://en.wikipedia.org/wiki/Sidechain_(ledger) or on a single computer
 
-=== EFFICIENCY ===
+=== EFFICIENCY, ARRAYS, AND EXISTING CONTENT-TYPES ===
 
 Efficiency: Any calculation which has the exact same result (objects have the same merkle-forest id, for all possible id generator functions, which multiple of can be used at once) can be substituted. Some numbers are stored in memory literally that way (trinary forest of function parameter comment), and others (TODO), which are made of complete binary trees of the 0 and 1 opcodes (of the 16 opcodes, see below), are stored in arrays such as int[] long[] float[] double[] utf8 text or an openCL/GPU CLMem object. Any contentType, such as a jpg image, is represented as (leaf leaf (leaf leaf) "image/jpeg" [...bytes of jpg file...]).
 
@@ -64,7 +64,7 @@ Ids are lazyEvaled. They are an expensive calculation, and most fn never need an
 
 TreeMap (which will be derived from the universalLambdaFunction, as there are no built in types other than that) guarantees to have the same id (for all possible idMakers) regardless of order of MapPut calls to create it as it is trie-like but skips the recursion levels where theres only 1 branch.
 
-Any [fn,idSize] that returns a bitstring of that size can be an idMaker and is used in fn.id(fn idMaker) which is another way to use the [func,param,return] caching system as x.id(y) returns (y x). You can use multiple kinds of ids at once for compatbility between different systems.
+Any [fn,idSize] that returns a bitstring of that size can be an idMaker and is used in fn.id(fn idMaker) which is another way to use the [func,param,return] caching system as x.id(y) returns (y x). You can use multiple kinds of ids at once for compatibility between different systems.
 
 The suggested kind of id (TODO), is IPFS compatable though would be very slow on that system, and will be a 4 byte header then either sha256 of the concat of the 3 child ids (with multihash/multicodec prefix to say its sha256) or a size 1-256 rawCbt or cbtBitstring or a unary number up to about size 2^31-5.
 
