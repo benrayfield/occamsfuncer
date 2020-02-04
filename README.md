@@ -43,7 +43,7 @@ Constraint enforces a few things including the sum of sizes of the 2 childs equa
 and the order of keys, and they use the same idMaker, and childs can be either MapPair or MapSingle.
 That is enforced when it gets this many params:
 (MapPair idMaker size minKey maxKey minChild maxChild)
-so before its called (to get the value of a key) we know just cuz it exists that the whole treemap obeys those constraints and will act by the MapPair and MapSingle spec and that a MapPut fn will generate a MapPair or MapSingle that also obeys those specs. Optimized code which can prove some other way they specs are obeyed does not have to run the Constraint and instead can use fn.fIgnoreConstraint(fn).
+so before its called (to get the value of a key) we know just cuz it exists that the whole treemap obeys those constraints and will act by the MapPair and MapSingle spec and that a MapPut fn will generate a MapPair or MapSingle that also obeys those specs. Optimized code which can prove some other way the specs are obeyed does not have to run the Constraint and instead can use fn.fIgnoreConstraint(fn).
 
 You could also, for example, define a type that only accepts bitstrings that are normed IEEE754 double[],
 or C++ code that does not create memory leaks and can only call certain whitelisted functions
@@ -60,6 +60,10 @@ Since everything is immutable, powOf2 aligned ranges can be stored once and exis
 
 Ids are a globally unique name for every possible fn.
 
+Ids are lazyEvaled. They are an expensive calculation, and most fn never need an id.
+
+TreeMap (which will be derived from the universalLambdaFunction, as there are no built in types other than that) guarantees to have the same id (for all possible idMakers) regardless of order of MapPut calls to create it as it is trie-like but skips the recursion levels where theres only 1 branch.
+
 Any [fn,idSize] that returns a bitstring of that size can be an idMaker and is used in fn.id(fn idMaker) which is another way to use the [func,param,return] caching system as x.id(y) returns (y x). You can use multiple kinds of ids at once for compatbility between different systems.
 
 The suggested kind of id (TODO), is IPFS compatable though would be very slow on that system, and will be a 4 byte header then either sha256 of the concat of the 3 child ids (with multihash/multicodec prefix to say its sha256) or a size 1-256 rawCbt or cbtBitstring or a unary number up to about size 2^31-5.
@@ -72,7 +76,11 @@ The getp opcode also uses a unary number.
 
 The design of using unary instead of bitstring integers is to make the system easier to emulate and does not make it much slower.
 
-=== WHATS OCCAMSFUNCER FOR ===
+=== GARBCOL (GARBAGE COLLECTION, ALLOCATING AND FREEING OF MEMORY IN LOCAL COMPUTER AND IN P2P NETWORK) ===
+
+Memory in 1 computer is freed by whatever is not reachable from the top level object or the previous top level object its about to replace (TODO). To help choose the next top level object (per computer), nondeterministic memory and compute statistics are available. All mutable state of the system is in Gas class, such as Gas.top is a local amount of compute resources available and can be recursively limited. TODO Gas.top*memToComRatio is the amount of memory available to allocate now. The zapeconacyc system (TODO) is optional and exists per computer and starts at a random bit of allocated memory and goes upward on a random path of reverse pointers until reaching the top level object, along the way decaying the zapeconacyc numbers to say that a zap passed through there. Statistically it will be observable downward from any root fn which paths have more or less memory, spreading the cost of memory among all those who are preventing it from being garbcoled. The only garbcol system available in the p2p network will be recursiveExpireTime, where every [fn,peer] (fn cached at a peer) has an expireTime thats earlier than its child objects expireTimes, and any expireTime can be increased but not decreased within those constraints, so to increase the expireTime of a fn you might have to increase the expireTimes of many others it can reach. During that expireTime which a peer commits to, that peer is responsible for helping anyone find anything reachable from that object. You might trade titForTat or other methods of exchange of motivation for the commitment of a certain peer to accept a fn they dont know about or a fn they do know about to increase its expireTime. Redundancy of each fn being at multiple peers should naturally form. Within a single computer, it would look more like a database without expireTimes.
+
+=== WHAT ELSE (other than AGI) OCCAMSFUNCER FOR ===
 
 The first usecase will be tools for live music performances by drag-and-drop of function onto function to create function since that can make extreme use of functions creating functions to define new interesting sound effects in realtime. I will port some of my other sound programs to occammsfuncer user level code (not affecting the VM code, just something that can happen inside the normal rules of the VM) from my programs: Audivolv, Codesimian, SparseDoppler, HyperSphereNet, JSoundCard, Micentangle, and other sound experiments. For example, JSoundCard comes with some example code that does a simple volume norm that decays instantly when gets louder but decays to get louder gradually and that can detect a whisper from across the room even when microphone is closer to the speakers than the mouth whispering and without the microphone speaker feedback blowing up as it usually does when microphone is near speaker. Linux normally has lower lag than Windows for sound.
 
