@@ -1,4 +1,4 @@
-package mutable.occamsfuncerV2;
+package mutable.occamsfuncerV2Prototype;
 import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.Set;
 
 import immutableexceptgas.occamsfuncerV2Prototype.util.Example;
 import immutableexceptgas.occamsfuncerV2Spec.*;
+import mutable.occamsfuncerV2Spec.Mut;
 
 /** Static funcs to access network in safe ways
 (that malicious code in occamsfuncer sandbox
@@ -144,7 +145,11 @@ public final class Network{
 	
 	
 	
-	/** TODO load from harddrive the serverState from previous run */
+	/** FIXME maybe the state should go in StartWindow
+	which creates OccamsfuncerUI with that state?
+	Or should server and window be different objects?
+	TODO load from harddrive the serverState from previous run.
+	*/
 	public static final Mut serverState = new Mut(Example.defaultServerState());
 			
 	/** TODO some part of serverState, such as one of its op.curry params,

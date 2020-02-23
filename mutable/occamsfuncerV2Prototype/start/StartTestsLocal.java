@@ -1,4 +1,4 @@
-package mutable.occamsfuncerV2.start;
+package mutable.occamsfuncerV2Prototype.start;
 import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import immutableexceptgas.occamsfuncerV2Prototype.fns.Leaf;
@@ -11,7 +11,7 @@ import immutableexceptgas.occamsfuncerV2Spec.fn;
 /** TODO always run the fast tests (at least TestBasics.main)
 then start either in commandline mode or open window on screen
 */
-public class StartWindowLocal{
+public class StartTestsLocal{
 	
 	public static void main(String[] args){
 		//double can represent all integers between plus/minus this
@@ -22,6 +22,6 @@ public class StartWindowLocal{
 		//Its useful for limiting compute cycles and memory
 		//and calling plugins, if any.
 		Gas.forceDeterminism = false;
-		throw new Error("TODO");
+		TestBasics.main();
 	}
 }

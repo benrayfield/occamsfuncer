@@ -1,9 +1,6 @@
-package mutable.occamsfuncerV2;
+package mutable.occamsfuncerV2Spec;
 import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
-
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
-
 import immutableexceptgas.occamsfuncerV2Spec.fn;
 import mutable.util.Var;
 

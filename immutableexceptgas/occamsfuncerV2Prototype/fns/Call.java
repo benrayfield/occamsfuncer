@@ -338,7 +338,7 @@ public class Call extends AbstractFn{
 		throw new Error("TODO");
 	}
 
-	public int cbtSize(){
+	public long cbtSize(){
 		if(!isCbt()) return 0;
 		return 1<<(height()-4);
 	}
@@ -492,7 +492,7 @@ public class Call extends AbstractFn{
 	
 	public boolean bitAt(int cbtBitIndex){
 		if(!isCbt()) return false;
-		int cbtSize = cbtSize();
+		long cbtSize = cbtSize();
 		if(cbtBitIndex < 0 || cbtSize <= cbtBitIndex) return false;
 		if(cbtSize == 1) return this==cbt1;
 		if(cbtBitIndex < (cbtSize>>1)) return L().bitAt(cbtBitIndex);

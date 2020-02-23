@@ -1,4 +1,4 @@
-package mutable.occamsfuncerV2.ui;
+package mutable.occamsfuncerV2Prototype.ui;
 import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import java.awt.Color;
@@ -230,10 +230,11 @@ public class Quadtree extends JPanel{ //TODO rename to QuadtreeUi
 	}
 	
 	protected synchronized static void paintPic(ImageObserver obs, Graphics g, fn pixelsSizeAPowerOf4, int y, int x, int h, int w){
-		int bitSize = pixelsSizeAPowerOf4.cbtSize();
-		if(bitSize < 32) throw new Error("TODO its less than 1 int: "+pixelsSizeAPowerOf4);
-		int intSize = bitSize>>5;
-		BufferedImage b = bi(intSize);
+		long bitSize = pixelsSizeAPowerOf4.cbtSize();
+		if(bitSize < 32) throw new Error("TODO its less than 1 int: "+pixelsSizeAPowerOf4);	
+		long intSize = bitSize>>5;
+		if(intSize > Integer.MAX_VALUE) throw new Error("bitSize too big: "+bitSize);
+		BufferedImage b = bi((int)intSize);
 		int offset = 0;
 		int sqSize = (int)Math.sqrt(intSize);
 		if(sqSize*sqSize != intSize) throw new Error("Not a square (should also be powOf4): "+intSize);

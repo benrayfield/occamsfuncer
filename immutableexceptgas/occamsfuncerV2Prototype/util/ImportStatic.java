@@ -597,6 +597,23 @@ public class ImportStatic{
 		return tt(tt(param));
 	}
 	
+	/** linkedlist by typeList */
+	public static fn ll(Object... list){
+		fn ret = Example.linkedList();
+		for(Object o : list){
+			ret = ret.f(o);
+		}
+		return ret;
+	}
+	
+	/** S-currying that returns a [linkedlist by typeList] when given a param. */
+	public static fn Sll(Object... list){
+		Object[] newList = new Object[1+list.length];
+		newList[0] = Example.linkedList();
+		System.arraycopy(list, 0, newList, 1, list.length);
+		return ST(newList);
+	}
+	
 	/*
 	private static fn recurse;
 	/** given a thingNormallyMadeByCurry as its only param (get it by Op.I),

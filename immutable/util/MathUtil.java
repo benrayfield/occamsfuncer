@@ -3,12 +3,16 @@ package immutable.util;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 
 public class MathUtil{
+	
+	//TODO merge multiple MathUtil classes
 	
 	public static double sigmoid(double x){
 		return 1/(1+Math.exp(-x));

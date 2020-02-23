@@ -6,6 +6,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+import immutableexceptgas.occamsfuncerV2Prototype.util.Example;
 import immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic;
 
 //import immutableexceptgas.occamsfuncerV2Prototype.util.Example;
@@ -27,7 +28,11 @@ Its designed to make it efficient and intuitive for any number
 of people to build things together in realtime and securely
 as every object is a constant including forkEdits of any size.
 <br><br>
-x.L().f(x.R()).equals(x) for all x.
+x.L().f(x.R()).equals(x) for all x (UPDATE: thats only true when comment is leaf).
+Its ALWAYS true that
+x.L().f(x.R()).COMMENT(x.comment()).equals(x).
+aka (Example.equals() x (COMMENT (L x (R x)) (comment x))) evals to T. 
+<br><br>
 id is globally unique for every secureHash id func
 (allowing any number of ids funcs in parallel,
 and TODO design MapPair takes param of id func andOr comparator),
@@ -418,6 +423,33 @@ public strictfp interface fn extends Function<Object,fn>, Comparable<fn>{
 		return Double.longBitsToDouble(longAt(cbtBitIndex));
 	}
 	
+	public default double d(){
+		if(isCbt()) return doubleAt(0);
+		if(L() == Example.doublePrefix()) return R().doubleAt(0);
+		return 0.;
+	}
+	
+	/** TODO optimize by overriding this in ArrayCbt which will use Mem,
+	so maybe would not even have the double[] here but would ONLY use
+	the funcs in Mem to access the doubles and other primitives.
+	*/
+	public default void arraycopy(long startBitInSelf, long endBitInSelfExcl, Object array, int startIndexInArray){
+		if(array instanceof double[]){
+			long bits = endBitInSelfExcl-startBitInSelf;
+			long bitIndex = startBitInSelf;
+			if((bits&63)==0){
+				double[] a = (double[])array;
+				int sizeInArray = (int)(bits>>6);
+				for(int i=0; i<sizeInArray; i++){
+					a[i] = doubleAt(bitIndex);
+					bitIndex += 64;
+				}
+				return;
+			}
+		}
+		throw new Error("TODO");
+	}
+	
 	/** is this true aka equals the fn for op.T? */
 	public boolean z();
 	
@@ -431,10 +463,13 @@ public strictfp interface fn extends Function<Object,fn>, Comparable<fn>{
 	/** cbt interpreted as a binary number (TODO which kind of binary number?) */
 	public fn heightBig();
 	
-	/** returns 0 if not a cbt */
-	public default int cbtSize(){
+	/** returns 0 if not a cbt.
+	FIXME similar to bitstringSizeFitsInLong(), change that to cbtSizeFitsInLong()
+	so can use cbtSizeFitsInLong there and here and not need bitstringSizeFitsInLong anymore.
+	*/
+	public default long cbtSize(){
 		if(!isCbt()) return 0;
-		return 1<<(height()-4);
+		return 1L<<(height()-4);
 	}
 	
 	/** This is a potentially mutable optimization and does not affect ids. 

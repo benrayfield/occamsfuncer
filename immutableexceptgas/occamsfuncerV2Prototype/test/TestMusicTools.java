@@ -1,3 +1,4 @@
+/** Ben F Rayfield offers this software opensource MIT license */
 package immutableexceptgas.occamsfuncerV2Prototype.test;
 
 import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
@@ -5,6 +6,8 @@ import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 import immutableexceptgas.occamsfuncerV2Prototype.util.Boot;
 
 public class TestMusicTools{
+	
+	//TODO use the doubleAssemblyVM thru Example.doubleAssemblyVM()
 	
 	/** an acyclicFlow of double[3] mapping to 3 more doubles,
 	run in a loop, and 1 of them is dt. The other 2 are position and velocity

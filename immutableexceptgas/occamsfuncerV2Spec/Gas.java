@@ -5,10 +5,26 @@ public class Gas extends RuntimeException{
 	private Gas(){}
 	
 	/** Think of this as simulating free market trading
-	between memory and compute cycles, both paid in units of Gas.top.
+	between memory and compute cycles.
+	Compute cycles are paid in units of Gas.top.
+	TODO Allocation of memory is paid in units of Gas.top*Gas.memToComRatio.
+	(but not necessarily freeing since instead you might just get
+	more Gas.top available 30 times per second depending
+	how much memory is available)
+	TODO adjust Gas.memToComRatio by how much memory is available,
+	either by counting it per object in occamsfuncerVM
+	(but overriding Object.finalize is expensive)
+	or by Runtime.getRuntime().freeMemory()
+	(probably faster on average but laggier?).
+	...
 	When memory gets low, this changes so memory costs more.
 	When memory is freed, it changes back.'
-	Its not trading since theres only 1 process,
+	Its not trading since theres only 1 process
+	...
+	(could easily run in parallel if there were 1 of this etc per thread,
+	but since its bottlnecked by IO I'm going with 1 CPU thread
+	other than openCL parts use many GPU threads),
+	...
 	and whats being controlled by the gas and mem and com limits
 	are how much compute resources deeper calls can use
 	before returning to parent call and so on.
@@ -39,16 +55,33 @@ public class Gas extends RuntimeException{
 	
 	/** TODO Spend or some permission call changes this similar to Spend call.
 	Only affects Op.nondet and anything that may lead to it being called.
+	<br><br>
+	(todo rewrite comment...)
+	If false...
+	allow Op.nondet to do nondeterministic things instead
+	of always infiniteLooping (deterministic),
+	which is a certain few calls of universalLambdaFunction.
+	Its useful for limiting compute cycles and memory
+	and calling plugins, if any.
 	*/
 	public static boolean forceDeterminism = false;
 	
-	/** instance field and instance() since it must start null cuz of some java limit (or java bug?) that wont let a throwable be static final in its own class */
-	private static Gas instance;
+	/** At the start of any call, it c
+	public static boolean sudo = true;
 	
-	/** accessed by $ funcs and wallet and spend calls.
+	
+	/** Amount of compute resources available to this call and
+	deeply things it calls. When that returns, whatever amount of
+	resources the parent is saving are added back into this,
+	as thats how the Spend call works.
+	<br><br>
+	accessed by $ funcs and wallet and spend calls.
 	Wallet and spend calls are somewhere in Op.nondetGet.
 	*/
 	public static double top;
+	
+	/** instance field and instance() since it must start null cuz of some java limit (or java bug?) that wont let a throwable be static final in its own class */
+	private static Gas instance;
 	
 	
 	static{

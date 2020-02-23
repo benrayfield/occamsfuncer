@@ -1,11 +1,196 @@
 package immutableexceptgas.occamsfuncerV2Prototype;
 
+import immutableexceptgas.occamsfuncerV2Prototype.util.CallAsKey;
+import immutableexceptgas.occamsfuncerV2Spec.fn;
+import mutable.occamsfuncerV2Prototype.ui.OccamsfuncerUI;
+
 /** this class doesnt do anything. its just a place to put comments.
 Get it out of the top level package of occamsfuncer asap,
 but I dont want to lose these plans.
 todo copy from phonedoc soon to here too.
 */
 public class Todos{
+	
+	/*moved from OccamsfuncerUI
+	TODO get something very basic working such as
+	each keyboard button maps to a different color
+	and make the whole screen that color when its pushed.
+	*/
+	
+	/*Moved from Cache.java...
+	FIXME cache will no longer be cleared by caller
+	and will instead use continuous garbcol.
+	It will clear whichever CallAsKey is oldest counting from
+	the last time it was used,
+	and CallAsKey will use up to 3 WeakReferences OR
+	3 longs and every object has a long localId,
+	whichever of those 2 ways is faster,
+	as cache must not not prevent garbcol,
+	but still anything reachable from a fn whose Compiled
+	is customized (not a ptr to the 16 Compileds of the ops and those below)
+	wont be garbcoled.
+	*/
+	
+	
+	
+	/*moved from immutable.gpuVM
+	
+	QUOTE from gpuVM in mindmap[
+	each modelsofcomputing.registers32ints opcode touches at most 4 registers,
+	1 of which is always instructionPtr. Make sure none of those 3 overlap eachother
+	and none of those 3 equal instructionPtr.
+	Maybe instructionPtr should be a separate int[1] and have int[32] other registers?
+	...
+	put float and double ops in, where double ops such as double*double use the 4 ints
+	at mem[register[n..(n-3)] or 2 registers each 2 ints at them.
+	...
+	Put int12.int12.int8 acyclicFlow ops in (so i dont have to lose speed for those),
+	and maybe also int8.int8.int8.int8 ops for low 256 ints of mem.
+	but those are normally double ops. could still use it that way. low 512 or 8192 ints.
+	..
+	put in an opcode to make a sandboxedSystemCall
+	such as to call a forest of forestops defined entirely in the int[] mem
+	such as a range of mem[] that has int ptrs to the forestops to do in a sequence in opencl,
+	or maybe to interact with the user or other IO,
+	but try to keep it stateless so avoid IO and let io be handled by occamsfuncer.mutableWrapperLambda
+	which occurs between calls of large blocks of this kind of int[] computing.
+	Allow double[] optimization of some parts of the int[] especially for music ops.
+	...
+	Start using occamsfuncer for everything I do, if I can.
+	...
+	Use occamsfuncer fn objects to organize the medium efficiency calls of int[]
+	which organize GPU computing, but still the int[] will be slow for graphics
+	but still alot faster than occamsfuncer fn objects,
+	such as int[] computing might be able to do an indexOf search by bruteforce
+	of 10 mB/sec, compared to in manually optimized code could search 300 mB/sec.
+	...
+	Still, its enough for people to build simple mmg games together.
+	Occamsfuncer will expand beyond music tools cuz of this.
+	Remember, the int[] mem and int[32] registers are viewable as cbt.
+	...
+	Also, hardware, such as FPGA, could later be designed specificly for this kind of int[] computing
+	and could do it as fast as normal computers, or maybe even faster as its VERY threadable.
+	It would have no problem with using 64k cpus together, if the memory hardware could support it,
+	though might want to redesign it for 64 bits at a time instead of 32 in that case for larger
+	memory space and opcodes that can refer to other cpus and gpus etc.
+	But far sooner (if that ever happens) I expect this model of computing
+	to be a useful optimization of occamsfuncerV2's universalLambdaFunction,
+	accessed through cbts of various powOf2 sizes paired with a cbt of size 32registers*32bitsPerInt.
+	...
+	https://www.reddit.com/r/FPGA/comments/evc335/what_memory_topologies_are_available_for_fpgas/
+	...
+	https://www.reddit.com/r/compsci/comments/evcgcd/what_would_make_a_good_spec_for_defining_specs_in/
+
+
+	ocfn vob graphics? Textures on triangles? What if the textures are all from 1 big cbt?
+	ocfn aftrans of unit triangle as polygons? could aftrans into color space too so 3d->6d Or could just give 3*3d points and 3 ints for the color. or 3*6d points? Or textures? 
+		https://webglsamples.org/lots-o-objects/lots-o-objects-draw-elements.html
+	Maybe I should allow java:codestring in the nondet sections but filter the code to only allow code that calls $(cost) certain places like at the start of a loop, and before allocating memory? Or could allow only wrapper objects of arrays etc and make it use only those and convert them to fn after done mutating them, and not allowed to give ptr to such mutable objects to any other function until freeze them into fn? Also hook in acyclicFlowInt[]MusicToolsOptimization and opencl forestop this way, with similar safety guarantees.
+	Or do I want the progn style loops that abstractly act as treemaps (or tinymaps?)?
+	Could I for example simulate many small objects that way?
+	Try writing the code to simulate many bouncing balls or smartblobs that way...
+	Do I want to use op.curry (such as Example.c() or .cc() or .ccc() etc)
+	and op.recur for that (with tailRecursion optimization?)?
+	ns will be (getter of) a treemap of varname to value
+	f(
+		c
+		S(
+			recur
+			ST(someTransform (getp <unary4>)#ns)
+		)
+	)
+	//and forgot to putin an ending condition. Use IF(...) for that.
+	The curry and recur arent helping here. What I really need is the someTransform.
+	(while condition funcBody firstState)
+	continues if (condition state) is T, else that must be F.
+	then replaces state with (funcBody state), and returns the final state.
+	Or how about the model of statefulObjects where it returns (pair nextState returnValue)
+	so (statefulObject anything T) and (statefulObject anything F) return nextState or returnValue,
+	and the return value could be should it continue.
+	But it doesnt need to take a param each time, so thats the wrong model.
+	"while" would be a derived func.
+	(
+		while
+		?outerLoopContinue //S(I t(;outerLoopContinue)) //treemap has ;outerLoopContinue -> T or F
+		progn(
+			//hypot=(...) is a func that takes a treemap param and forkEdits the ;hypot key to that value
+			hypot=ST(doublerawcbtAdd ST(dSquare ?x)	ST(dSquare ?y))
+			
+		)
+		(tinyMapToTreemap (tinyMap ...))
+	)
+	Try implementing sha256 efficiently in occamsfuncer. What syntax would I use?
+	https://github.com/benrayfield/jsutils/blob/master/src/sha256.js
+	...
+	Build procedural assembly that ONLY has ints,
+	and has at most 256 registers and maybe 1 of them is instructionPointer,
+	maybe 1 or more of them is stackPointer, and maybe each int is
+	byteFromA byteFromB byteTo byteWhichFunc,
+	and it will use either the Float.*int*bits* funcs OR emulate ieee754 float math
+	using ints without those funcs since I might be able to do it faster
+	by using a long or multiple longs if I maybe standardize it on
+	something slightly different than ieee754 and just dont call it ieee754,
+	such as dont have NaNs or infinities or something like that.
+	Map between int[1<<log2OfSize] and cbt before and after each run of n cycles.
+	First 256 or maybe first 128 ints are the registers.
+	Registers should probably only be for reading and writing at top of stack
+	and instead do all calculations on the stack.
+	Or maybe stack should be for copying to the registers but
+	do all the (int,int)->int ops in the registers?
+	I want at least 2 registers one of which is memPtr and one is memVal,
+	and its always true that mem[memPtr]==memVal and can use that to read and write memory.
+	I might want a register that is decremented every cycle and is like ocfn Gas.top
+	to limit number of cycles.
+	I might want instructionPtr to be writable directly instead of jumpIfLessOrEqual (jle) etc,
+	which I know is harder to optimize but its simpler opcode.
+	I might want all memory reads to be an opcode that uses whats on top of stack as ptr
+	and reads whats at that ptr and replaces top of stack with that value,
+	and I might want all writes to use the top 2 values on stack and write one
+	to mem[the other]. Or I might want a register that is the read and write address
+	and auto increments whenever its read or written,
+	or I might want mulitple of those.
+	I might want opcodes to always be 1 byte each so can store 4 of them in each int,
+	and dont allow opcode 0, so when >>>8 it if its 0 then thats the end of the opcodes
+	in that int. So would have to load from memory less often.
+	Need an opcode that pushes next int (after that opcode) onto stack,
+	or maybe next n ints.
+	No to the 256 or 128 registers.
+	There will be 16 registers. 1 of them is instructionPointer,
+	and the others are 15 of the same thing.
+	They all point into memory. Various opcodes choose up to 3 or maybe 4 of them
+	and do a certain thing which affects only the memory they're pointing at and those 4.
+	Or maybe there should be 8 registers.
+	Ops will normally increment, decrement, or not change the value of each of the few registers
+	that op is for, such as to increment register3, decrement register5, and leave register9 as it is,
+	after adding the 2 ints at the mems pointed at by 2 of those registers and writing the result into
+	the mem pointed at by the third register, or ops to copy the value at a certain register
+	over the pointer value (pointer becomes that value) of a certain register.
+	These registers can be used for streaming or stacks,
+	and stack is not a well defined range but its top is wherever such registers point,
+	and its not always used as a stack.
+	At most 16 bits of literal can be included in an opcode, to copy to any of those
+	places just mentioned. So it takes 2 opcodes to push a literal int onto a stack.
+	Every opcode is 32 bits. No exceptions.
+	8 registers, so 3 bits to name each,
+	and a bit to say is it the register itself or is it the value it points at,
+	so 4 bits to name a var.
+	int2 to say what to add to that register, allowed values being -1 0 1.
+	Need maybe 8 bits to say which thing to do, such as plus, multiply, shift, and, or, etc.
+	Always use instructionPtr and 3 other registers,
+	and have a separate opcode to copy the value from a register to instructionPtr,
+	so those 4 registers selected cant overlap eachother.
+	Between the 3 of them that arent instructionPtr,
+	it does an (int,int)->int op and optionally does ptr++ or ptr-- or leave ptr as it is
+	for each of those registers or the values they point at.
+	An example of (int,int)->int is plus, negate, mutliply, and, or, shift, etc.
+	Actually, just put in a bit in every opcode for is the third register supposed to copy
+	its value to instructionPtr after doing its thing or not.
+	Branching will be done forexample by creating 0b11111111... vs 0b0000000... then AND those
+	with the 2 possible things to branch to one vs the other then jump to the result of that AND of ORs,
+	or can do normal pointer arithmetic.
+	Every jump will be anded by a mask that limits jumping to the int[].length which must be a powOf2.
+]
+*/
 	
 	
 	

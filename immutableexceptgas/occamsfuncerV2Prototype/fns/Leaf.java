@@ -111,7 +111,7 @@ public class Leaf extends AbstractFn{
 		return 0L;
 	}
 
-	public int cbtSize(){
+	public long cbtSize(){
 		return 0;
 	}
 

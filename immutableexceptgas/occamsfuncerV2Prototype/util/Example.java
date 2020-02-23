@@ -1,4 +1,5 @@
 package immutableexceptgas.occamsfuncerV2Prototype.util;
+import static immutableexceptgas.occamsfuncerV2Prototype.util.Example.cc;
 import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -171,6 +172,11 @@ public class Example{
 		).COMMENT("c"+funcParams);
 		if(isSmall) currysWithoutConstraints[funcParams] = ret;
 		return ret;
+	}
+	
+	/** curry with constraint and funcBody */
+	public static fn c(int funcParams, fn constraint, fn funcBody){
+		return curry.f(unary(3+funcParams)).f(constraint).f(funcBody);
 	}
 	
 	private static fn and;
@@ -979,9 +985,18 @@ public class Example{
 		if(tinyMap == null){
 			//tinyMap = typeList().f("tinyMap");
 			//tinyMap = typeList().f(utf8ToBitstring("tinyMap"));
-			tinyMap = contentType("x-list/x-occamsfuncerV2-tinyMap");
+			tinyMap = contentType("x-ocfn-typeListVararg/x-alternateKeyVal");
 		}
 		return tinyMap;
+	}
+	
+	private static fn linkedList;
+	/** a tinylist with "tinymap" as its first item, then alternates key val key val */
+	public static fn linkedList(){
+		if(linkedList == null){
+			linkedList = contentType("x-ocfn-typeListVararg/x-linkedList");
+		}
+		return linkedList;
 	}
 	
 	private static fn tinyMapGet;
@@ -1108,25 +1123,25 @@ public class Example{
 		return unaryAddUsingNondetEqq;
 	}
 	
-	private static fn doubleMult;
+	private static fn doublerawcbtMultiply;
 	/** given 2 params that are cbtBitstring of 64 bits each, returns another of those
 	thats the strictfp ieee754 multiply of those doubles
 	such as what happens in java when you multiply 2 doubles in strictfp.
 	*/
-	public static fn doubleMult(){
-		if(doubleMult == null){
-			throw new Error("TODO");
+	public static fn doublerawcbtMultiply(){
+		if(doublerawcbtMultiply == null){
+			doublerawcbtMultiply = plug(TempOcfnplugs.class.getName()+".ocfnplugDoublerawcbtMultiply", 2);
 		}
-		return doubleMult;
+		return doublerawcbtMultiply;
 	}
 	
 	/** curry 2 cbt bitstrings each of size 64, return 1 of those */
-	private static fn doubleAdd;
-	public static fn doubleAdd(){
-		if(doubleAdd == null){
-			throw new Error("TODO");
+	private static fn doublerawcbtAdd;
+	public static fn doublerawcbtAdd(){
+		if(doublerawcbtAdd == null){
+			doublerawcbtAdd = plug(TempOcfnplugs.class.getName()+".ocfnplugDoublerawcbtAdd", 2);
 		}
-		return doubleAdd;
+		return doublerawcbtAdd;
 	}
 	
 	/** curry 2 cbt bitstrings each of size 32, return 1 of those */
@@ -1349,17 +1364,80 @@ public class Example{
 		return turingMachine;
 	}
 	
-	private static fn mapPut;
-	public static fn mapPut(){
-		if(mapPut == null){
-			throw new Error("TODO");
+	private static fn mapIdMaker;
+	public static fn mapIdMaker(){
+		if(mapIdMaker == null){
+			mapIdMaker = p(4).COMMENT("mapIdMaker");
 		}
-		return mapPut;
+		return mapIdMaker;
+	}
+	
+	private static fn mapSize;
+	public static fn mapSize(){
+		if(mapSize == null){
+			mapSize = p(5).COMMENT("mapSize");
+		}
+		return mapSize;
+	}
+	
+	private static fn mapMinKey;
+	public static fn mapMinKey(){
+		if(mapMinKey == null){
+			mapMinKey = p(6).COMMENT("mapMinKey");
+		}
+		return mapMinKey;
+	}
+	
+	private static fn mapMaxKey;
+	public static fn mapMaxKey(){
+		if(mapMaxKey == null){
+			mapMaxKey = p(7).COMMENT("mapMaxKey");
+		}
+		return mapMaxKey;
+	}
+	
+	private static fn mapMinChild;
+	public static fn mapMinChild(){
+		if(mapMinChild == null){
+			mapMinChild = p(8).COMMENT("mapMinChild");
+		}
+		return mapMinChild;
+	}
+	
+	private static fn mapMaxChild;
+	public static fn mapMaxChild(){
+		if(mapMaxChild == null){
+			mapMaxChild = p(9).COMMENT("mapMaxChild");
+		}
+		return mapMaxChild;
 	}
 	
 	private static fn mapPair;
+	/** (MapPair idMaker cbtAsSize minKey maxKey minChild maxChild getKey)
+	and (MapSingle key value getKey) and (MapEmpty getKey)
+	all return value at that key or leaf if doesnt contain that key.
+	Use with mapPut and hasKey funcs.
+	(idMaker key) returns a cbt. It doesnt have to be same kind of id used
+	in the rest of the system as multiple id types are supported simultaneously
+	and can be made by any fn that returns a cbt.
+	*/
 	public static fn mapPair(){
 		if(mapPair == null){
+			//(MapPair idMaker cbtAsSize minKey maxKey minChild maxChild getKey)
+			
+			/*
+			int params = 7;
+			fn constraint = T;//FIXME thats the wrong constraint, need to verify minKey maxKey size idMaker etc f(
+			//);
+			fn funcBody = IF(
+				
+				TODO
+			).COMMENT("mapPair.funcBody gets value of key");
+			mapPair = c(params, constraint, funcBody);
+			*/
+			throw new Error("TODO");
+			
+			/*
 			fn unary7 = unary(7);
 			//func that infloops if parent's fields dont fit with both child's fields together
 			fn mapPairConstraint = null;//FIXME TODO
@@ -1377,9 +1455,49 @@ public class Example{
 			//func that forkEdits a map (MapPair, MapSingle, or MapEmpty)
 			//(mapPut map key val) returns forkEdited map
 			throw new Error("TODO");
+			*/
 		}
 		return mapPair;
 	}
+	
+	private static fn mapSingle;
+	/** (mapSingle key value getKey) returns value if (equals key getKey) else returns leaf */
+	public static fn mapSingle(){
+		if(mapSingle == null){
+			fn key = p(4).COMMENT("key");
+			fn value = p(5).COMMENT("value");
+			fn getKey = p(6).COMMENT("getKey");
+			mapSingle = ccc().f(
+				IF(
+					ST(equals(), key, getKey),
+					then(value),
+					t(leaf)
+				)
+			).COMMENT("mapSingle");	
+		}
+		return mapSingle;
+	}
+	
+	private static fn mapEmpty;
+	public static fn mapEmpty(){
+		if(mapEmpty == null){
+			return t(leaf).COMMENT("mapEmpty");
+		}
+		return mapEmpty;
+	}
+	
+	public static fn mapHasKey(){
+		throw new Error("TODO");
+	}
+	
+	private static fn mapPut;
+	public static fn mapPut(){
+		if(mapPut == null){
+			throw new Error("TODO");
+		}
+		return mapPut;
+	}
+	
 	
 	/** see Opcode.acyclicFlow and .acyclicFlowN in other fork of occamsfuncer.
 	This is where to hook in the int[] acyclicFlow music tool optimization.
@@ -1704,6 +1822,14 @@ public class Example{
 		return defaultServerState;
 	}
 	
+	private static fn default_OccamsfuncerUI_state;
+	public static fn default_OccamsfuncerUI_state(){
+		if(default_OccamsfuncerUI_state == null){
+			throw new Error("TODO");
+		}
+		return default_OccamsfuncerUI_state;
+	}
+	
 	/*TODO some of those fun experimental jar files in my q18 dir
 	such as the "clouds that get brighter" graphics effect,
 	or the earlier things that led to physicsmata, or physicsmata itself,
@@ -1783,6 +1909,122 @@ public class Example{
 		}
 		return nextRandCbt128_callMeOnLeaf;
 	}
+
+	private static fn doubleAssemblyVM;
+	public static fn doubleAssemblyVM(){
+		if(doubleAssemblyVM == null){
+			doubleAssemblyVM = plug(TempOcfnplugs.class.getName()+".doubleAssemblyVM", 1);
+		}
+		return doubleAssemblyVM;
+	}
+	
+	private static fn bitToDouble;
+	public static fn bitToDouble(){
+		if(bitToDouble == null){
+			bitToDouble = pair.f(1.).f(0.).COMMENT("bitToDouble");
+		}
+		return bitToDouble;
+	}
+	
+	private static fn earlyExperimentalGoalSolver;
+	/** This is whats used when (nondet . "solve" aGoal)
+	and is meant to be replaced in future versions of occamsfuncer
+	as it becomes smarter it will find other fn that can solve goals
+	better than this very basic one. This is just an easy place
+	to put it.
+	*/
+	public static fn earlyExperimentalGoalSolver(){
+		if(earlyExperimentalGoalSolver == null){
+			/*earlyExperimentalGoalSolver = TODO;
+			
+			TODO start with these 8 actions
+			defining a game-tree of possible functions,
+			with register starting as one of the params of this
+			earlyExperimentalGoalSolver func
+			and the other param being goalfunc,
+			so its 2 params instead of the 1 I was planning.
+			Action0: left
+			Action1: right
+			Action2: copy function from tapeCenter to register
+			Action3: copy function from register to tapeCenter
+			Action4: replace register with (register tapeCenter)
+			Action5: replace register with (pair register tapeCenter)
+			Action6: replace register with (L register)
+			Action7: replace register with (R register)
+			//Action?: Halt?
+			
+			Define the datastruct using typelist,
+			something like...
+			(typeList "fnTape" (typeList ...leftTapeContents...) (typeList centerAndRightTapeContents...) register)
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			Remember, occamsfuncer can loop over all possible functions
+			in breadth first order and check each passes (score > 0.),
+			and only risk a fraction of the available Gas on each,
+			though thats not the most efficient way.
+			Maybe should start with that?
+					
+			The 5 (UPDATE: 8) actions on the "fn tape" can loop thru all possible functions,
+			especially if the tape starts with some examples to play with
+			combos of already on it.
+			"Using a sequence of these 5 actions, anything can be created:"
+			fnTapeLeft fnTapeRight copyRegisterToCenterOfFnTape"
+			copyCenterOfFnTapeToRegister callFnInRegisterOnFnAtCenterOfTapeAndReplaceRegisterFnWithWhatThatReturns"
+			*/
+			throw new Error("TODO");
+			
+		}
+		return earlyExperimentalGoalSolver;
+	}
+	
+	public static fn fnTapeLeft(){
+		throw new Error("TODO");
+	}
+	
+	public static fn fnTapeRight(){
+		throw new Error("TODO");
+	}
+	
+	public static fn fnTapeCopyRegisterToTapeCenter(){
+		throw new Error("TODO");
+	}
+	
+	public static fn fnTapeCopyTapeCenterToRegister(){
+		throw new Error("TODO");
+	}
+	
+	public static fn fnTapeReplaceRegisterWithCallRegisterOnTapeCenter(){
+		throw new Error("TODO");
+	}
+	
+	public static fn fnTapeReplaceRegisterWithCallLOnRegister(){
+		throw new Error("TODO");
+	}
+
+	public static fn fnTapeReplaceRegisterWithCallROnRegister(){
+		throw new Error("TODO");
+	}
+	
+	public static fn fnTapeReplaceRegisterWithSolveOfRegister(){
+		throw new Error("TODO");
+	}
+	
+	public static fn fnTapeReplaceRegisterWithCallPairOnRegisterThenTapeCenter(){
+		throw new Error("TODO");
+	}
+	
+	public static fn fnGameTreeStartingWithRegisterContent(){
+		throw new Error("TODO");
+	}
+	
+	
 
 }
 

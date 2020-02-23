@@ -540,15 +540,15 @@ public strictfp class TestBasics{
 	
 	public static void testOcfnplugDoubleMathRaw_stuffThatWillBeReplacedByUserLevelCodeLater(){
 		lg("Starting testOcfnplugDoubleMathRaw_stuffThatWillBeReplacedByUserLevelCodeLater");
-		fn dMulRaw = cc().f(nondet.f("ocfnplug").f(TempOcfnplugs.class.getName()+".ocfnplugDoubleMultiplyRaw"));
-		fn dAddRaw = cc().f(nondet.f("ocfnplug").f(TempOcfnplugs.class.getName()+".ocfnplugDoubleAddRaw"));
+		fn dMulRaw = cc().f(nondet.f("ocfnplug").f(TempOcfnplugs.class.getName()+".ocfnplugDoublerawcbtMultiply"));
+		fn dAddRaw = cc().f(nondet.f("ocfnplug").f(TempOcfnplugs.class.getName()+".ocfnplugDoublerawcbtAdd"));
 		//FIXME should .f(double) wrap it using contentType(...).f(bitstring)
 		//vs should it just be that 64 bit bitstring (raw)?
 		//For now I'll make it unambiguous using doubleToBitstring(double).
-		fn raw2 = doubleToBitstring(2.);
-		fn raw3 = doubleToBitstring(3.);
-		fn raw2p34 = doubleToBitstring(2.34);
-		fn raw3p45 = doubleToBitstring(3.45);
+		fn raw2 = doubleToRawcbt(2.);
+		fn raw3 = doubleToRawcbt(3.);
+		fn raw2p34 = doubleToRawcbt(2.34);
+		fn raw3p45 = doubleToRawcbt(3.45);
 		testEqq("raw3 as long bits of double", raw3.longAt(0), Double.doubleToLongBits(3.));
 		testEqq("raw3 as double is 3", raw3.doubleAt(0), 3.);
 		testEqq("dMulRaw 2 3", dMulRaw.f(raw2).f(raw3).doubleAt(0), 6.);

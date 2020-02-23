@@ -2,6 +2,7 @@ package immutableexceptgas.occamsfuncerV2Prototype.util;
 import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import immutableexceptgas.occamsfuncerV2Spec.fn;
+import mutable.doubleAssemblyVM.DoubleAssemblyVM;
 
 /** These are temporary cuz hopefully will eventually
 make occamsfuncer advanced enough to port these to user level code,
@@ -33,17 +34,59 @@ I'm putting a few things I need here while building occamsfuncerVM.
 */
 public class TempOcfnplugs{
 	
-	public static fn ocfnplugDoubleMultiplyRaw(fn madeByCurry){
+	public static fn doubleAssemblyVM(fn madeByCurry){
+		/*TODO use contentType for doubleArray, double, etc,
+		and use tinymap as theonly param
+		
+		fn tinymapIn = getp(4,madeByCurry);
+				
+		TODO wrap this in a Spend call since it specifies max number of
+		compute steps, and it specifies it more precisely than
+		the wallet and spend system can do but approximate it anyways,
+		as doubleAssemblyVM is 100% deterministic in the number of
+		cycles but TODO still need to standardize potentially ambiguous ops
+		such as java.lang.StrictMath funcs that may be the implementation
+		of some of the doubleAssemblyVM ops,
+		such as theres multiple ways to compute sine or exp or hypot
+		which differ in the low bits of the resulting double,
+		so it would be best to reimplement those inside doubleAssemblyVM
+		instead of calling StrictMath at least until StrictMath
+		comes with test cases in the StrictMath class itself of
+		what are many of the correct possible inputs and outputs.
+		*/
+		
+		fn registersAsRawCbt = getp(4,madeByCurry);
+		fn memAsRawCbt = getp(5,madeByCurry);
+		double maxCyclesAsDoubleRawCbt = getp(6,madeByCurry).doubleAt(0);
+		double[] registers = new double[32];
+		//FIXME check sizes. not all sizes fit in long.
+		//size must be a powOf2.
+		double[] mem = new double[(int)((memAsRawCbt.cbtSize()>>6)+63)];
+		registersAsRawCbt.arraycopy(0, 32*64, registers, 0);
+		registersAsRawCbt.arraycopy(0, mem.length*64, mem, 0);
+		double cyclesRemaining = DoubleAssemblyVM.run(
+			registers, mem, maxCyclesAsDoubleRawCbt);
+		//will never modify those arrays again, so can give as params here
+		//fn registersOut = doubleArrayToRawcbt(registers);
+		//fn memOut = doubleArrayToRawcbt(mem);
+		throw new Error("TODO");
+		//return Example.tinyMap().f("registers").f(registersOut).f("mem").f(memOut).f("stepsRemaining").f(doubleToRawcbt(stepsRemaining);
+		
+	}
+	
+	public static fn ocfnplugDoublerawcbtMultiply(fn madeByCurry){
 		fn x = getp(4,madeByCurry);
 		fn y = getp(5,madeByCurry);
 		return doubleToRawcbt(x.doubleAt(0)*y.doubleAt(0));
 	}
 	
-	public static fn ocfnplugDoubleAddRaw(fn madeByCurry){
+	public static fn ocfnplugDoublerawcbtAdd(fn madeByCurry){
 		fn x = getp(4,madeByCurry);
 		fn y = getp(5,madeByCurry);
 		return doubleToRawcbt(x.doubleAt(0)+y.doubleAt(0));
 	}
+	
+	
 	
 	/** doubles are prefixed by a contentType */
 	public static fn ocfnplugDoubleMultiply(fn madeByCurry){

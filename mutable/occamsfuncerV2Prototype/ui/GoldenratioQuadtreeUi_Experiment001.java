@@ -1,4 +1,4 @@
-package mutable.occamsfuncerV2.ui;
+package mutable.occamsfuncerV2Prototype.ui;
 import static immutableexceptgas.occamsfuncerV2Prototype.util.ImportStatic.*;
 
 import java.awt.Color;
