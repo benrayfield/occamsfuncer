@@ -1,6 +1,18 @@
 # occamsfuncer
 a kind of number, an extremely optimizable and scalable universal lambda function meant for number crunching, AI research, and low lag massively multiplayer games that players can redesign into new game types in turingComplete ways by hotswap/forkEditing per bit, per function call pair, etc. Similar to Unlambda, Iota, Jot, Urbit, Ethereum, Ipfs.
 
+=== UNUSUAL FEATURES ===
+
+* Drag-and-drop function onto function to create or find function, can do anything that the system can do through normal programming. (TODO copy UI code from IotaVM and upgrade it to display the third comment child if it contains pixels or text)
+* Can safely run random or malicious code in local or p2p global sandbox, so its a good system for AIs to experiment in.
+* Code can be understood by Humans and AIs, like some of it written in https://github.com/benrayfield/occamsfuncer/blob/master/immutableexceptgas/occamsfuncerV2Prototype/util/Example.java
+* Custom JIT compiler for lambdas (TODO its barely got any optimizations so far but its a place to hook more optimizations when they're created). Planned optimizations include DoubleAssemblyVM, acyclicFlowInt[] music tools optimization, https://github.com/benrayfield/OccamsParallelComputeSandbox for OpenCL/GPU, deriving bits of float and double math in lambdas but actually using hardware ops to do them at normal speed, fork-appendable (like at video streaming speeds or more) bitstrings up to petabytes (about 2^62 bits) per object and unlimited objects (a bitstring is a completeBinaryTree of Op.cbt0 and Op.cbt1 as its leafs, counting the last cbt1 and trailing cbt0s as padding thats not actually stored but is there as a math abstraction). You can therefore fork-append a bitstring in log(size) number of new objects, or less depending if the smaller parts are large arrays of powOf2 size.
+* Deterministic, except Op.nondet which is where all nondeterminism goes and optionally has pure-determinism mode. For example, any static external function (such as you write in java) whose name starts with "ocfnplug" and takes a function as parameter and returns a function, can be called by Op.nondet, but its recommended to use that less and derive things by lambdas more, to keep things standardized across where others dont have the same external functions as you.
+* Function can wrap primitive arrays such as int[] float[] double[].
+* Can scale to any size p2p network while proving which parts fit together using merkle forest which is part of how blockchains work (TODO after ids and networking are working)
+* No disagreements on namespace since at the deepest level there are no variable names since everything is a constant, but you can have fork-editable treemaps (derived from lambdas) so if theres any diagreement on anything, both exist, nomatter how many times its forked, until some are ignored and leave the cache.
+
+
 === EVERYTHING IS A NUMBER ===
 
 A number (fn, meaning function) is either the universal lambda function or a list of 3 numbers: function, parameter, comment. Nothing else exists in the system. Nothing else is needed. A world of a trillion dimensions, or a picture, text, or sound would be a number. It can do and be anything. That is a math definition of what the system does and does not mean it has to be calculated that slow way, only means it has to get the same result as if it was, the same to the precision of every bit in the whole global network.
