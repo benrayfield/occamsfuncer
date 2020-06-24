@@ -1,6 +1,6 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutable.occamsfuncer.v3.spec.sparseTuringMachine.test;
-import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.Util.*;
+import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.OcfnUtil.*;
 import static immutable.util.TestUtil.*;
 import java.util.Arrays;
 
@@ -8,6 +8,44 @@ import immutable.occamsfuncer.v3.spec.fn;
 import immutable.occamsfuncer.v3.spec.sparseTuringMachine.*;
 
 public class TestOcfn3FormalVerifySpec{
+	
+	public static void thisHelpsInManuallyTestingCacheFuncParamReturnUsingDebugger(){
+		lg("Starting thisHelpsInManuallyTestingCacheFuncParamReturnUsingDebugger");
+		Node x = f(P,f(I,N),f(I,N));
+		OcfnUtil.forABreakpoint = true;
+		Node pnn = eval(x); //returns (P N N)
+		OcfnUtil.forABreakpoint = false;
+		testEqq("pnn", pnn, bootF(P,N,N));
+		
+		/** Wrong:
+		start eval: {{P {I N}}{I N}}
+		start step: {{P {I N}}{I N}}
+		After setCacheKey: {{P {I N}}{I N} c<{{P {I N}}{I N}}>}
+		step returning {P {I N} l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
+		start step: {P {I N} l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
+		After setCacheKey: {P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
+		step returning {I N r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>}
+		start step: {I N r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>}
+		After setCacheKey: {I N c<{I N}> r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>}
+		step returning (N c<{I N}> r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>)
+		start step: (N c<{I N}> r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>)
+		Write cache (mid), key={I N}
+		Write cache (mid), val=N
+		step returning {P N c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
+		start step: {P N c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
+		step returning (P N c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>)
+		start step: (P N c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>)
+		Write cache (mid), key={P {I N}}
+		Write cache (mid), val=(P N)
+		step returning {(P N) {I N} c<{{P {I N}}{I N}}>}
+		start step: {(P N) {I N} c<{{P {I N}}{I N}}>}
+		step returning {I N r<{(P N) {I N} c<{{P {I N}}{I N}}>}>}
+		start step: {I N r<{(P N) {I N} c<{{P {I N}}{I N}}>}>}
+		After setCacheKey: {I N c<{I N}> r<{(P N) {I N} c<{{P {I N}}{I N}}>}>}
+		Returning from cache: N
+		end eval: N --- is eval of: {{P {I N}}{I N}}
+		*/
+	}
 	
 	public static void testIsHalted(){
 		lg("Starting testIsHalted");
@@ -50,11 +88,9 @@ public class TestOcfn3FormalVerifySpec{
 	public static void testLRQuine(){
 		lg("Starting testLRQuine");
 		Node uuNonhalted = f(u,u);
-		testEqq("step (..) becomes halted on (..)", step(uuNonhalted), bootF(u,u));
+		testEqq("step (..) becomes halted on (..)", setCacheKey(step(uuNonhalted),null), bootF(u,u));
 		testLRQuine(u);
-		Util.forABreakpoint = true;
 		testLRQuine(e(u,u));
-		Util.forABreakpoint = false;
 		testLRQuine(L);
 		testLRQuine(R);
 		//TODO more calls of testLRQuine
@@ -74,11 +110,11 @@ public class TestOcfn3FormalVerifySpec{
 	
 	public static void testConsCarCdr(){
 		lg("Starting testConsCarCdr. Nil is leaf/theUniversalFunction. isNil is the isLeaf op.");
-		Node cons = Util.cons;
-		Node car = Util.car;
-		Node cdr = Util.cdr;
-		Node nil = Util.nil;
-		Node isNil = Util.isNil;
+		Node cons = OcfnUtil.cons;
+		Node car = OcfnUtil.car;
+		Node cdr = OcfnUtil.cdr;
+		Node nil = OcfnUtil.nil;
+		Node isNil = OcfnUtil.isNil;
 		Node list_N_A_L = cons.e(N).e(cons.e(A).e(cons.e(L).e(nil)));
 		testEqq("testConsCarCdr_1", car.e(list_N_A_L), N);
 		testEqq("testConsCarCdr_2", car.e(cdr.e(list_N_A_L)), A);
@@ -116,7 +152,7 @@ public class TestOcfn3FormalVerifySpec{
 	
 	public static void testIfElse(){
 		lg("Starting testIfElse");
-		Node ifElse = Util.ifElse;
+		Node ifElse = OcfnUtil.ifElse;
 		testEqq("f(ifElse,T,I,I)", e(ifElse,T,I,I), u);
 		testEqq("f(ifElse,T,t(N),t(P))", e(ifElse,T,t(N),t(P)), N);
 		testEqq("f(ifElse,F,t(N),t(P))", e(ifElse,F,t(N),t(P)), P);
@@ -138,7 +174,7 @@ public class TestOcfn3FormalVerifySpec{
 		testEqq("xor T T", e(xor,T,T), F);
 		//minorityBit, in this very unoptimized math model, is probably being exponentially slow cuz I implemented it using 4 xors and 3 ands
 		//and multiple Big calls. Its time to get CacheFuncParamReturn working.
-		if(1<2) throw new Error("too slow past here. must get CacheFuncParamReturn working first");
+		//if(1<2) throw new Error("too slow past here. must get CacheFuncParamReturn working first");
 		testEqq("minorityBit F F F", e(minorityBit,F,F,F), T);
 		testEqq("minorityBit F F T", e(minorityBit,F,F,T), T);
 		testEqq("minorityBit F T F", e(minorityBit,F,T,F), T);
@@ -147,6 +183,7 @@ public class TestOcfn3FormalVerifySpec{
 		testEqq("minorityBit T F T", e(minorityBit,T,F,T), F);
 		testEqq("minorityBit T T F", e(minorityBit,T,T,F), F);
 		testEqq("minorityBit T T T", e(minorityBit,T,T,T), F);
+		//verify this fails: testEqq("minorityBit T T T", e(minorityBit,T,T,T), T);
 	}
 	
 	/** lin aka linkedListNum is a nonnegative integer as linkedList of T and F,
@@ -171,16 +208,17 @@ public class TestOcfn3FormalVerifySpec{
 	
 	public static void testEquals(){
 		lg("Starting testEquals - The universalFunc being a patternCalculusFunc allows it to do this which lambdaFuncs cant cuz its a subset of possible lambdaFuncs thats a universal subset but also a subset that allows it to know patternCalculus things that it couldnt know outside that subset cuz it wouldnt know which are in or not in the subset, except that in this system its always in that subset. Its important to understand that the equals func is implemented as a pure sparse turing machine and does not use any implementing system's == or .equals operators etc except other implementations can do that as an optimization as long as it always gets the exact same result as the sparse turing machine.");
-		Node equals = Util.equals;
+		Node equals = OcfnUtil.equals;
 		testEqq("(equals . .)", e(equals,u,u), T);
 		testEqq("(equals . (..))", e(equals,u,e(u,u)), F);
 		testEqq("(equals car car)", e(equals,car,car), T);
 		testEqq("(equals car cdr)", e(equals,car,cdr), F);
 		testEqq("(equals equals equals)", e(equals,equals,equals), T);
-		testEqq("(equals car equals)", e(equals,equals,equals), F);
+		testEqq("(equals car equals)", e(equals,car,equals), F);
 	}
 	
 	public static void main(String[] args){
+		thisHelpsInManuallyTestingCacheFuncParamReturnUsingDebugger();
 		testIsHalted();
 		testLeafAndFewOpsInternalStructures();
 		testSTLR();

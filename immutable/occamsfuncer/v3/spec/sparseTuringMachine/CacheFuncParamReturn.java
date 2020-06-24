@@ -17,10 +17,10 @@ public class CacheFuncParamReturn{
 	private static final WeakHashMap<Node,Node> map = new WeakHashMap();
 	
 	public static void put(Node call, Node ret){
-		boolean allow = !call.isHalted && call.func.isHalted && call.param.isHalted && ret.isHalted
-			&& !call.isParentsFunc && !call.isParentsParam()
-			&& !ret.isParentsFunc && !ret.isParentsParam();
-		if(!allow) throw new Error("Not a normed <call,return>: call="+call+" ret="+ret);
+		//boolean allow = !call.isHalted && call.func.isHalted && call.param.isHalted && ret.isHalted
+		//	&& !call.isParentsFunc && !call.isParentsParam()
+		//	&& !ret.isParentsFunc && !ret.isParentsParam();
+		//if(!allow) throw new Error("Not a normed <call,return>: call="+call+" ret="+ret);
 		map.put(call, ret);
 	}
 

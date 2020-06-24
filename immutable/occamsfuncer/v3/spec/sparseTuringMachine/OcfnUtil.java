@@ -1,11 +1,11 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutable.occamsfuncer.v3.spec.sparseTuringMachine;
+import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.LogOptions.*;
 import static immutable.util.TestUtil.lg;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class Util{ //TODO rename to OcfnUtil
+public class OcfnUtil{
 	
 	/*FIXME universalFunc always takes 10 params, instead of 9, cuz adding a cardinality param to,
 	for example, create an object that evals to T or F depending if P equals NP or not,
@@ -231,14 +231,18 @@ public class Util{ //TODO rename to OcfnUtil
 		therefore must have Node.isHalted cache.
 	}*/
 	
-	public static final boolean cacheFuncParamReturn = false; //FIXME should be true
+	//public static final boolean cacheFuncParamReturn = false; //FIXME should be true
+	public static final boolean cacheFuncParamReturn = true;
 	
 	/** WARNING: may never halt */
 	public static Node eval(Node n){
 		Node start = n;
-		lg("start eval: "+n);
+		if(lgEval) lg("start eval: "+n);
 		while(!isDone(n)) n = step(n);
-		lg("end eval: "+n+" --- is eval of: "+start);
+		//FIXME should isDone include cacheKey==null? Or should cacheKey only be removed here?
+		//Should null cacheKey mean cacheKey is self's func param
+		n = setCacheKey(n, null);
+		if(lgEval) lg("end eval: "+n+" --- is eval of: "+start);
 		return n;
 	}
 	
@@ -325,7 +329,16 @@ public class Util{ //TODO rename to OcfnUtil
 	]
 	*/
 	public static Node step(Node n){
-		lg("start step: "+n);
+		if(lgStep) lg("start step: "+n);
+		
+		//TODO optimize, avoid caching things that return themself due to having less than 10 params, like:
+		//Write cache (mid), key=L
+		//Write cache (mid), val=L
+		//Probably did this by moving "n = setCacheKey(n, asStackBottom(n));" into !isHalted. TODO verify.
+		
+		//TODO optimize: Can this.cacheKey==null&L(this).isHalted&R(this).isHalted
+		//be used to mean cache key (not the field) is (this.func this.param)? 
+		
 		Node ret;
 		Node l = L(n), r = R(n);
 		
@@ -344,11 +357,29 @@ public class Util{ //TODO rename to OcfnUtil
 		//but without the optimizations of GPU, hardware strictfp double arithmetic, etc,
 		//but maybe optimizations can be done for emulators later too.
 		
+		//boolean writeCache = false;
+		
 		if(n.isHalted){
 			//Usually a nonleaf, but if n isLeaf, it will be here, even though leaf.func is identityFunc and leaf.param is leaf.
 			if(isStackBottom(n)){
+				//FIXME write to cache here too?
+				if(n.cacheKey != null){
+					Node val = n;
+					if(lgStep) lg("Write cache (end), key="+n.cacheKey);
+					if(lgStep) lg("Write cache (end), val="+val);
+					CacheFuncParamReturn.put(n.cacheKey, val);
+				}
 				ret = n;
 			}else{ //return down the stack. This is either L/func or R/param child of its parent (1 lower on stack).
+				if(n.cacheKey != null){
+					Node val = asStackBottom(n);
+					if(lgStep) lg("Write cache (mid), key="+n.cacheKey);
+					if(lgStep) lg("Write cache (mid), val="+val);
+					CacheFuncParamReturn.put(n.cacheKey, val);
+				}//else{
+				//	//It is correct when it has less than 10 params. UniversalFunc always curries 10 params.
+				//	throw new Error("FIXME Is it ever correct (other than inside an opencl optimized calculation etc) to return down the stack without writing cache?\r\nn="+n);
+				//}
 				if(n.isParentsFunc){
 					boolean isHalted = false;
 					boolean isParentsFunc = n.stack.isParentsFunc;
@@ -403,22 +434,30 @@ public class Util{ //TODO rename to OcfnUtil
 			//return node(l.isLeaf(), l.isHalted, false, true, n, l.func, l.param);
 		}else{ //do the main logic here instead of recursing into func, param, or going up stack
 			
+			if(n.cacheKey == null){
+				//FIXME I dont know if this is the right cacheKey logic
+				n = setCacheKey(n, asStackBottom(n));
+				if(lgStep) lg("After setCacheKey: "+n);
+			}
+			
 			if(cacheFuncParamReturn){
 				//About to eval (haltedX haltedY) which itself is not halted, but first check <func,param,return> cache
 				//with the normed form as if its a stackBottom.
 				Node asStackBottom = asStackBottom(n);
 				Node cachedEval = CacheFuncParamReturn.get(asStackBottom);
-				if(cachedEval == null){
-					ret = cachedEval;
+				if(cachedEval != null){
+					if(lgStep) lg("Returning from cache. Before restack: "+cachedEval);
+					ret = setStack(cachedEval, n.stack, n.isParentsFunc);
+					if(lgStep) lg("Returning from cache: "+ret);
 					return ret; //FIXME move the code below the IF into ELSE so ret isnt returned until end of func.
 				}
-				
+
 				//FIXME must also put in CacheFuncParamReturn after it returns.
 				//Thats just an optimization, but without it, it would take years to multiply 2 longs, something that normally takes 10 nanoseconds.
 				//With that optimization, its BigO is the same as a RandomAccessMachine,
 				//still a big constant cost, but with other optimizations I expect it to be competitive in the real world
 				//as a number crunching software using GPU grids and just barely fast enough for CPU-like uses cuz of unusual caching needs.
-				throw new Error("FIXME must also put in CacheFuncParamReturn after it returns.");
+				//throw new Error("FIXME must also put in CacheFuncParamReturn after it returns (use Node.cacheKey, so not every time something return, such as not in the ((xz)(yz)) steps (which can recurse endlessly) of (S x y z) but right after (whatXZReturns whatYZReturns) returns, map cacheKey to that, for example.");
 			}
 			
 			Node list = n;
@@ -522,16 +561,17 @@ public class Util{ //TODO rename to OcfnUtil
 					ret = f(bigCallFuncBody,f(P,l,r));
 				}
 			}
+			ret = setCacheKey(ret, asStackBottom(ret));
 			//FIXME also handle cacheKey here?
 			if(n.stack != null){
-				lg("FIXME what to do here? n="+n+" ret="+ret);
+				//lg("FIXME what to do here? n="+n+" ret="+ret);
 				Node putBackIntoStack = node(ret.isHalted, n.isParentsFunc, ret.isDeterministic, ret.isFinite,
 					ret.func, ret.param, n.stack, n.cacheKey);
-				lg("n="+n+" incompleteRet="+ret+" putBackIntoStack="+putBackIntoStack);
+				//lg("n="+n+" incompleteRet="+ret+" putBackIntoStack="+putBackIntoStack);
 				ret = putBackIntoStack;
 			}
 		}
-		lg("step returning "+ret);
+		if(lgStep) lg("step returning "+ret);
 		return ret;
 	}
 	
@@ -1109,45 +1149,50 @@ public class Util{ //TODO rename to OcfnUtil
 	
 	public static boolean forABreakpoint; //TODO remove this after get a certain testcase working
 	
-	protected static Node setIsHalted(Node n, boolean newIsHalted){
+	public static Node setIsHalted(Node n, boolean newIsHalted){
 		//FIXME should other params depend on both params?
 		return node(newIsHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, n.stack, n.cacheKey);
 	}
 	
-	protected static Node setIsParentsFunc(Node n, boolean newIsParentsFunc){
+	public static Node setIsParentsFunc(Node n, boolean newIsParentsFunc){
 		//FIXME should other params depend on both params?
 		return node(n.isHalted, newIsParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, n.stack, n.cacheKey);
 	}
 	
-	protected static Node setIsDeterministic(Node n, boolean isDeterministic){
+	public static Node setIsDeterministic(Node n, boolean isDeterministic){
 		//FIXME should other params depend on both params?
 		return node(n.isHalted, n.isParentsFunc, isDeterministic, n.isFinite, n.func, n.param, n.stack, n.cacheKey);
 	}
 	
-	protected static Node setIsFinite(Node n, boolean isFinite){
+	public static Node setIsFinite(Node n, boolean isFinite){
 		//FIXME should other params depend on both params?
 		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, isFinite, n.func, n.param, n.stack, n.cacheKey);
 	}
 	
-	protected static Node setFunc(Node n, Node newFunc){
+	public static Node setFunc(Node n, Node newFunc){
 		//FIXME should other params depend on both params?
 		if(n.isLeaf()) throw new Error("Dont use this for leaf");
 		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, newFunc, n.param, n.stack, n.cacheKey);
 	}
 	
-	protected static Node setParam(Node n, Node newParam){
+	public static Node setParam(Node n, Node newParam){
 		//FIXME should other params depend on both params?
 		if(n.isLeaf()) throw new Error("Dont use this for leaf");
 		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, n.func, newParam, n.stack, n.cacheKey);
 	}
 	
-	protected static Node setStack(Node n, Node newStack){
+	public static Node setStack(Node n, Node newStack){
 		//FIXME should other params depend on both params?
 		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, newStack, n.cacheKey);
 		//return node(n.isHalted, n.isParentsFunc&(newStack!=null), n.isDeterministic, n.isFinite, n.func, n.param, newStack, n.cacheKey);
 	}
 	
-	protected static Node setCacheKey(Node n, Node newCacheKey){
+	public static Node setStack(Node n, Node newStack, boolean isParentsFunc){
+		//FIXME should other params depend on both params?
+		return node(n.isHalted, isParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, newStack, n.cacheKey);
+	}
+	
+	public static Node setCacheKey(Node n, Node newCacheKey){
 		//FIXME should other params depend on both params?
 		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, n.stack, newCacheKey);
 	}

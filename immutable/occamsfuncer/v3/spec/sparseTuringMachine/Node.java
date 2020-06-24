@@ -170,16 +170,16 @@ public final class Node implements UnaryOperator<Node>{
 	}
 	
 	public String toString(){
-		if(this==Util.u) return ".";
-		if(this==Util.I) return "I"; //this line must happen before F cuz I==(F .)
-		if(this==Util.F) return "F";
-		if(this==Util.T) return "T";
-		if(this==Util.L) return "L";
-		if(this==Util.R) return "R";
-		if(this==Util.S) return "S";
-		if(this==Util.A) return "A";
-		if(this==Util.P) return "P";
-		if(this==Util.N) return "N";
+		if(this==OcfnUtil.u) return ".";
+		if(this==OcfnUtil.I) return "I"; //this line must happen before F cuz I==(F .)
+		if(this==OcfnUtil.F) return "F";
+		if(this==OcfnUtil.T) return "T";
+		if(this==OcfnUtil.L) return "L";
+		if(this==OcfnUtil.R) return "R";
+		if(this==OcfnUtil.S) return "S";
+		if(this==OcfnUtil.A) return "A";
+		if(this==OcfnUtil.P) return "P";
+		if(this==OcfnUtil.N) return "N";
 		String push = isHalted ? "(" : "{";
 		String pop = isHalted ? ")" : "}";
 		String s = push;
@@ -195,10 +195,13 @@ public final class Node implements UnaryOperator<Node>{
 			s += func+" "+param;
 		}*/
 		s += func+" "+param;
-		if(cacheKey != null) s += ", cacheKey="+cacheKey;
+		//if(cacheKey != null) s += ", cacheKey="+cacheKey;
+		if(cacheKey != null) s += " c<"+cacheKey+">";
 		if(stack != null){
-			if(isParentsFunc) s += ",  funcStack="+stack;
-			else s += ", paramStack="+stack;
+			//if(isParentsFunc) s += ",  funcStack="+stack;
+			//else s += ", paramStack="+stack;
+			if(isParentsFunc) s += " l<"+stack+">";
+			else s += " r<"+stack+">";
 		}
 		s += pop;
 		s = s.replace(") (",")(");
@@ -206,31 +209,32 @@ public final class Node implements UnaryOperator<Node>{
 		s = s.replace(". .","..");
 		s = s.replace(") .",").");
 		s = s.replace("} .","}.");
-		s = s.replace("((..).).).)", "opPrefix");
+		s = s.replace("((((..).).).)", "opPrefix");
 		s = s.replace("F .", "I"); //cuz (F .)==I, but if it has stack then this!=Util.I
 		s = s.replace("null null", "."); //cuz every leaf has param==null and func==null. Theres multiple leafs cuz it can be in multiple possible stack states.
+		s = s.replace("((opPrefix (..))(..))(..)", "N");
 		return s;
 	}
 	
-	public static Node theUniversalFunction = Util.u;
+	public static Node theUniversalFunction = OcfnUtil.u;
 	
 	/** lazyEval of (this param). Halts instantly if at cardinality 0, else has infinite cost cuz BigO is infinity^cardinality */
 	public Node f(Node param){
-		return Util.f(this,param);
+		return OcfnUtil.f(this,param);
 	}
 	
 	/** 1 compute step forward. Check isDone() to see if needs to step again else is the returned value. */
 	public Node step(){
-		return Util.step(this);
+		return OcfnUtil.step(this);
 	}
 	
 	public boolean isDone(){
-		return Util.isDone(this);
+		return OcfnUtil.isDone(this);
 	}
 	
 	/** eval of (this param). WARNING: may never halt */
 	public Node e(Node param){
-		return Util.e(this,param);
+		return OcfnUtil.e(this,param);
 	}
 
 	public Node apply(Node param){
