@@ -3,11 +3,20 @@ package immutable.occamsfuncer.v3.spec.sparseTuringMachine.test;
 import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.OcfnUtil.*;
 import static immutable.util.TestUtil.*;
 import java.util.Arrays;
-
 import immutable.occamsfuncer.v3.spec.fn;
 import immutable.occamsfuncer.v3.spec.sparseTuringMachine.*;
 
 public class TestOcfn3FormalVerifySpec{
+	
+	public static void testIota(){
+		lg("Starting testIota");
+		Node x = iota;
+		lg("iota = "+x);
+		testEqq("(iota iota N) cuz iota iota is an identityFunc", x.e(x).e(N), N);
+		testEqq("get T from iota", x.e(x.e(x.e(x))), T);
+		testEqq("get S from iota", x.e(x.e(x.e(x.e(x)))), S);
+		lg("Tests pass: testIota");
+	}
 	
 	public static void thisHelpsInManuallyTestingCacheFuncParamReturnUsingDebugger(){
 		lg("Starting thisHelpsInManuallyTestingCacheFuncParamReturnUsingDebugger");
@@ -16,35 +25,6 @@ public class TestOcfn3FormalVerifySpec{
 		Node pnn = eval(x); //returns (P N N)
 		OcfnUtil.forABreakpoint = false;
 		testEqq("pnn", pnn, bootF(P,N,N));
-		
-		/** Wrong:
-		start eval: {{P {I N}}{I N}}
-		start step: {{P {I N}}{I N}}
-		After setCacheKey: {{P {I N}}{I N} c<{{P {I N}}{I N}}>}
-		step returning {P {I N} l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
-		start step: {P {I N} l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
-		After setCacheKey: {P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
-		step returning {I N r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>}
-		start step: {I N r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>}
-		After setCacheKey: {I N c<{I N}> r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>}
-		step returning (N c<{I N}> r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>)
-		start step: (N c<{I N}> r<{P {I N} c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}>)
-		Write cache (mid), key={I N}
-		Write cache (mid), val=N
-		step returning {P N c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
-		start step: {P N c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>}
-		step returning (P N c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>)
-		start step: (P N c<{P {I N}}> l<{{P {I N}}{I N} c<{{P {I N}}{I N}}>}>)
-		Write cache (mid), key={P {I N}}
-		Write cache (mid), val=(P N)
-		step returning {(P N) {I N} c<{{P {I N}}{I N}}>}
-		start step: {(P N) {I N} c<{{P {I N}}{I N}}>}
-		step returning {I N r<{(P N) {I N} c<{{P {I N}}{I N}}>}>}
-		start step: {I N r<{(P N) {I N} c<{{P {I N}}{I N}}>}>}
-		After setCacheKey: {I N c<{I N}> r<{(P N) {I N} c<{{P {I N}}{I N}}>}>}
-		Returning from cache: N
-		end eval: N --- is eval of: {{P {I N}}{I N}}
-		*/
 	}
 	
 	public static void testIsHalted(){
@@ -153,9 +133,36 @@ public class TestOcfn3FormalVerifySpec{
 	public static void testIfElse(){
 		lg("Starting testIfElse");
 		Node ifElse = OcfnUtil.ifElse;
-		testEqq("f(ifElse,T,I,I)", e(ifElse,T,I,I), u);
-		testEqq("f(ifElse,T,t(N),t(P))", e(ifElse,T,t(N),t(P)), N);
-		testEqq("f(ifElse,F,t(N),t(P))", e(ifElse,F,t(N),t(P)), P);
+		testEqq("e(ifElse,T,I,I)", e(ifElse,T,I,I), u);
+		testEqq("e(ifElse,T,t(N),t(P))", e(ifElse,T,t(N),t(P)), N);
+		testEqq("e(ifElse,F,t(N),t(P))", e(ifElse,F,t(N),t(P)), P);
+		testEqq("e(ifElse,T,I,.) -> (I .) -> .", e(ifElse,T,I,u), u);
+		testEqq("e(ifElse,F,I,.) -> (. .)", e(ifElse,F,I,u), e(u,u));
+		//testEqq("ifElse thenConst 1", IF(tt(T),thenT(P),thenT(N)), P);
+		//testEqq("ifElse thenConst 2", IF(tt(F),thenT(P),thenT(N)), N);
+		
+		testEqq("(tttt(u) N) -> (T (T (T u)))", e(tttt(u),N), ttt(u));
+		testEqq("ifElse T thenConst L", e(IF(t(T),thenConst(L),thenConst(R)),u), L);
+		testEqq("ifElse F thenConst R", e(IF(t(F),thenConst(L),thenConst(R)),u), R);
+		testEqq("ifElse I thenConst L cuz param of the IF is T so I gets T", e(IF(I,thenConst(L),thenConst(R)),T), L);
+		testEqq("ifElse I thenConst R cuz param of the IF is F so I gets F", e(IF(I,thenConst(L),thenConst(R)),F), R);
+		testEqq("ifElse car thenConst L cuz param of the IF is (P T F) so car gets T",
+			e(IF(car,thenConst(L),thenConst(R)),e(P,T,F)), L);
+		testEqq("ifElse car then I, car gets T which chooses then(I), and the I called on (P T F) returns (P T F)",
+			e(IF(car,then(I),thenConst(R)),e(P,T,F)), e(P,T,F));
+		testEqq("ifElse cdr then I, cdr gets F which chooses thenT(P,I,I), and the thenT(P,I,I) called on e(P,T,F) returns (P (P T F) (P T F))",
+			e(IF(cdr,then(I),thenT(P,I,I)),e(P,T,F)), e(P,e(P,T,F),e(P,T,F)));
+	}
+	
+	public static void testIFInBigcall(){
+		lg("Starting testIFInBigcall");
+		Node x = e(
+			Big,
+			IF(p8, then(p9), then(p10)),
+			F, F, T //ignore first 3 of 6 params
+		);
+		testEqq("testIFInBigcall 1", e(x,T,A,N), A);
+		testEqq("testIFInBigcall 2", e(x,F,A,N), N);
 	}
 	
 	public static void testLogic(){
@@ -186,15 +193,40 @@ public class TestOcfn3FormalVerifySpec{
 		//verify this fails: testEqq("minorityBit T T T", e(minorityBit,T,T,T), T);
 	}
 	
-	/** lin aka linkedListNum is a nonnegative integer as linkedList of T and F,
-	which is a much slower form than the cbt/completeBinaryTree of bits which will
+	/** lin aka linkedList number, is a simpler kind of linkedlist that doesnt use pair,
+	like (T (T (F (T nilAkaLeaf)))) is the number 0x1101 aka baseTen11, and nilAkaLeaf is 0.
+	Its a much slower form than the cbt/completeBinaryTree of bits which will
 	be hardware optimized to use strictfp float double long int math, in other implementations.
 	This implementation is just the math spec for solving disagreements in the possible behaviors of faster implementations.
 	*/
-	public static void testLinArithmetic(){
+	public static void testLinPlusOne(){
 		lg("Starting testLinArithmetic");
-		throw new Error("TODO");
+		Node lin0 = nil;
+		Node lin1 = T.e(nil);
+		Node lin2 = F.e(T.e(nil));
+		Node lin3 = T.e(T.e(nil));
+		Node lin4 = F.e(F.e(T.e(nil)));
+		Node lin5 = T.e(F.e(T.e(nil)));
+		testEqq("(linPlusOne lin0)->lin1", e(linPlusOne,lin0), lin1);
+		testEqq("(linPlusOne lin1)->lin2", e(linPlusOne,lin1), lin2);
+		testEqq("(linPlusOne lin2)->lin3", e(linPlusOne,lin2), lin3);
+		testEqq("(linPlusOne lin3)->lin4", e(linPlusOne,lin3), lin4);
+		testEqq("(linPlusOne lin4)->lin5", e(linPlusOne,lin4), lin5);
 	}
+	
+	/*public static void testLinPlus(){
+		lg("Starting testLinPlus");
+		testEqq("lin11", lin(11), e(T,e(T,e(F,e(T,nil)))));
+		testEqq("linPlus 0 0", e(linPlus,lin(0),lin(0)), lin(0));
+		testEqq("linPlus 0 1", e(linPlus,lin(0),lin(1)), lin(1));
+		testEqq("linPlus 1 0", e(linPlus,lin(1),lin(0)), lin(1));
+		testEqq("linPlus 2 3", e(linPlus,lin(2),lin(3)), lin(5));
+		testEqq("linPlus 3 2", e(linPlus,lin(3),lin(2)), lin(5));
+		testEqq("linPlus 11 17", e(linPlus,lin(11),lin(17)), lin(28));
+		testEqq("linPlus 20 17", e(linPlus,lin(20),lin(17)), lin(37));
+		testEqq("linPlus 16 16", e(linPlus,lin(16),lin(16)), lin(32));
+		testEqq("linPlus 16 1", e(linPlus,lin(16),lin(1)), lin(17));
+	}*/
 	
 	/* fibonacci, to verify cache <func,param,return> is working (which 2020-6-23-10a its not,
 	and the system is designed to work anyways just exponentially slower, wherever it lacks perfect dedup,
@@ -208,16 +240,59 @@ public class TestOcfn3FormalVerifySpec{
 	
 	public static void testEquals(){
 		lg("Starting testEquals - The universalFunc being a patternCalculusFunc allows it to do this which lambdaFuncs cant cuz its a subset of possible lambdaFuncs thats a universal subset but also a subset that allows it to know patternCalculus things that it couldnt know outside that subset cuz it wouldnt know which are in or not in the subset, except that in this system its always in that subset. Its important to understand that the equals func is implemented as a pure sparse turing machine and does not use any implementing system's == or .equals operators etc except other implementations can do that as an optimization as long as it always gets the exact same result as the sparse turing machine.");
-		Node equals = OcfnUtil.equals;
 		testEqq("(equals . .)", e(equals,u,u), T);
 		testEqq("(equals . (..))", e(equals,u,e(u,u)), F);
+		testEqq("(equals (..) .)", e(equals,e(u,u),u), F);
+		testEqq("(equals (..) (..))", e(equals,e(u,u),e(u,u)), T);
+		testEqq("(equals ((..).) ((..).))", e( equals, e(e(u,u),u), e(e(u,u),u) ), T);
+		testEqq("(equals (.(..)) (.(..)))", e( equals, e(u,e(u,u)), e(u,e(u,u)) ), T);
+		testEqq("(equals ((..)(..)) ((..)(..)))", e( equals, e(e(u,u),e(u,u)), e(e(u,u),e(u,u)) ), T);
+		testEqq("(equals (..) ((..).))", e( equals, e(u,u), e(e(u,u),u) ), F);
+		testEqq("(equals ((..).) (..))", e( equals, e(e(u,u),u), e(u,u) ), F);
 		testEqq("(equals car car)", e(equals,car,car), T);
 		testEqq("(equals car cdr)", e(equals,car,cdr), F);
 		testEqq("(equals equals equals)", e(equals,equals,equals), T);
 		testEqq("(equals car equals)", e(equals,car,equals), F);
 	}
 	
+	/** (lazig x y z) returns (x y) */
+	public static void testLazig(){
+		lg("Starting testLazig");
+		Node cbtAN = e(lazig, A, N, P);
+		testEqq("lazigA", e(lazig,A), e(lazig,A));
+		testEqq("lazigAN", e(lazig,A,N), e(lazig,A,N));
+		testEqq("lazigANP", e(lazig,A,N,P), e(A,N));
+		testEqq("lazigPAN", e(lazig,P,A,N), e(P,A));
+	}
+	
+	public static void testChurchEncodingOfArithmetic(){
+		lg("Starting testChurchEncodingOfArithmetic aka https://en.wikipedia.org/wiki/Church_encoding");
+		Node ch1 = e(chSucc,chZero);
+		Node ch2 = e(chSucc,ch1);
+		Node ch3 = e(chSucc,ch2);
+		Node ch4 = e(chSucc,ch3);
+		testEqq("ch3 .", e(ch3,T,nil), e(T,e(T,e(T,nil))));
+		Node ch5a = e(chPlus,ch2,ch3);
+		Node ch5b = e(chPlus,ch3,ch2);
+		testEqq("ch5 a and b", e(ch5a,T,nil), e(ch5b,T,nil));
+		testEqq("chMult vs chPlus", e(e(chMult,ch3,ch4),T,nil), e(e(chPlus,ch4,e(chPlus,ch4,ch4)),T,nil));
+		testEqq("chExponent vs chMult", e(e(chExponent,ch4,ch3),T,nil), e(e(chMult,ch4,e(chMult,ch4,ch4)),T,nil));
+		testEqq(
+			"chExponent vs chMult, with plus",
+			e( e(chPlus,ch2,e(chExponent,ch4,ch3)) ,T,nil),
+			e( e(chPlus,e(chMult,ch4,e(chMult,ch4,ch4)),ch2) ,T,nil)
+		);
+		lg("testChurchEncodingOfArithmetic tests pass."
+			+" The church encoding of arithmetic is a nonnormalized form cuz theres more than 1 form of each integer."
+			+" Lin numbers, such as (T (T (T nil))) is 3, are a normalized form and are exponentially more efficient"
+			+" as they store binary digits instead of unary. Cbt (complete binary tree of pairs of T and F)"
+			+" bitstrings will be even more efficient than that as they"
+			+" can be memory mapped between lambdas and large arrays such as for GPU optimizations or realtime transforms"
+			+" between speakers and microphones processessing each of 44100 per second wave amplitudes individually or voxel graphics.");
+	}
+	
 	public static void main(String[] args){
+		testIota();
 		thisHelpsInManuallyTestingCacheFuncParamReturnUsingDebugger();
 		testIsHalted();
 		testLeafAndFewOpsInternalStructures();
@@ -228,10 +303,17 @@ public class TestOcfn3FormalVerifySpec{
 		testBigCallParams();
 		testBigCallRecur1To6();
 		testIfElse();
+		testIFInBigcall();
 		testLogic();
-		testLinArithmetic();
-		testLinFibonacciSoDeepThatIfCacheFuncParamReturnIsntWorkingThenItWillTakeTrillionsOfYearsElseNearInstant();
+		testLazig();
+		testChurchEncodingOfArithmetic();
+		testLinPlusOne();
 		testEquals();
+		//as of 2020-6-27-7a it passes to here
+		
+		
+		//testLinPlus();
+		testLinFibonacciSoDeepThatIfCacheFuncParamReturnIsntWorkingThenItWillTakeTrillionsOfYearsElseNearInstant();
 		
 		//TODO get CacheFuncParamReturn working (using Node.cacheKey) else nearly everything will cost exponential.
 		//TODO test car cdr cons nil

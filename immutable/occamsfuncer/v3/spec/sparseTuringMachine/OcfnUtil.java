@@ -1,7 +1,9 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package immutable.occamsfuncer.v3.spec.sparseTuringMachine;
-import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.LogOptions.*;
+import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.LogOptions.lgEval;
+import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.LogOptions.lgStep;
 import static immutable.util.TestUtil.lg;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -670,6 +672,8 @@ public class OcfnUtil{
 	
 	public static final Node lazyInfiniteLoop = bootF(callParamOnItself,callParamOnItself);
 	
+	public static final Node iota = e(P,S,T);
+	
 	/** forkEdits its param so that recursively every first param of universalFunc is leaf.
 	This func must be a certain standard func (TODO) derived from the universalFunc and is also called by universalFunc,
 	which markHaltedRecursively "closes the loop".
@@ -767,6 +771,10 @@ public class OcfnUtil{
 		return x;
 	}
 	
+	public static Node ST(Object... list){
+		return ST(obsToNodes(list));
+	}
+	
 	/** copy common object types, such as String, float[], int[], double[], etc into Node, else throw */
 	public static Node w(Object o){
 		if(o instanceof Node) {
@@ -792,6 +800,10 @@ public class OcfnUtil{
 		}else{
 			throw new Error("Unknown type: "+o.getClass().getName());
 		}
+	}
+	
+	public static Node w(boolean z){
+		return z ? T : F;
 	}
 	
 	/*public static Node[] reverse(Node... list){
@@ -923,7 +935,7 @@ public class OcfnUtil{
 	public static final Node ifElse = e(
 		
 		//setComment,
-		e(
+		//e(
 			Big,
 			ST(
 				P,
@@ -933,31 +945,13 @@ public class OcfnUtil{
 				t(u)
 			),
 			F, F, T //ignore first 3 of 6 params
-		)//,
+		//)//,
 		//"ifElse"
 	);
 	
 	public static Node IF(Node condition, Node ifTrue, Node ifFalse){
 		return ST(ifElse, condition, ifTrue, ifFalse);
 	}
-	
-	/** lin is listlike number such as (T (F (T (T nil)))) is (binary)1011 aka (baseTen)11. *
-	public static final Node linPlusOne = could use small forest of S to directly create the (Lb.a(bb)) lambdas then call (S I I) on it.
-	*/
-	
-	/** lln is linkedlist of T and F such as (pair T (pair F (pair T (pair T nil)))) is (binary)1101 aka (baseTen)13.
-	The first T or F is the 1s digit.
-	This is different than forExample cbt of 64 bits which hardware strictfp double multiply would be used on.
-	*
-	public static final Node llnPlusOne = TODO;
-	If nil, then return (T nil).
-	else{
-		If first digit is F, forkEdit that for first digit to be T.
-		Else forkEdit first digit to be F and forkEdit the remaining digits to be llnPlusOne of those.
-	}
-	TODO tests of this.
-	*/
-	//public static final Node linPlusOne = could use small forest of S to directly create the (Lb.a(bb)) lambdas then call (S I I) on it.
 	
 	/** https://en.wikipedia.org/wiki/Fixed-point_combinator#Fixed-point_combinators_in_lambda_calculus
 	La.(Lb.a(bb))(Lb.a(bb))
@@ -978,7 +972,13 @@ public class OcfnUtil{
 	and other than that is the same as S(...).
 	*/
 	public static Node thenT(Object... obs){
-		return f(lazig,S(obs));
+		return f(lazig,ST(obs));
+	}
+	
+	public static Node thenConst(Node constant){
+		//return tt(constant);
+		//TODO tt(constant)?
+		return f(lazig,t(constant)); //FIXME
 	}
 	
 	/*public static Node and = e(
@@ -1074,24 +1074,21 @@ public class OcfnUtil{
 	/** FIXME this was copied from ocfn2 which uses vararg. Will isntead use bigCall and recur2, and I didnt finish coding it here */
 	public static Node equals = e(
 		Big,
-	//public static Node equals = e(paramsCommentFuncbody(
-		//2, "equals",
 		IF(
-			ST(A,p9),
-			thenT(A,p10),
-			then(IF(
-				ST(A,p10),
-				tt(F),
-				thenT(
+			ST(A,p9), //if p9 is leaf
+			thenT(A,p10), //then return: p10 is leaf?
+			then(IF( //else if
+				ST(A,p10), //if p10 is leaf?
+				thenConst(F), //then return F
+				thenT( //else return AND of recurse 2 times on the left of both params and right of both params
 					and,
-					S(recur2, S(t(L),p9), S(t(L),p10) ),
-					S(recur2, S(t(R),p9), S(t(R),p10) )
+					S(recur2, ST(L,p9), ST(L,p10) ),
+					S(recur2, ST(R,p9), ST(R,p10) )
 				)
 			))
 		),
 		F, F, F, T //ignore first 4 of 6 params
 	);
-	//));
 	
 	//public static final Node GetComment = TODO derive from universalFunc;
 	
@@ -1143,6 +1140,136 @@ public class OcfnUtil{
 	*
 	public static final Node chuasCircuit = TODO;
 	*/
+	
+	/** lin is listlike number such as (T (F (T (T nil)))) is (binary)1011 aka (baseTen)11. *
+	public static final Node linPlusOne = could use small forest of S to directly create the (Lb.a(bb)) lambdas then call (S I I) on it.
+	*/
+	
+	/** lln is linkedlist of T and F such as (pair T (pair F (pair T (pair T nil)))) is (binary)1101 aka (baseTen)13.
+	The first T or F is the 1s digit.
+	This is different than forExample cbt of 64 bits which hardware strictfp double multiply would be used on.
+	*
+	public static final Node llnPlusOne = TODO;
+	If nil, then return (T nil).
+	else{
+		If first digit is F, forkEdit that for first digit to be T.
+		Else forkEdit first digit to be F and forkEdit the remaining digits to be llnPlusOne of those.
+	}
+	TODO tests of this.
+	*/
+	
+	/** lin aka linkedList number, is a simpler kind of linkedlist that doesnt use pair,
+	like (T (T (F (T nilAkaLeaf)))) is the number 0x1011 aka 11, and nilAkaLeaf is 0.
+	Remember, (F nilAkaLeaf) is I. Both are halted. They just have the same forest shape. So dont be confused by seeing I in the numbers.
+	*/
+	public static final Node linPlusOne = e(
+		Big,
+		IF(
+			ST(A,p10),
+			thenConst(f(T,nil)),
+			then(IF(
+				ST(L,p10), //get lowest digit as T or F.
+				thenT( //Lowest digit is T. Replace it with F and replace rest (higher digits) with add 1 recursively
+					F,
+					S(recur1, ST(R,p10))
+				),
+				thenT( //lowest digit is F. Replace it with T.
+					T,
+					ST(R,p10) //leave rest of the linkedlist (higher digits) as it is
+				)
+			)
+		)),
+		F, F, F, F, T //ignore first 5 of 6 params
+	);
+	
+	/*public static final Node linPlus = e(
+		Big,
+		S(linPlusWithCarry, t(F), p9, p10),
+		F, F, F, T //ignore first 4 of 6 params
+	);*/
+	
+	/** sums 1 or 0 (depending if p8 is T or F) and 2 lin numbers (p9 and p10)
+	Cancel this func, wont work cuz of...
+	
+	111111
+	111111
+	
+	    1
+	111110
+	111110
+	
+	
+	   11
+	111100
+	111100
+	*
+	public static final Node linPlusWithCarry = e(
+			FIXME Should this recurse into both numbers at once vs call linPlusOne for each T digit in the other number?
+			
+		Big,
+		IF(
+			ST(and, p8, ST(A,p9)),
+			then(p10), //If p9 is 0 and theres no carry, return p1-
+			then( //else recurse to sum each 1 digit of p9 into p10 starting at that digitOffset
+				TODO
+			)
+		),
+		F, F, F, T //ignore first 4 of 6 params
+	);*/
+					
+	/** zero https://en.wikipedia.org/wiki/Church_encoding Lf.Lx.x */
+	public static final Node chZero = F;
+					
+	/** plusOne/successor https://en.wikipedia.org/wiki/Church_encoding Ln.Lf.Lx.f(nfx) */
+	public static final Node chSucc = e(
+		Big,
+		S(p9, S(p8, p9, p10)),
+		F, F, T //ignore first 3 of 6 params
+	);
+		
+	/** plus https://en.wikipedia.org/wiki/Church_encoding Lm.Ln.Lf.Lx.mf(nfx) */
+	public static final Node chPlus = e(
+		Big,
+		S(p7,p9,S(p8,p9,p10)),
+		F, T //ignore first 2 of 6 params
+	);
+	
+	/** multiply https://en.wikipedia.org/wiki/Church_encoding Lm.Ln.Lf.Lx.m(nf)x */
+	public static final Node chMult = e(
+		Big,
+		S(p7,S(p8,p9),p10),
+		F, T //ignore first 2 of 6 params
+	);
+	
+	/** exponent https://en.wikipedia.org/wiki/Church_encoding Lm.Ln.nm */
+	public static final Node chExponent = e(
+		Big,
+		S(p10,p9),
+		F, F, F, T //ignore first 4 of 6 params
+	);
+	
+	/** exponent https://en.wikipedia.org/wiki/Church_encoding
+	Ln.Lf.Lx.n(Lg.Lh.h(gf))(Lu.x)(Lv.v)
+	TODO this will require more thinking than the other church funcs cuz it shares vars across lambdas,
+	and ocfn is designed to have no vars, but I'm sure ocfn can do it,
+	even in the worst case ocfn would just use lambdas to create entirely separate lambdas.
+	*
+	public static final Node chPred = e(
+		Big,
+		S(...)
+		F, F, T //ignore first 3 of 6 params
+	);*/
+	
+	/** Example: 0x1011 -> (T (T (F (T nilAkaLeaf)))) */
+	public static Node lin(long number){
+		if(number < 0) throw new Error("Lin only supports nonnegative integers");
+		Node ret = nil;
+		for(int digitIndex = 63-Long.numberOfLeadingZeros(number); digitIndex>=0; digitIndex--){
+			Node digit = w((number&(1<<digitIndex))!=0);
+			ret = digit.e(ret);
+		}
+		return ret;
+	}
 	
 	//FIXME is there 8 params or 9 params in the universalFunc?
 	//Depends how I'm designing the nondet, and if theres 4 vs 5 Node ptrs in Node.
