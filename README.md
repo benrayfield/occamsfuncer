@@ -5,7 +5,7 @@ Occamsfuncer is a tiny piece of math that can act on itself in an infinite numbe
 
 I plan to use this in my AI research and other experiments.
 
-occamsfuncerV3s test cases: (old url?, renaming packages soon) https://github.com/benrayfield/occamsfuncer/blob/master/immutable/occamsfuncer/v3/spec/sparseTuringMachine/test/TestOcfn3FormalVerifySpec.java
+occamsfuncerV3s test cases: https://github.com/benrayfield/occamsfuncer/blob/master/immutable/occamsfuncer/ocfn3s/spec/sparseTuringMachine/test/TestOcfn3SparseTuringMachine.java
 
 === UNUSUAL FEATURES ===
 
