@@ -7,6 +7,171 @@ I plan to use this in my AI research and other experiments.
 
 occamsfuncerV3s test cases: https://github.com/benrayfield/occamsfuncer/blob/master/immutable/occamsfuncer/ocfn3s/spec/sparseTuringMachine/test/TestOcfn3SparseTuringMachine.java
 
+Ran those testcases 2020-7-6 and got this output, which says they're very slow cuz v3 doesnt have any optimizations yet (such as hardware strictfp double math instead of computing the bits of doubles only as lambdas)...
+
+Starting testBootIsT
+### test pass: bootIsT T
+### test pass: !bootIsT F
+### test pass: !bootIsT I
+### test pass: !bootIsT u
+### test pass: !bootIsT uu
+### test pass: !bootIsT op0
+### test pass: !bootIsT op1
+### test pass: !bootIsT op2
+Starting testIota
+iota = ((P S) T)
+### testEqq pass: (iota iota N) cuz iota iota is an identityFunc
+### testEqq pass: get T from iota
+### testEqq pass: get S from iota
+Tests pass: testIota
+Starting thisHelpsInManuallyTestingCacheFuncParamReturnUsingDebugger
+### testEqq pass: pnn
+Starting testIsHalted
+### test pass: isHalted . 0params
+### test pass: isHalted . 1params
+### test pass: isHalted . 2params
+### test pass: isHalted . 3params
+### test pass: isHalted . 4params
+### test pass: isHalted . 5params
+### test pass: isHalted . 6params
+### test pass: isHalted . 7params
+### test pass: isHalted . 8params
+### test pass: isHalted (..(..))
+### test pass: isHalted should be false . 10params
+### test pass: isHalted should be false (remember, universalFunc always curries 10 params, so any more are lazy after that 10 returns which is also lazy) . 11params
+Starting testLeaf
+### testEqq pass: (L Leaf)
+### testEqq pass: (R leaf)
+### testEqq pass: L(F)==op0
+### testEqq pass: L(L(I))==op0
+### testEqq pass: L(T)==op1
+### testEqq pass: L(L(L))==op2
+### testEqq pass: L(L(R))==op3
+### testEqq pass: (L Leaf) 2
+### testEqq pass: (R leaf) 2
+Starting testSTLR
+### test pass: st.L()==S
+### test pass: st.R()==T
+### test pass: st.L()==S 2
+### test pass: st.R()==T 2
+Starting testLRQuine
+### testEqq pass: step (..) becomes halted on (..)
+### testEqq pass: testLRQuine_.
+### testEqq pass: testLRQuine_(..)
+### testEqq pass: testLRQuine_L
+### testEqq pass: testLRQuine_R
+Starting testIdentityFuncs
+### test pass: leaf.L()==I
+### test pass: leaf.R()==leaf
+### test pass: stt.f(I)==I
+### test pass: stt.f(T)==T
+### test pass: stt.f(F)==F
+### test pass: I.f(stt)==stt
+### test pass: I.f(T)==T
+Starting testConsCarCdr. Nil is leaf/theUniversalFunction. isNil is the isLeaf op.
+### testEqq pass: testConsCarCdr_1
+### testEqq pass: testConsCarCdr_2
+### testEqq pass: testConsCarCdr_3
+### testEqq pass: testConsCarCdr_4
+### testEqq pass: isNil_nil
+### testEqq pass: isNil_[list_N_A_L]
+Starting testBigCallParams
+### testEqq pass: p10
+### testEqq pass: p9
+### testEqq pass: p8
+### testEqq pass: p7
+### testEqq pass: p6
+### testEqq pass: p5
+### testEqq pass: p4
+### testEqq pass: p3
+### testEqq pass: p2
+### testEqq pass: p1
+Starting testBigCallRecur1To6
+### testEqq pass: recur6 without enough params
+### testEqq pass: recur6
+### testEqq pass: recur5 without enough params
+### testEqq pass: recur5
+### testEqq pass: recur4
+### testEqq pass: recur3
+### testEqq pass: recur2
+### testEqq pass: recur1
+Starting testIfElse
+### testEqq pass: e(ifElse,T,I,I)
+### testEqq pass: e(ifElse,T,t(N),t(P))
+### testEqq pass: e(ifElse,F,t(N),t(P))
+### testEqq pass: e(ifElse,T,I,.) -> (I .) -> .
+### testEqq pass: e(ifElse,F,I,.) -> (. .)
+### testEqq pass: (tttt(u) N) -> (T (T (T u)))
+### testEqq pass: ifElse T thenConst L
+### testEqq pass: ifElse F thenConst R
+### testEqq pass: ifElse I thenConst L cuz param of the IF is T so I gets T
+### testEqq pass: ifElse I thenConst R cuz param of the IF is F so I gets F
+### testEqq pass: ifElse car thenConst L cuz param of the IF is (P T F) so car gets T
+### testEqq pass: ifElse car then I, car gets T which chooses then(I), and the I called on (P T F) returns (P T F)
+### testEqq pass: ifElse cdr then I, cdr gets F which chooses thenT(P,I,I), and the thenT(P,I,I) called on e(P,T,F) returns (P (P T F) (P T F))
+Starting testIFInBigcall
+### testEqq pass: testIFInBigcall 1
+### testEqq pass: testIFInBigcall 2
+Starting testLogic
+### testEqq pass: and F F
+### testEqq pass: and F T
+### testEqq pass: and T F
+### testEqq pass: and T T
+### testEqq pass: or F F
+### testEqq pass: or F T
+### testEqq pass: or T F
+### testEqq pass: or T T
+### testEqq pass: xor F F
+### testEqq pass: xor F T
+### testEqq pass: xor T F
+### testEqq pass: xor T T
+### testEqq pass: minorityBit F F F
+### testEqq pass: minorityBit F F T
+### testEqq pass: minorityBit F T F
+### testEqq pass: minorityBit F T T
+### testEqq pass: minorityBit T F F
+### testEqq pass: minorityBit T F T
+### testEqq pass: minorityBit T T F
+### testEqq pass: minorityBit T T T
+Starting testLazig
+### testEqq pass: lazigA
+### testEqq pass: lazigAN
+### testEqq pass: lazigANP
+### testEqq pass: lazigPAN
+Starting testChurchEncodingOfArithmetic aka https://en.wikipedia.org/wiki/Church_encoding
+### testEqq pass: ch3 .
+### testEqq pass: ch5 a and b
+### testEqq pass: chMult vs chPlus
+### testEqq pass: chExponent vs chMult
+### testEqq pass: chExponent vs chMult, with plus
+testChurchEncodingOfArithmetic tests pass. The church encoding of arithmetic is a nonnormalized form cuz theres more than 1 form of each integer. Lin numbers, such as (T (T (T nil))) is 3, are a normalized form and are exponentially more efficient as they store binary digits instead of unary. Cbt (complete binary tree of pairs of T and F) bitstrings will be even more efficient than that as they can be memory mapped between lambdas and large arrays such as for GPU optimizations or realtime transforms between speakers and microphones processessing each of 44100 per second wave amplitudes individually or voxel graphics.
+Starting testLinArithmetic
+### testEqq pass: (linPlusOne lin0)->lin1
+### testEqq pass: (linPlusOne lin1)->lin2
+### testEqq pass: (linPlusOne lin2)->lin3
+### testEqq pass: (linPlusOne lin3)->lin4
+### testEqq pass: (linPlusOne lin4)->lin5
+Starting testEquals - The universalFunc being a patternCalculusFunc allows it to do this which lambdaFuncs cant cuz its a subset of possible lambdaFuncs thats a universal subset but also a subset that allows it to know patternCalculus things that it couldnt know outside that subset cuz it wouldnt know which are in or not in the subset, except that in this system its always in that subset. Its important to understand that the equals func is implemented as a pure sparse turing machine and does not use any implementing system's == or .equals operators etc except other implementations can do that as an optimization as long as it always gets the exact same result as the sparse turing machine.
+### testEqq pass: (equals . .)
+### testEqq pass: (equals . (..))
+### testEqq pass: (equals (..) .)
+### testEqq pass: (equals (..) (..))
+### testEqq pass: (equals ((..).) ((..).))
+### testEqq pass: (equals (.(..)) (.(..)))
+### testEqq pass: (equals ((..)(..)) ((..)(..)))
+### testEqq pass: (equals (..) ((..).))
+### testEqq pass: (equals ((..).) (..))
+### testEqq pass: (equals car car)
+### testEqq pass: (equals car cdr)
+### testEqq pass: (equals equals equals)
+### testEqq pass: (equals car equals)
+Ocfn3s tests passed.
+CacheFuncParamReturn.howManyCached=11939
+OcfnUtil.test_countCallsOfStep=68205
+duration=0.33959412574768066
+
+Everything below here is about the occamsfuncerV2 universal function which is more complex than the ocfn3s function (described above), but many things are similar...
+
 === UNUSUAL FEATURES ===
 
 * Drag-and-drop function onto function to create or find function, can do anything that the system can do through normal programming. (TODO copy UI code from IotaVM and upgrade it to display the third comment child if it contains pixels or text)
@@ -18,7 +183,6 @@ occamsfuncerV3s test cases: https://github.com/benrayfield/occamsfuncer/blob/mas
 * Function can wrap primitive 1d arrays such as int[] float[] double[] (TODO start using ArrayCbt and immutableexceptgas.occamsfuncerV2Prototype.denseCbtMemMap.Mem.
 * Can scale to any size p2p network while proving which parts fit together using merkle forest which is part of how blockchains work (TODO after ids and networking are working)
 * No disagreements on namespace since at the deepest level there are no variable names since everything is a constant, but you can have fork-editable treemaps (derived from lambdas) so if theres any diagreement on anything, both exist, nomatter how many times its forked, until some are ignored and leave the cache. Not exactly no names, but their global ids are the same nomatter what you may name them locally, and treemaps have ids.
-
 
 === EVERYTHING IS A NUMBER ===
 
