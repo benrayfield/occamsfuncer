@@ -1,5 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutable.occamsfuncer.v3.spec;
+package immutable.occamsfuncer.ocfn3s.spec;
 
 public interface Compiled{
 	

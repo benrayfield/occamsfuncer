@@ -1,5 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutable.occamsfuncer.v3.spec.sparseTuringMachine;
+package immutable.occamsfuncer.ocfn3s.spec.sparseTuringMachine;
 
 import java.util.function.UnaryOperator;
 
@@ -107,7 +107,10 @@ public final class Node implements UnaryOperator<Node>{
 	
 	public final boolean isDeterministic;
 	
-	public final boolean isFinite;
+	//public final boolean isFinite;
+	
+	/** todo see comment in step func. */
+	//public final boolean isUnary;
 	
 	/** True if VM forkEdited something to call truncateToDeterministic andOr truncateToCardinality,
 	and this marks that fact so the VM doesnt call it again on the same thing before it returns.
@@ -131,18 +134,26 @@ public final class Node implements UnaryOperator<Node>{
 	which must never read a null pointer (even to check if it is null).
 	*/
 	public final Node cacheKey;
+	
+	/** null or (pair funcsCardinalityCountingDown paramsCardinalityCountingDown)
+	TODO see comment in step func.
+	*
+	public final Node compareCardinality;
+	*/
 		
-	public Node(int hash, boolean isHalted, boolean isParentsFunc, boolean isDeterministic, boolean isFinite,
-			Node func, Node param, Node stack, Node cacheKey){
+	public Node(int hash, boolean isHalted, boolean isParentsFunc, boolean isDeterministic, /*boolean isFinite, boolean isUnary,*/
+			Node func, Node param, Node stack, Node cacheKey/*, Node compareCardinality*/){
 		this.hash = hash;
 		this.isHalted = isHalted;
 		this.isParentsFunc = isParentsFunc;
 		this.isDeterministic = isDeterministic;
-		this.isFinite = isFinite;
+		//this.isFinite = isFinite;
+		//this.isUnary = isUnary;
 		this.func = func;
 		this.param = param;
 		this.stack = stack;
 		this.cacheKey = cacheKey;
+		//this.compareCardinality = compareCardinality;
 	}
 	
 	public boolean isLeaf(){ return func==null; }
@@ -160,9 +171,12 @@ public final class Node implements UnaryOperator<Node>{
 	public boolean equals(Object o){
 		if(!(o instanceof Node)) return false;
 		Node n = (Node)o;
-		return hash==n.hash & isHalted==n.isHalted & isParentsFunc==n.isParentsFunc
-			& isDeterministic==n.isDeterministic & isFinite==n.isFinite
+		return hash==n.hash & isHalted==n.isHalted & isParentsFunc==n.isParentsFunc & isDeterministic==n.isDeterministic
 			& func==n.func & param==n.param & stack==n.stack & cacheKey==n.cacheKey;
+		/*return hash==n.hash & isHalted==n.isHalted & isParentsFunc==n.isParentsFunc
+			& isDeterministic==n.isDeterministic & isFinite==n.isFinite & isUnary==n.isUnary
+			& func==n.func & param==n.param & stack==n.stack & cacheKey==n.cacheKey & compareCardinality==n.compareCardinality;
+			*/
 		/*return hash==n.hash & isLeaf==n.isLeaf & isHalted==n.isHalted & isParentsFunc==n.isParentsFunc
 			& isParentsParam==n.isParentsParam & cacheKeyExists==n.cacheKeyExists
 			& func==n.func & param==n.param & stack==n.stack & cacheKey==n.cacheKey;// && afterEval==n.afterEval && nondetResponse==n.nondetResponse;

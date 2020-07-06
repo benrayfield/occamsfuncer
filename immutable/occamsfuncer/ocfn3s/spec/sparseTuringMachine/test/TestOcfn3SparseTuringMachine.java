@@ -1,12 +1,36 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutable.occamsfuncer.v3.spec.sparseTuringMachine.test;
-import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.OcfnUtil.*;
+package immutable.occamsfuncer.ocfn3s.spec.sparseTuringMachine.test;
+import static immutable.occamsfuncer.ocfn3s.spec.sparseTuringMachine.OcfnUtil.*;
 import static immutable.util.TestUtil.*;
 import java.util.Arrays;
-import immutable.occamsfuncer.v3.spec.fn;
-import immutable.occamsfuncer.v3.spec.sparseTuringMachine.*;
 
-public class TestOcfn3FormalVerifySpec{
+import immutable.occamsfuncer.ocfn3s.spec.fn;
+import immutable.occamsfuncer.ocfn3s.spec.sparseTuringMachine.*;
+import mutable.util.Time;
+
+public class TestOcfn3SparseTuringMachine{
+	
+	public static void testBootIsT(){
+	//public static void testBootIsTAndIsUnaryBit(){
+		lg("Starting testBootIsT");
+		test("bootIsT T", bootIsT(T));
+		test("!bootIsT F", !bootIsT(F));
+		test("!bootIsT I", !bootIsT(I));
+		test("!bootIsT u", !bootIsT(u));
+		test("!bootIsT uu", !bootIsT(uu));
+		test("!bootIsT op0", !bootIsT(op0));
+		test("!bootIsT op1", !bootIsT(op1));
+		test("!bootIsT op2", !bootIsT(op2));
+		/*test("isUnary u", u.isUnary);
+		test("!isUnary (F u)", !e(F,u).isUnary);
+		test("isUnary (T u)", e(T,u).isUnary);
+		test("isUnary (T (T u))", e(T,e(T,u)).isUnary);
+		test("isUnary (T (T (T u)))", e(T,e(T,e(T,u))).isUnary);
+		test("!isUnary (T (F u))", !e(T,e(F,u)).isUnary);
+		test("!isUnary (F (T u))", !e(F,e(T,u)).isUnary);
+		test("!isUnary (u (T (T u)))", !e(u,e(T,e(T,u))).isUnary);
+		*/
+	}
 	
 	public static void testIota(){
 		lg("Starting testIota");
@@ -232,11 +256,11 @@ public class TestOcfn3FormalVerifySpec{
 	and the system is designed to work anyways just exponentially slower, wherever it lacks perfect dedup,
 	so if you dedup everything except for n parts, it will be at worst constant^n times slower,
 	and often much faster than that).
-	*/
+	*
 	public static void testLinFibonacciSoDeepThatIfCacheFuncParamReturnIsntWorkingThenItWillTakeTrillionsOfYearsElseNearInstant(){
 		lg("Starting testLinFibonacciSoDeepThatIfCacheFuncParamReturnIsntWorkingThenItWillTakeTrillionsOfYearsElseNearInstant");
 		throw new Error("TODO");
-	}
+	}*/
 	
 	public static void testEquals(){
 		lg("Starting testEquals - The universalFunc being a patternCalculusFunc allows it to do this which lambdaFuncs cant cuz its a subset of possible lambdaFuncs thats a universal subset but also a subset that allows it to know patternCalculus things that it couldnt know outside that subset cuz it wouldnt know which are in or not in the subset, except that in this system its always in that subset. Its important to understand that the equals func is implemented as a pure sparse turing machine and does not use any implementing system's == or .equals operators etc except other implementations can do that as an optimization as long as it always gets the exact same result as the sparse turing machine.");
@@ -291,34 +315,116 @@ public class TestOcfn3FormalVerifySpec{
 			+" between speakers and microphones processessing each of 44100 per second wave amplitudes individually or voxel graphics.");
 	}
 	
+	/** only in ocfn3c */
+	public static boolean testProveForEveryPossibleXYZThatIfXEqualsYAndYEqualsZThenXEqualsZ(Node emulator){
+		return testProve(emulator,isItTrueThatForEveryPossibleXYZThatIfXEqualsYAndYEqualsZThenXEqualsZ);
+	}
+	
+	/** only in ocfn3c.
+	TODO: Runs an emulator of this system which for certain patterns it can optimize an infinite number of calculations (at higher cardinality)
+	to a finite number of calculations, specificly that (areThereInfinityPrimes .) is a transfinite lambda call
+	which depends on knowing if a certain call (at a lower cardinality) halts,
+	which would in the default implementation cost more than infinity cycles (cuz it would never find the biggest prime),
+	but constraint systems can in some cases prove an infinite number of things for a finite cost,
+	such as if a=b and b=c then a=c, for all possible (infinity number of) a b and c.
+	*/
+	public static boolean testProveTheresInfinityPrimes(Node emulator){
+		return testProve(emulator,areThereInfinityPrimes);
+	}
+	
+	/** only in ocfn3c */
+	public static boolean testProveOrDisproveCollatz(Node emulator){
+		return testProve(emulator,isCollatzTrue);
+	}
+	
+	/** only in ocfn3c */
+	public static boolean testProveOrDisproveFermatsLastTheorem(Node emulator){
+		return testProve(emulator,isFermatsLastTheoremTrue);
+	}
+	
+	/** only in ocfn3c.
+	very very probably P does not equal NP, and theres many papers on the subject,
+	but as far as I know theres no pure software constraint based proof of it either way.
+	I'm very skeptical that I'll be able to prove it either way cuz it would require a complex forkEdit of emulator of this system
+	to eval the question doesPEqualNP, but I am certain I can write the question doesPEqualNP,
+	and I plan to (in OcfnUtil.doesPEqualNP) where (doesPEqualNP .) does about infinity squared number of calculations
+	then evals to T if P=NP else evals to F if P!=NP, but in the default implementation it will infinite loop (eval to (S I I (S I I)))
+	cuz it must do an infinite number of calculations and (S I I (S I I)), which is a simple infinite loop, is an optimization of that.
+	This function returns true if P equals NP, false if P not equals NP, and displays it to stdout.
+	BUT if the emulator does not exactly compute the behaviors of the universalFunc,
+	then the proof is invalid, so make sure you believe for good reason it is an emulator of the occamsfuncerV3 universalFunc.
+	I've left that as a parameter cuz I dont know which emulator would be able to optimize that about infinity squared number of calculations
+	to a finite number of calculations, and hopefully someone will continue this research.
+	Maybe 10000 people could work together and each split the millenium prize as $100 each, or something like that,
+	as occamsfuncer is designed to help with large scale collaboration,
+	then find a way to write all remaining math questions as occamsfuncer statements and attempt to prove or disprove them too.
+	Occamsfuncer is a minimalist very general very price language which mathematicians, programmers, scientists,
+	maybe even aliens (SETI might find a use for it, for example), could communicate with eachother,
+	and is meant for practical massively multiplayer low lag games, musical instruments, number crunching,
+	and a variety of uses. It will make full use of GPUs but cuz of its unusual caching needs will be very slow
+	for branching code with many dissimilar objects aka code that normally runs on CPU.
+	*/
+	public static boolean testProveEither_pEqualsNP_or_pNotEqualsNP(Node emulator){
+		return testProve(emulator,doesPEqualNP);
+	}
+	
+	/** only in ocfn3c */
+	public static boolean testProve(Node emulator, Node question){
+		Node answer = e(emulator,question);
+		if(answer != T & answer != F) throw new Error("Returned something other than T or F, but will not toString it cuz could be very big.");
+		return answer==T;
+	}
+	
 	public static void main(String[] args){
-		testIota();
-		thisHelpsInManuallyTestingCacheFuncParamReturnUsingDebugger();
-		testIsHalted();
-		testLeafAndFewOpsInternalStructures();
-		testSTLR();
-		testLRQuine();
-		testIdentityFuncs();
-		testConsCarCdr();
-		testBigCallParams();
-		testBigCallRecur1To6();
-		testIfElse();
-		testIFInBigcall();
-		testLogic();
-		testLazig();
-		testChurchEncodingOfArithmetic();
-		testLinPlusOne();
-		testEquals();
-		//as of 2020-6-27-7a it passes to here
-		
-		
-		//testLinPlus();
-		testLinFibonacciSoDeepThatIfCacheFuncParamReturnIsntWorkingThenItWillTakeTrillionsOfYearsElseNearInstant();
-		
-		//TODO get CacheFuncParamReturn working (using Node.cacheKey) else nearly everything will cost exponential.
-		//TODO test car cdr cons nil
-		//TODO create equals func and verify (equals equals equals)==T and (equals car car)==T and (equals car cdr)==F.
-		lg("Ocfn3 tests passed - TODO more tests.");
+		double timeStart = Time.now();
+		try{
+			testBootIsT();
+			testIota();
+			thisHelpsInManuallyTestingCacheFuncParamReturnUsingDebugger();
+			testIsHalted();
+			testLeafAndFewOpsInternalStructures();
+			testSTLR();
+			testLRQuine();
+			testIdentityFuncs();
+			testConsCarCdr();
+			testBigCallParams();
+			testBigCallRecur1To6();
+			testIfElse();
+			testIFInBigcall();
+			testLogic();
+			testLazig();
+			testChurchEncodingOfArithmetic();
+			testLinPlusOne();
+			testEquals();
+			//as of 2020-6-27-7a it passes to here
+			
+			lg("Ocfn3s tests passed.");
+			
+			//lg("Ocfn3s tests passed. Next are some things (in ocfn3c fork, but this is ocfn3s) that it might be able to do later (mathematicians could help here).");
+			
+			/*
+			//testLinPlus();
+			testLinFibonacciSoDeepThatIfCacheFuncParamReturnIsntWorkingThenItWillTakeTrillionsOfYearsElseNearInstant();
+			
+			boolean answerOf_isItTrueThatForEveryPossibleXYZThatIfXEqualsYAndYEqualsZThenXEqualsZ =
+				testProveForEveryPossibleXYZThatIfXEqualsYAndYEqualsZThenXEqualsZ(emulatorOptimizedFor_isItTrueThatForEveryPossibleXYZThatIfXEqualsYAndYEqualsZThenXEqualsZ);
+			
+			boolean answerOf_areThereInfinityPrimes = testProveTheresInfinityPrimes(emulatorOptimizedFor_areThereInfinityPrimes);
+			
+			boolean answerOf_isCollatzTrue = testProveOrDisproveCollatz(emulatorOptimizedFor_isCollatzTrue);
+			
+			boolean answerOf__isFermatsLastTheoremTrue = testProveOrDisproveFermatsLastTheorem(emulatorOptimizedFor_isFermatsLastTheoremTrue);
+			
+			boolean answerOf_doesPEqualNP = testProveEither_pEqualsNP_or_pNotEqualsNP(emulatorOptimizedFor_doesPEqualNP);
+			if(answerOf_doesPEqualNP) lg("Proved P equals NP. WARNING: the whole internet is about to crash but can be rebuilt using different strategy. Show the proof to AIs and they will use it to become superintelligent.");
+			else lg("Proved P not equals NP. As most experts (including me, BenRayfield) already thought. Use this to explain it to AIs, and they might figure out what to do with it to become smarter. Demonstrated the proof system works for very advanced problems, so it can be used for other practical proofs such as measuring the security level of digital signature and hashing algorithms, optimizing things, etc. Also some math problems have prizes for proving solutions, and as long as thats true, no mathematician should be involuntarily unemployed. Occamsfuncer can in theory help many people work together on a larger scale to figure things out.");
+			*/
+		}finally{
+			double duration = Time.now()-timeStart;
+			lg("CacheFuncParamReturn.howManyCached="+CacheFuncParamReturn.howManyCached());
+			lg("OcfnUtil.test_countCallsOfStep="+OcfnUtil.test_countCallsOfStep);
+			lg("duration="+duration);
+		}
 	}
 
 }

@@ -1,4 +1,4 @@
-package immutable.occamsfuncer.v3.spec.sparseTuringMachine;
+package immutable.occamsfuncer.ocfn3s.spec.sparseTuringMachine;
 
 public enum SmallOp{
 	

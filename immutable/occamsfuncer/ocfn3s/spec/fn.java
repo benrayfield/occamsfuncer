@@ -1,5 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutable.occamsfuncer.v3.spec;
+package immutable.occamsfuncer.ocfn3s.spec;
 
 /** immutable and deterministic. Everything is calls of a certain universal function
 (which is similar to a universal lambda function and is a kind of pattern calculus):

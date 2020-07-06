@@ -1,4 +1,4 @@
-package immutable.occamsfuncer.v3.spec.sparseTuringMachine;
+package immutable.occamsfuncer.ocfn3s.spec.sparseTuringMachine;
 
 import java.util.WeakHashMap;
 
@@ -26,6 +26,10 @@ public class CacheFuncParamReturn{
 
 	public static Node get(Node call){
 		return map.get(call);
+	}
+	
+	public static long howManyCached(){
+		return map.size();
 	}
 	
 	//WeakHashMap? slower but clears itself.

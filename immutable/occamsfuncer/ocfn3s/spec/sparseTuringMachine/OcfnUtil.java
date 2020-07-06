@@ -1,7 +1,7 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package immutable.occamsfuncer.v3.spec.sparseTuringMachine;
-import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.LogOptions.lgEval;
-import static immutable.occamsfuncer.v3.spec.sparseTuringMachine.LogOptions.lgStep;
+package immutable.occamsfuncer.ocfn3s.spec.sparseTuringMachine;
+import static immutable.occamsfuncer.ocfn3s.spec.sparseTuringMachine.LogOptions.lgEval;
+import static immutable.occamsfuncer.ocfn3s.spec.sparseTuringMachine.LogOptions.lgStep;
 import static immutable.util.TestUtil.lg;
 
 import java.util.HashMap;
@@ -52,26 +52,29 @@ public class OcfnUtil{
 	private static final Map<Node,Node> dedup = new HashMap();
 	
 	/** the universal function */
-	public static final Node u = node(true,false,true,true,null,null,null,null);
+	public static final Node u = node(true,false,true,/*true,true,*/null,null,null,null/*,null*/);
+	
+	//FIXME? going wity ocfn3s so leaving the cardinality param as ignore, to be used in emulators?
 	
 	/** returns a deduped node */
-	public static Node node(boolean isHalted, boolean isParentsFunc, boolean isDeterministic, boolean isFinite,
-			Node func, Node param, Node stack, Node cacheKey){
-		int hash = hash(isHalted, isParentsFunc, isDeterministic, isFinite, stack, func, param, cacheKey);
-		return node(hash, isHalted, isParentsFunc, isDeterministic, isFinite, func, param, stack, cacheKey);
+	public static Node node(boolean isHalted, boolean isParentsFunc, boolean isDeterministic, /*boolean isFinite, boolean isUnary,*/
+			Node func, Node param, Node stack, Node cacheKey/*, Node compareCardinality*/){
+		int hash = hash(isHalted, isParentsFunc, isDeterministic, /*isFinite, isUnary,*/ stack, func, param, cacheKey/*, compareCardinality*/);
+		return node(hash, isHalted, isParentsFunc, isDeterministic, /*isFinite, isUnary,*/ func, param, stack, cacheKey/*, compareCardinality*/);
 	}
 	
 	/** returns a deduped node */
-	protected static Node node(int hash, boolean isHalted, boolean isParentsFunc, boolean isDeterministic, boolean isFinite,
-			Node func, Node param, Node stack, Node cacheKey){
-		return dedup(new Node(hash, isHalted, isParentsFunc, isDeterministic, isFinite, func, param, stack, cacheKey));
+	protected static Node node(int hash, boolean isHalted, boolean isParentsFunc, boolean isDeterministic, /*boolean isFinite, boolean isUnary,*/
+			Node func, Node param, Node stack, Node cacheKey/*, Node compareCardinality*/){
+		return dedup(new Node(hash, isHalted, isParentsFunc, isDeterministic, /*isFinite, isUnary,*/ func, param, stack, cacheKey/*, compareCardinality*/));
 	}
 	
-	protected static int hash(boolean isHalted, boolean isParentsFunc, boolean isDeterministic, boolean isFinite,
-			Node func, Node param, Node stack, Node cacheKey){
+	protected static int hash(boolean isHalted, boolean isParentsFunc, boolean isDeterministic, /*boolean isFinite, boolean isUnary,*/
+			Node func, Node param, Node stack, Node cacheKey/*, Node compareCardinality*/){
 		//TODO spread the second params of identHashElse better.
-		return identHashElse(stack,103)*1292567 + identHashElse(stack,103)*49999 + identHashElse(stack,103) + identHashElse(cacheKey,43)
-			+(isHalted?8:0)+(isParentsFunc?4:0)+(isDeterministic?2:0)+(isFinite?1:0);
+		return identHashElse(stack,103)*1292567 + identHashElse(stack,103)*49999
+			+ identHashElse(stack,5651) + identHashElse(cacheKey,619) /*+ identHashElse(compareCardinality,43)*/
+			+ (isHalted?16:0) + (isParentsFunc?8:0) + (isDeterministic?4:0) /*+ (isFinite?2:0)+(isUnary?1:0)*/;
 	}
 	
 	protected static int identHashElse(Node n, int elseThis){
@@ -95,24 +98,33 @@ public class OcfnUtil{
 		//FIXME is this the right place to call asStackTop?
 		if(!canCall(func,param)) throw new Error("Cant call ("+func+" "+param+")");
 		Node stack = null;
+		Node compareCardinality = null;
 		//TODO call func(...) linear(constant) instead of squared(constant) times.
 		//(u isDeterministic cardinality comment funcBodyElseU bitA bitB bitC paramD paramE paramF)
+		Node l = L(func);
+		Node ll = L(l);
+		Node lll = L(ll);
+		Node llll = L(lll);
+		Node lllll = L(llll);
+		Node llllll = L(lllll);
+		Node lllllll = L(llllll);
+		Node llllllll = L(lllllll);
 		boolean isHalted = func.isHalted & param.isHalted & (
 			func.isLeaf()
-			| L(func).isLeaf()
-			| L(L(func)).isLeaf()
-			| L(L(L(func))).isLeaf()
-			| L(L(L(L(func)))).isLeaf()
-			| L(L(L(L(L(func))))).isLeaf()
-			| L(L(L(L(L(L(func)))))).isLeaf()
-			| L(L(L(L(L(L(L(func))))))).isLeaf()
-			| L(L(L(L(L(L(L(L(func)))))))).isLeaf() //FIXME off-by-1 recursion?
+			| l.isLeaf()
+			| ll.isLeaf()
+			| lll.isLeaf()
+			| llll.isLeaf()
+			| lllll.isLeaf()
+			| llllll.isLeaf()
+			| lllllll.isLeaf()
+			| llllllll.isLeaf()
 		);
 		boolean isParentsFunc = false; //cuz stack is null
 		boolean isDeterministic = func.isDeterministic & param.isDeterministic; //FIXME also include cacheKey.isDeterministic?
-		boolean isFinite = func.isFinite & param.isFinite; //FIXME also include cacheKey.isFinite?
-		//boolean isTruncating = func.isTruncating | param.isTruncating; FIXME also include cacheKey.isTruncating?
-		return node(isHalted, isParentsFunc,isDeterministic, isFinite, func, param, stack, cacheKey);
+		//boolean isFinite = func.isFinite & param.isFinite; //FIXME also include cacheKey.isFinite?
+		//boolean isUnary = param.isUnary & func==T; //Example: (T (T (T .))) is unary3. Cardinality is a unary number.
+		return node(isHalted, isParentsFunc,isDeterministic, /*isFinite, isUnary,*/ func, param, stack, cacheKey/*, compareCardinality*/);
 	}
 	
 	/** a lazy call pair at bottom of stack.
@@ -162,16 +174,58 @@ public class OcfnUtil{
 			for(int i=0; i<2; i++){
 				Node c = curryList[i];
 				if(!c.isDeterministic) throw new Error("Boot func must be deterministic: "+c);
-				if(!c.isFinite) throw new Error("Boot func must be finite: "+c);
+				//if(!c.isFinite) throw new Error("Boot func must be finite: "+c);
 				if(c.stack != null | c.isParentsFunc) throw new Error("Boot func cant have stack (and therefore cant have isParentsFunc): "+c);
 				if(c.cacheKey != null) throw new Error("Boot func cant have cacheKey: "+c);
 			}
-			return node(true, false, true, true, curryList[0], curryList[1], null, null);
+			//boolean isUnary = bootIsT(curryList[0]) & curryList[1].isUnary;
+			return node(true, false, true, /*true, isUnary,*/ curryList[0], curryList[1], null, null/*, null*/);
 		}else{
 			Node ret = curryList[0];
 			for(int i=1; i<curryList.length; i++) ret = bootF(ret,curryList[i]);
 			return ret;
 		}
+	}
+	
+	/** Same as n==T except this works before T is defined.
+	T is bootF(u,u,u,u,u,u,u,bootF(u,u),u).
+	public static final Node opPrefix = bootF(u,u,u,u,u);
+	public static final Node op1 = bootF(opPrefix,u,u,uu);
+	public static final Node T = bootF(op1,u);
+	*/
+	public static boolean bootIsT(Node n){
+		return bootIsBits(n,false,false,false,false,false,false,true,false);
+		//return bootIsBits(n,false,false,false,false,false,false,false,true,false);
+	}
+	
+	/** In the bits param, u is false, and uu is true, but uu is not bootF(u,u) cuz cant call bootF yet.
+	This is not the normal T and F. This is bits as isLeaf vs !isLeaf used at a lower level.
+	T is bootF(u,u,u,u,u,u,u,bootF(u,u),u) aka [Lx.Ly.x].
+	public static final Node opPrefix = bootF(u,u,u,u,u);
+	public static final Node op1 = bootF(opPrefix,u,u,uu);
+	public static final Node T = bootF(op1,u);
+	*/
+	public static boolean bootIsBits(Node n, boolean... params){
+		if(!n.isDone()) return false;
+		if(params.length > 9) throw new Error("VM is broken or someone called bootF (a trusted dangerous function) deeper than 9 curries");
+		int cur = curriesOfHalted(n);
+		if(cur != params.length) return false;
+		for(int paramIndex = params.length-1; paramIndex>=0; paramIndex--){
+			if(params[paramIndex]){ //asking if param is (uu)
+				if(!bootIsLeafLeaf(n.param)) return false;
+			}else{ //asking if param is u
+				if(n.param != u) return false;
+			}
+			n = n.func;
+		}
+		return true;
+	}
+	
+	public static boolean bootIsLeafLeaf(Node n){
+		if(!isDone(n)) return false;
+		if(n == u) return false; //u.func==null & u.param==null, but every other func and param is nonnull
+		if(n.func==u & n.param==u) return true;
+		return false;
 	}
 	
 	/** This is only for closing a recursive logic during boot. WARNING: If used for other things, might create errors. */
@@ -181,8 +235,8 @@ public class OcfnUtil{
 			return u;
 			//return node(true, true, false, false, null, null, null);
 		}else{
-			return node(true, false, n.isDeterministic, n.isFinite,
-				markHaltedRecursively(n.func), markHaltedRecursively(n.param), null, null);
+			return node(true, false, n.isDeterministic, /*n.isFinite, n.isUnary,*/
+				markHaltedRecursively(n.func), markHaltedRecursively(n.param), null, null/*, null*/);
 			//return node(false, true, false, false, null, markHaltedRecursively(n.func), markHaltedRecursively(n.param));
 		}
 	}
@@ -203,14 +257,6 @@ public class OcfnUtil{
 		//OLD: could check n.stack==null but for better formal verification, branching should depend only on state in each node
 		//and never touch a null pointer.
 		//return !n.isParentsFunc() & !n.isParentsParam();
-	}
-	
-	public static boolean isDone(Node n){
-		return n.stack==null && n.isHalted;
-	}
-	
-	public static boolean canCall(Node x, Node y){
-		return isStackBottom(x) && isStackBottom(y);
 	}
 	
 	/** never null */
@@ -262,6 +308,39 @@ public class OcfnUtil{
 		if(!isStackBottom(ret)) throw new RuntimeException("Needed more steps");
 		return ret;
 	}
+	
+	public static long test_countCallsOfStep = 0;
+	
+	/** returns 0 to 9. Throws if not halted */
+	public static int curriesOfHalted(Node n){
+		if(!n.isHalted) throw new Error("Not halted");
+		for(int i=0; i<10; i++){
+			if(n == u) return i;
+			n = n.func;
+		}
+		throw new Error("Halted node has more than 9 params so VM is broken");
+	}
+	
+	/** This is BigO(1). Get (. isDeterministic cardinality) such as (. . .) or such as (. (..) .) or (. (..) (T (T .))), when given
+	a halted func of any number of curries between 0 and 9 (cuz universalFunc always curries 10 params).
+	If it has less than 2 curries, adds . as those curries.
+	<br><br>
+	TODO this will be used with Node.isUnary and Node.countCardinality
+	*/
+	public static Node recur8(Node n){
+		int curries = curriesOfHalted(n); //throws if not halted
+		for(int i=curries-2; i>0; i--) n = n.func;
+		return n;
+	}
+	
+	public static boolean isDeterministic(Node n){
+		return R(L(recur8(n))).isLeaf();
+	}
+	
+	public static Node cardinality(Node n){
+		return R(recur8(n));
+	}
+	
 	
 	/*The universalFunction u always curries 10 parameters, which are each made of combos of call pairs of u.
 	U is a universalLambdaFunction and a patternCalculusFunction and can define transfinite constraints but will
@@ -331,18 +410,102 @@ public class OcfnUtil{
 	]
 	*/
 	public static Node step(Node n){
+		
+		/*FIXME must do this before the core function is complete
+		
+		UPDATE: finishOcfnUniversalFuncByInfloopingIfParamIsHigherCardinalityThanMeOrIfIAmDeterministicAndParamIsNondeterministic_cuzTruncateFuncsAreTooComplexToBePartOfUniversalFunc
+		This will be extremely simpler than including truncate funcs in the core definition of the universal func,
+		and instead this infloops whenever it would have truncated,
+		and if caller wants to do truncateToDeterministic or truncateToCardinality then caller can do that first
+		so the infloop doesnt happen.
+		will create truncateToDeterministic and truncateToCardinality funcs (or merged into 1 truncate func) as user level code, not part of VM.
+		Step func will fast check Node.isDeterministic and Node.isFinite for func and param,
+		and if both are true, nothing more to do about nondeterminism and cardinalities.
+		If !isFinite, then the step func calls (infloopIfCardinalityBigger funcsCardinality paramsCardinality) and ignores its return value,
+		and step func infloops if myIsDeterministic is true and paramsIsDeterministic is true,
+		and if cardinality param is ever not like (T (T (T .))) then infloops,
+		and there will be a bit in Node (so total 5 bits, 4 pointers, and in the case of java implementation an int hashCode)...
+		a bit in Node for isUnary such as (T (T (T .))) is unary3 and . is unary0.
+		Thats different than binary such as (T (F (T .))) which can have T and F.
+		infloopIfCardinalityBigger is still needed AS LAZYEVAL cuz step must be BigO(1)
+		but cardinality can be any unary number. Unsure if will need another bit in Node to say that
+		its counting the cardinality so dont start another cardinality counting during
+		it (similar to isTruncating bit which I got rid of).
+		WAIT... where does the partial calculation go of calling infloopIfCardinalityBigger
+		so that it can continue the rest of the step func?
+			It appears to need a fifth pointer that does nothing except compare the sizes of 2 unary numbers (cardinalities),
+			which would be either null or (pair funcsCardinalityCountingDown paramsCardinalityCountingDown),
+			or could have 6 pointers and those 2 are funcsCardinalityCountingDown and paramsCardinalityCountingDown.
+			Each step, if at least 1 of funcsCardinalityCountingDown vs paramsCardinalityCountingDown is . then
+			the cardinality compare finished, and it either then does the normal step behaviors
+			or returns lazy infloop aka lazy (S I I (S I I)). I choose 5 pointers.
+			In some ways of optimizing it, will only need 2 pointers cuz using stack of external system,
+			but as a sparseTuringMachine it needs 5, or would need only 4 if its always cardinality 0.
+		...
+		OLD:
+		FIXME step must call truncateToCardinality if !Node.isFinite of this, this.func, and this param,
+		and call truncateToDeterministic similarly if this.func isDeterministic and this.param !Node.isDeterministic,
+		and maybe same for stack, and what about cacheKey?
+		Only nondet has to be infinite cost at cardinality higher than 0.
+		For example, at cardinality 3, the other 7 ops work as normal,
+		so truncateToCardinality is testable.
+		Do both kinds of truncate in same func. Have 4 funcs for all 4 combos of isDeterministic and isFinite cuz its more efficient.
+		*/
+		
+		test_countCallsOfStep++;
 		if(lgStep) lg("start step: "+n);
 		
 		//TODO optimize, avoid caching things that return themself due to having less than 10 params, like:
 		//Write cache (mid), key=L
 		//Write cache (mid), val=L
-		//Probably did this by moving "n = setCacheKey(n, asStackBottom(n));" into !isHalted. TODO verify.
+		//Probably did this by moving "n = setCacheKey(n, truncateToStackBottom(n));" into !isHalted. TODO verify.
 		
 		//TODO optimize: Can this.cacheKey==null&L(this).isHalted&R(this).isHalted
 		//be used to mean cache key (not the field) is (this.func this.param)? 
 		
 		Node ret;
 		Node l = L(n), r = R(n);
+		
+		//These next 2 IFs dont happen in most nodes, so its fast.
+		if(l.isDeterministic & !r.isDeterministic){
+			//Caller could have used truncateToDeterministic to avoid this.
+			return lazyInfiniteLoop;
+		}
+		/*if(!r.isFinite){
+			//Prepare to compareCardinality. If cardinality of func is less than cardinality of param, evals to lazyInfiniteLoop.
+			//Caller could have used truncateToCardinality to avoid that.
+			//Since step(Node) must be BigO(1), and cardinality is unlimited size unary number,
+			//they are compared in Node.compareCardinality in multiple calls of step(Node),
+			//unless cardinality 0 then takes no extra steps.
+			//Node.compareCardinality is null or (pair funcsCardinalityCountingDown paramsCardinalityCountingDown)
+			if(n.compareCardinality == null){
+				if(lgStep) lg("cardinality start comparing. This system cannt possibly have a paradox.");
+				return setCompareCardinality(n, bootF(P,cardinality(l),cardinality(r)));
+			}else{
+				Node aPair = n.compareCardinality;
+				//faster way to do (car aPair) and (cdr aPair), in this case. Avoids adding to cache.
+				Node funcsCardinalityCountingDown = R(L(aPair));
+				Node paramsCardinalityCountingDown = R(aPair);
+				if(paramsCardinalityCountingDown == u){ //cardinality(func) >= cardinality(param). Verified cardinality, so dont instantly infinite loop.
+					if(lgStep) lg("cardinality continuing normally. This system cant possibly have a paradox.");
+					n = setCompareCardinality(n, null);
+					lg("Removed compareCardinality from Node (then continuing step func): "+n);
+				}else if(funcsCardinalityCountingDown == u){ //cardinality(func) < cardinality(param). //Prevent this call by infinite looping.
+					//For example, this is what happens if you try to call a halting oracle on an emulator of yourself to ask what yourself would do
+					//then do the opposite, disproving the halting oracle. Halting oracles dont exist. The closest thing is
+					//a function that, after infinity^cardinality cycles (see nondet op), answers T or F does (itsParam .) halt
+					//BUT only if itsParam's cardinality is less than caller's cardinality,
+					//and similarly everywhere else param can have less OR EQUAL cardinality as func.
+					if(lgStep) lg("cardinality must infloop to avoid paradox. This system cannt possibly have a paradox.");
+					return lazyInfiniteLoop;
+				}else{ //still comparing cardinalities, havent reached the end of either unary number.
+					//aUnaryNumber-1 = aUnaryNumber.param, if aUnaryNumber!=u.
+					//Can bootF here cuz know P is halted with 2 params and only pair of unary numbers can be in Node.compareCardinality.
+					if(lgStep) lg("cardinality counting down to check for paradox. This system cannt possibly have a paradox.");
+					return setCompareCardinality(n, bootF(P,funcsCardinalityCountingDown.param,paramsCardinalityCountingDown.param));
+				}
+			}
+		}*/
 		
 		//FIXME some of the isDeterministic and isFinite calculations will probably be buggy until
 		//testcases are written for higher cardinalities and nondeterminism:
@@ -374,7 +537,7 @@ public class OcfnUtil{
 				ret = n;
 			}else{ //return down the stack. This is either L/func or R/param child of its parent (1 lower on stack).
 				if(n.cacheKey != null){
-					Node val = asStackBottom(n);
+					Node val = truncateToStackBottom(n);
 					if(lgStep) lg("Write cache (mid), key="+n.cacheKey);
 					if(lgStep) lg("Write cache (mid), val="+val);
 					CacheFuncParamReturn.put(n.cacheKey, val);
@@ -386,13 +549,13 @@ public class OcfnUtil{
 					boolean isHalted = false;
 					boolean isParentsFunc = n.stack.isParentsFunc;
 					//boolean isTruncating = TODO;
-					Node func = asStackBottom(n);
+					Node func = truncateToStackBottom(n);
 					Node param = n.stack.param;
 					Node stack = n.stack.stack;
 					Node cacheKey = n.stack.cacheKey;
 					boolean isDeterministic = func.isDeterministic & param.isDeterministic;
-					boolean isFinite = func.isFinite & param.isFinite;
-					ret = node(isHalted, isParentsFunc, isDeterministic, isFinite, func, param, stack, cacheKey);
+					//boolean isFinite = func.isFinite & param.isFinite;
+					ret = node(isHalted, isParentsFunc, isDeterministic, /*isFinite,*/ func, param, stack, cacheKey);
 					//TODO return node(false, false, n.stack.isParentsFunc, n.stack.isParentsParam(), n.stack.stack, n, n.stack.param);
 					//return node(false, false, n.stack.isParentsFunc, n.stack.isParentsParam(), n.stack.stack, n, n.stack.param);
 				}else{ //n.isParentsParam
@@ -400,12 +563,12 @@ public class OcfnUtil{
 					boolean isParentsFunc = n.stack.isParentsFunc;
 					//boolean isTruncating = TODO;
 					Node func = n.stack.func;
-					Node param = asStackBottom(n);
+					Node param = truncateToStackBottom(n);
 					Node stack = n.stack.stack;
 					Node cacheKey = n.stack.cacheKey;
 					boolean isDeterministic = func.isDeterministic & param.isDeterministic;
-					boolean isFinite = func.isFinite & param.isFinite;
-					ret = node(isHalted, isParentsFunc, isDeterministic, isFinite, func, param, stack, cacheKey);
+					//boolean isFinite = func.isFinite & param.isFinite;
+					ret = node(isHalted, isParentsFunc, isDeterministic, /*isFinite,*/ func, param, stack, cacheKey);
 					//TODO return node(false, false, n.stack.isParentsFunc, n.stack.isParentsParam(), n.stack.stack, n.stack.func, n);
 					//return node(false, false, n.stack.isParentsFunc, n.stack.isParentsParam(), n.stack.stack, n.stack.func, n);
 				}
@@ -419,8 +582,8 @@ public class OcfnUtil{
 			Node stack = n;
 			Node cacheKey = l.cacheKey; //FIXME should this be null?
 			boolean isDeterministic = func.isDeterministic & param.isDeterministic;
-			boolean isFinite = func.isFinite & param.isFinite;
-			ret = node(isHalted, isParentsFunc, isDeterministic, isFinite, func, param, stack, cacheKey);
+			//boolean isFinite = func.isFinite & param.isFinite;
+			ret = node(isHalted, isParentsFunc, isDeterministic, /*isFinite,*/ func, param, stack, cacheKey);
 			//return node(l.isLeaf(), l.isHalted, true, false, n, l.func, l.param);
 		}else if(!r.isHalted){ //recurse into R(n)
 			boolean isHalted = false;
@@ -431,22 +594,22 @@ public class OcfnUtil{
 			Node stack = n;
 			Node cacheKey = r.cacheKey; //FIXME should this be null?
 			boolean isDeterministic = func.isDeterministic & param.isDeterministic;
-			boolean isFinite = func.isFinite & param.isFinite;
-			ret = node(isHalted, isParentsFunc, isDeterministic, isFinite, func, param, stack, cacheKey);
+			//boolean isFinite = func.isFinite & param.isFinite;
+			ret = node(isHalted, isParentsFunc, isDeterministic, /*isFinite,*/ func, param, stack, cacheKey);
 			//return node(l.isLeaf(), l.isHalted, false, true, n, l.func, l.param);
 		}else{ //do the main logic here instead of recursing into func, param, or going up stack
 			
 			if(n.cacheKey == null){
 				//FIXME I dont know if this is the right cacheKey logic
-				n = setCacheKey(n, asStackBottom(n));
+				n = setCacheKey(n, truncateToStackBottom(n));
 				if(lgStep) lg("After setCacheKey: "+n);
 			}
 			
 			if(cacheFuncParamReturn){
 				//About to eval (haltedX haltedY) which itself is not halted, but first check <func,param,return> cache
 				//with the normed form as if its a stackBottom.
-				Node asStackBottom = asStackBottom(n);
-				Node cachedEval = CacheFuncParamReturn.get(asStackBottom);
+				Node truncateToStackBottom = truncateToStackBottom(n);
+				Node cachedEval = CacheFuncParamReturn.get(truncateToStackBottom);
 				if(cachedEval != null){
 					if(lgStep) lg("Returning from cache. Before restack: "+cachedEval);
 					ret = setStack(cachedEval, n.stack, n.isParentsFunc);
@@ -519,6 +682,7 @@ public class OcfnUtil{
 						//This part must always eval to (S I I (S I I)) in practical implementations, as it does here.
 						ret = lazyInfiniteLoop;
 					}else{
+						
 						//This part will be different in practical implementations.
 						//
 						//(leaf leaf ...anything...) is pure deterministic. (leaf anyNonleaf ...anything...) allows nondeterminism.
@@ -545,6 +709,10 @@ public class OcfnUtil{
 						//which is good since that interpretation led to contradiction true=false,
 						//or certain combos of deterministic info could be interpreted as the bytes of a jpg file using "image/jpeg".
 						ret = lazyInfiniteLoop;
+						
+						if(1<2) throw new Error("TODO compare cardinality here. Nondets third param (if nondets first param is u)"
+							+" is limited to LESS CARDINALITY THAN func (nondet up to its first 2 params"
+							+" compared to everywhere else its limited to LESS_OR_EQUAL.");
 					}
 				break; default:
 					//(leaf leaf comment funcBody a b c d e f) returns (funcBody (P (leaf leaf comment funcBody a b c d e) f)) if !funcBody.isLeaf.
@@ -563,12 +731,12 @@ public class OcfnUtil{
 					ret = f(bigCallFuncBody,f(P,l,r));
 				}
 			}
-			ret = setCacheKey(ret, asStackBottom(ret));
+			ret = setCacheKey(ret, truncateToStackBottom(ret));
 			//FIXME also handle cacheKey here?
 			if(n.stack != null){
 				//lg("FIXME what to do here? n="+n+" ret="+ret);
-				Node putBackIntoStack = node(ret.isHalted, n.isParentsFunc, ret.isDeterministic, ret.isFinite,
-					ret.func, ret.param, n.stack, n.cacheKey);
+				Node putBackIntoStack = node(ret.isHalted, n.isParentsFunc, ret.isDeterministic, /*ret.isFinite, ret.isUnary,*/
+					ret.func, ret.param, n.stack, n.cacheKey/*, ret.compareCardinality*/); //FIXME 2020-6-28 added compareCardinality and isUnary. Are they correct here? 
 				//lg("n="+n+" incompleteRet="+ret+" putBackIntoStack="+putBackIntoStack);
 				ret = putBackIntoStack;
 			}
@@ -577,9 +745,40 @@ public class OcfnUtil{
 		return ret;
 	}
 	
-	/** forkEdit: remove the stack below it, but keep everything else the same */
-	public static Node asStackBottom(Node n){
-		return node(n.isHalted, false, n.isDeterministic, n.isFinite, n.func, n.param, null, null);
+	public static boolean isDone(Node n){
+		return n.stack==null && n.isHalted;
+	}
+	
+	/** For all x and y, canCall(downToStackBottom(x),downToStackBottom(y))==true. They dont have to be halted. */
+	public static boolean canCall(Node x, Node y){
+		return isStackBottom(x) && isStackBottom(y);
+	}
+	
+	/** FIXME test this func.
+	<br><br>
+	For all x, eval(x)==eval(downToStackBottom(x))==downToStackBottom(eval(x)).
+	For all x and y, canCall(downToStackBottom(x),downToStackBottom(y))==true. They dont have to be halted.
+	<br><br>
+	WARNING: BigO(stackHeight), instead of the usual BigO(1).
+	<br><br>
+	Go up stack (until canCall is true),
+	maybe after slight adjustment of what its doing here,
+	so can call anything on anything, such as step(f(step(someFunc),anotherFunc)).
+	Thats BigO(stackHeight) instead of the usual BigO(1) which is why its not part of step func,
+	so be careful how adjust the java funcs to do that. Its not part of the occamsfuncer spec
+	but is something you can derive from that spec but not at user level code cuz
+	it happens before isDone(), but it could of course be done in an emulator at user level code,
+	but usually we wont be using emulators.
+	*/
+	public static Node downToStackBottom(Node n){
+		while(!isStackBottom(n)) n = n.isParentsFunc ? setFunc(n.stack,truncateToStackBottom(n)) : setParam(n.stack,truncateToStackBottom(n));
+		return n;
+	}
+	
+	/** forkEdit: remove the stack below it, but keep everything else the same. */
+	public static Node truncateToStackBottom(Node n){
+		//if(n.compareCardinality != null) throw new Error("Cant finish truncateToStackBottom while comparing cardinality cuz if lower cardinality is called on higher cardinality it must eval to (S I I (S I I)), so setting Node.compareCardinality to null would bypass that infinite loop, allowing halting oracle (in nondet op) to be asked what a caller of itself would do then do the opposite, and therefore disproof-by-contradiction that the system itself is a consistent design. This is just a detail to adjust, in when truncateToStackBottom can and can not be called. Specificly, it can be called when Node.compareCardinality==null.");
+		return node(n.isHalted, false, n.isDeterministic, /*n.isFinite, n.isUnary,*/ n.func, n.param, null, null/*, null*/);
 	}
 	
 	public static final Node uu = bootF(u,u);
@@ -1271,57 +1470,97 @@ public class OcfnUtil{
 		return ret;
 	}
 	
+	/** (isItTrueThatForEveryPossibleXYZThatIfXEqualsYAndYEqualsZThenXEqualsZ .) returns T or F after infinity cycles */
+	public static final Node isItTrueThatForEveryPossibleXYZThatIfXEqualsYAndYEqualsZThenXEqualsZ = null; //FIXME
+	
+	public static final Node emulatorOptimizedFor_isItTrueThatForEveryPossibleXYZThatIfXEqualsYAndYEqualsZThenXEqualsZ = null; //FIXME
+	
+	public static final Node emulatorOptimizedFor_areThereInfinityPrimes = null; //FIXME
+	
+	/** (areThereInfinityPrimes .) evals to T (else F) if there are infinity primes. Of course it will eval to T,
+	but it would be cheating to set the value of this to (T T) where (T T .) evals to T. This will be a way to prove it.
+	*/
+	public static final Node areThereInfinityPrimes = null; //FIXME
+	
+	/** (isCollatzTrue .) returns T or F, after infinity cycles */
+	public static final Node isCollatzTrue = null;
+	
+	public static final Node emulatorOptimizedFor_isCollatzTrue = null; //FIXME
+	
+	/** (isFermatsLastTheoremTrue .) evals to T if not exists integer exponent>2 where exists integers x y and z where x^exponent+y^exponent=z^exponent,
+	else returns F. Costs some infinity number of calculations (higher cardinality) so can only finish the calculation in some emulator of this system
+	which in some cases can optimize infinity calculations to a finite number of calculations.
+	The question is extremely easier to define as a Node than the emulator which would answer it in finite time.
+	*/
+	public static final Node isFermatsLastTheoremTrue = null; //FIXME
+	
+	public static final Node emulatorOptimizedFor_isFermatsLastTheoremTrue = null; //FIXME
+	
+	/** (doesPEqualNP .) evals to T (else F) if there exists Node subsetSumSolverInPTime where,
+	given a linkedlist of lin integers (such as (T (T (F (T .)))) is baseTen11), (subsetSumSolverInPTime thatLinkedList) evals to T or F
+	depending if any subset of the integers in the (cdr thatLinkedList) sums to (car thatLinkedList),
+	and subsetSumSolverInPTime costs at most maxCyclesAllowed=(plus constantA (exponent (numberOfNodesInForest (pair thatLinkedList subsetSumSolverInPTime)) constantB))
+	number of calls of step(Node) for any constants constantA and constantB,
+	and doesPEqualNP evals to T (else F) if:
+	exists subsetSumSolverInPTime forAll thatLinkedList (lessThan (computeMaxCyclesAllowed ...) (unoptimizedEmulatorOfOccamsfuncerV3 subsetSumSolverInPTime thatLinkedList)).
+	<br><br>
+	I plan to create this Node but am very skeptical of ever evaling it,
+	even though I am very confident that some possible emulator of occamsfuncerV3 would eval it in finite time,
+	I just dont know which possible emulator would do that.
+	*/
+	public static final Node doesPEqualNP = null; //FIXME
+	
+	public static final Node emulatorOptimizedFor_doesPEqualNP = null; //FIXME
+	
 	//FIXME is there 8 params or 9 params in the universalFunc?
 	//Depends how I'm designing the nondet, and if theres 4 vs 5 Node ptrs in Node.
 	
 	public static boolean forABreakpoint; //TODO remove this after get a certain testcase working
 	
 	public static Node setIsHalted(Node n, boolean newIsHalted){
-		//FIXME should other params depend on both params?
-		return node(newIsHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, n.stack, n.cacheKey);
+		return node(newIsHalted, n.isParentsFunc, n.isDeterministic, /*n.isFinite, n.isUnary,*/ n.func, n.param, n.stack, n.cacheKey/*, n.compareCardinality*/);
 	}
 	
 	public static Node setIsParentsFunc(Node n, boolean newIsParentsFunc){
-		//FIXME should other params depend on both params?
-		return node(n.isHalted, newIsParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, n.stack, n.cacheKey);
+		return node(n.isHalted, newIsParentsFunc, n.isDeterministic, /*n.isFinite, n.isUnary,*/ n.func, n.param, n.stack, n.cacheKey/*, n.compareCardinality*/);
 	}
 	
 	public static Node setIsDeterministic(Node n, boolean isDeterministic){
-		//FIXME should other params depend on both params?
-		return node(n.isHalted, n.isParentsFunc, isDeterministic, n.isFinite, n.func, n.param, n.stack, n.cacheKey);
+		return node(n.isHalted, n.isParentsFunc, isDeterministic, /*n.isFinite, n.isUnary,*/ n.func, n.param, n.stack, n.cacheKey/*, n.compareCardinality*/);
 	}
 	
-	public static Node setIsFinite(Node n, boolean isFinite){
-		//FIXME should other params depend on both params?
-		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, isFinite, n.func, n.param, n.stack, n.cacheKey);
-	}
+	//public static Node setIsUnary(Node n, boolean newIsUnary){
+	//	return node(n.isHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, newIsUnary, n.func, n.param, n.stack, n.cacheKey/*, n.compareCardinality*/);
+	//}
+	
+	//public static Node setIsFinite(Node n, boolean isFinite){
+	//	return node(n.isHalted, n.isParentsFunc, n.isDeterministic, isFinite, n.isUnary, n.func, n.param, n.stack, n.cacheKey/*, n.compareCardinality*/);
+	//}
 	
 	public static Node setFunc(Node n, Node newFunc){
-		//FIXME should other params depend on both params?
 		if(n.isLeaf()) throw new Error("Dont use this for leaf");
-		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, newFunc, n.param, n.stack, n.cacheKey);
+		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, /*n.isFinite, n.isUnary,*/ newFunc, n.param, n.stack, n.cacheKey/*, n.compareCardinality*/);
 	}
 	
 	public static Node setParam(Node n, Node newParam){
-		//FIXME should other params depend on both params?
 		if(n.isLeaf()) throw new Error("Dont use this for leaf");
-		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, n.func, newParam, n.stack, n.cacheKey);
+		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, /*n.isFinite, n.isUnary,*/ n.func, newParam, n.stack, n.cacheKey/*, n.compareCardinality*/);
 	}
 	
 	public static Node setStack(Node n, Node newStack){
-		//FIXME should other params depend on both params?
-		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, newStack, n.cacheKey);
-		//return node(n.isHalted, n.isParentsFunc&(newStack!=null), n.isDeterministic, n.isFinite, n.func, n.param, newStack, n.cacheKey);
+		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, /*n.isFinite, n.isUnary,*/ n.func, n.param, newStack, n.cacheKey/*, n.compareCardinality*/);
 	}
 	
 	public static Node setStack(Node n, Node newStack, boolean isParentsFunc){
-		//FIXME should other params depend on both params?
-		return node(n.isHalted, isParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, newStack, n.cacheKey);
+		return node(n.isHalted, isParentsFunc, n.isDeterministic, /*n.isFinite, n.isUnary,*/ n.func, n.param, newStack, n.cacheKey/*, n.compareCardinality*/);
 	}
 	
 	public static Node setCacheKey(Node n, Node newCacheKey){
-		//FIXME should other params depend on both params?
-		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, n.isFinite, n.func, n.param, n.stack, newCacheKey);
+		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, /*n.isFinite, n.isUnary,*/ n.func, n.param, n.stack, newCacheKey/*, n.compareCardinality*/);
+	}
+	
+	public static Node setCompareCardinality(Node n, Node newCompareCardinality){
+		return node(n.isHalted, n.isParentsFunc, n.isDeterministic, /*n.isFinite, n.isUnary,*/ n.func, n.param, n.stack, n.cacheKey/*, newCompareCardinality*/);
 	}
 
 }
