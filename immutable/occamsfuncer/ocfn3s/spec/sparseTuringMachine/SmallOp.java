@@ -8,12 +8,12 @@ public enum SmallOp{
 	/** Lx.Ly.Lz.y which does True aka K of SKI Calculus. True is (opT leaf). */
 	opT,
 	
-	/** GetFunc of: Lx.Ly.Lz.(GetFunc z) and Lx.Ly.Lz.(GetParam z) where (GetFunc w (GetParam w)) equals w for any w other than the state of the stack
+	/** GetFunc/R of: Lx.Ly.Lz.(GetFunc z) and Lx.Ly.Lz.(GetParam z) where (GetFunc w (GetParam w)) equals w for any w other than the state of the stack
 	and where (GetFunc leaf) equals IdentityFunc and (GetParam leaf) equals leaf.
 	*/
 	opGetFunc,
 	
-	/** GetParam of: Lx.Ly.Lz.(GetFunc z) and Lx.Ly.Lz.(GetParam z) where (GetFunc w (GetParam w)) equals w for any w other than the state of the stack
+	/** GetParam/R of: Lx.Ly.Lz.(GetFunc z) and Lx.Ly.Lz.(GetParam z) where (GetFunc w (GetParam w)) equals w for any w other than the state of the stack
 	and where (GetFunc leaf) equals IdentityFunc and (GetParam leaf) equals leaf.
 	*/
 	opGetParam,

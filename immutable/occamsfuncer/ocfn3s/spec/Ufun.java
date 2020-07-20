@@ -23,6 +23,13 @@ The padding is normally not stored but is a math abstraction.
 */
 public enum Ufun{
 	
+	/** TODO occamsfuncerV1 *
+	ocfn1(...TODO..., func, param),
+	
+	/** TODO occamsfuncerV2 *
+	ocfn2(...TODO..., func, param, comment),
+	*/
+	
 	/*
 	FIXME organize this better. have multiple letter suffixs for the various things, including maybe...
 	* 3: uses determinism param, has determinism param but ignores it for compatibility, no determinism param.
@@ -37,7 +44,8 @@ public enum Ufun{
 	//number of childs: 2, 4, or 5.
 	*/
 	
-	/** occamsfuncer version 3 data, is not a universal function but is a data layer which one could be built on.
+	/** occamsfuncer version 3 data (has nothing to do with 3 dimensions),
+	is not a universal function but is a data layer which one could be built on.
 	It can store binary data efficiently so would make a good general blockchain, file format, computing system, etc.
 	Every possible call pair is halted. Therefore it doesnt need stack, cacheKey, or compareCardinality.
 	For example, you might use...
@@ -59,7 +67,7 @@ public enum Ufun{
 	and of course you can send bigger blobs of data to be hashed in a tree shape upward to get a single 256 bit id for that large blob.
 	Its suggested to use the usual 
 	*/
-	ocfn3d(null, false, false, false, false, true, Uchild.func, Uchild.param),
+	ocfn3d(true, null, false, false, false, false, true, Uchild.func, Uchild.param),
 	
 	/** occamsfuncer version 3 iota, the universal lambda function La.a(Lb.Lc.Ld.bd(cd))(Le.Lf.e) aka Lf.fST aka (Pair S T).
 	This is the simplest universal lambda BUT it has a big problem in not being able to define an equals function.
@@ -67,7 +75,7 @@ public enum Ufun{
 	that returns T or F depending on if the param is that cuz they can see internal forest of call pairs.
 	Iota and most other universal funcs cant. The difference is being both a universal lambda func and a pattern calculus func.
 	*/
-	ocfn3i(1, true, false, false, false, false, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
+	ocfn3i(true, 1, true, false, false, false, false, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
 	
 	/** occamsfuncer version 3 iotaPatternCalculus, but with 2 extra params to choose from 4 ops: GetFunc/L GetParam/R IsLeaf/A Iota.
 	Unlike ocfn3i, and like ocfn3n, ocfn3r, ocfn3s, and ocfn3c, this ocfn3j can measure equality by forest shape of call pairs.
@@ -82,7 +90,7 @@ public enum Ufun{
 	Some of those might be halted naturally, but these slight adjustments to the normal iota func are needed to
 	have a simple representation of its middle computing steps between call and return.
 	*/
-	ocfn3j(1, true, true, false, false, false, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
+	ocfn3j(true, 1, true, true, false, false, false, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
 	
 	/** occamsfuncer version 3 nano, a universal function that always curries 6 params,
 	and it has the same first 7 ops as ocfn3s and ocfn3c but the 8th op is lambda of 5 params (instead of nondet)
@@ -96,10 +104,10 @@ public enum Ufun{
 	and the last op will be ported from the Big code which is fourth param of 10
 	and simply returns e(P,l,r) where l is the first 5 curries and r is the param its called on.
 	*/
-	ocfn3n(6, true, true, false, false, true, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
+	ocfn3n(true, 6, true, true, false, false, true, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
 	
 	/** same as ocfn3s except its 9 params instead of 10, excluding ocfn3c's cardinality param */
-	ocfn3r(9, true, true, true, true, true, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
+	ocfn3r(true, 9, true, true, true, true, true, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
 	
 	/** occamsfuncer version 3 simple, a universal function that always curries 10 params,
 	and its the same as ocfn3c except it ignores the second of 10 params,
@@ -112,7 +120,7 @@ public enum Ufun{
 	but I plan to code cardinality so TODO try to remember to put a boolean there for is it
 	implementing ocfn3s (simple ignores cardinality) vs ocfn3c (cardinality).
 	*/
-	ocfn3s(10, true, true, true, true, true, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
+	ocfn3s(true, 10, true, true, true, true, true, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey),
 	
 	/** occamsfuncer version 3 cardinality, a universal function that always curries 10 params.
 	<br><br>
@@ -136,7 +144,14 @@ public enum Ufun{
 	(aNondeterministicLambda anotherNondeterministicLambda) evals as normal, however the local VM's nondeterminism says to.
 	(aDeterministicLambda anotherNondeterministicLambda) evals to (aDeterministicLambda (truncateToDeterministic anotherNondeterministicLambda)). Bitstrings, which will be efficiently forkAppendable and possibly faster than Bittorrent and Ipfs, will be made of pairs of True and False like (pair (pair (pair T T) (pair F T)...) and will usually be actually stored in int[] or float[] or double[] or FloatBuffer or CLMem etc. Treemaps will be similar to in ocfn2 (which I didnt finish those in).
 	*/
-	ocfn3c(10, true, true, true, true, true, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey, Uchild.compareCardinality);
+	ocfn3c(true, 10, true, true, true, true, true, Uchild.func, Uchild.param, Uchild.stack, Uchild.cacheKey, Uchild.compareCardinality);
+	
+	/** You should only use those which are consistent. If its not certainly consistent,
+	that means its a theoretical model of computing to be explored and hasnt been verified (yet?) to be consistent
+	with godel incompleteness, the impossibility of halting oracles, etc.
+	That consistency extends only to correctly designed plugins, if plugins are used.
+	*/
+	public final boolean isCertainlyConsistent;
 	
 	public final int curries;
 	
@@ -200,7 +215,8 @@ public enum Ufun{
 	
 	public final List<Uchild> childs;
 	
-	private Ufun(Integer curries, boolean isTuringComplete, boolean patternCalculus, boolean pluginHook, boolean comment, boolean veryOptimizable, Uchild... childs){
+	private Ufun(boolean isCertainlyConsistent, Integer curries, boolean isTuringComplete, boolean patternCalculus, boolean pluginHook, boolean comment, boolean veryOptimizable, Uchild... childs){
+		this.isCertainlyConsistent = isCertainlyConsistent;
 		this.curries = curries;
 		this.isTuringComplete = isTuringComplete;
 		this.patternCalculus = patternCalculus;

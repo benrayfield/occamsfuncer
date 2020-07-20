@@ -466,7 +466,7 @@ public class OcfnUtil{
 		Node ret;
 		Node l = L(n), r = R(n);
 		
-		//These next 2 IFs dont happen in most nodes, so its fast.
+		//These next 2 (update: 1) IFs dont happen in most nodes, so its fast.
 		if(l.isDeterministic & !r.isDeterministic){
 			//Caller could have used truncateToDeterministic to avoid this.
 			return lazyInfiniteLoop;

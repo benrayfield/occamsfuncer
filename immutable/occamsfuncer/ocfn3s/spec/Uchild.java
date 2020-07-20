@@ -37,6 +37,12 @@ public enum Uchild{
 	<br><br>
 	compareCardinality is either null or (Pair unaryNumberA unaryNumberB) and is always halted.
 	*/
-	compareCardinality;
+	compareCardinality,
+	
+	/** as of 2020-7 the only universalFunc ever described in this software which uses this child is ocfn2,
+	where every lambda call had 3 things instead of 2, 1 of those being comment.
+	In other universal functions, comment was only 1 of the params and all calls have 2 things (func, param).
+	*/
+	comment;
 
 }
