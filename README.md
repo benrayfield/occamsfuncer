@@ -7,6 +7,84 @@ I plan to use this in my AI research and other experiments.
 
 occamsfuncerV3s test cases: https://github.com/benrayfield/occamsfuncer/blob/master/immutable/occamsfuncer/ocfn3s/spec/sparseTuringMachine/test/TestOcfn3SparseTuringMachine.java
 
+UPDATE 2020-8-3, code not here yet but working on[
+The default id type is 248 bits, supports unlimited size bitstrings (such as a googol bits) but only efficiently supports bitstrings up to 2^43-1 bits (terabyte) and up to about 2^80 objects in the peer to peer network since it has 92 bits of security against finding any collision (uses 23 bytes of sha3_256 of its 2-4 child ids: func, param, optional:stack, optional:cacheKey).
+
+	public static Id id(Id func, Id param, boolean isParentsFunc, Id stack, Id cacheKey){
+		boolean isCallPair = stack == null && cacheKey == null; //if true, 1 sha3-256 cycle instead of 2
+		if(stack == null) stack = nullId;
+		if(cacheKey == null) cacheKey = nullId;
+		boolean isCbt256 = log2OfLiteralCbtSizeElse15(func.a)==7 && log2OfLiteralCbtSizeElse15(param.a)==7;
+		if(isCbt256 && idOfIdDepth(func.b)!=maxIdOfIdDepth){
+			//id is a cbt256, and is id of a cbt256 with all the same bits except idOfId+1
+			return id( func.b+(1L<<shiftIdOfId), func.c, param.b, param.c );
+		}
+		
+		byte[] hashMe = new byte[1+31*(isCallPair?2:4)];
+		hashMe[0] = isCallPair ? callPairHeader : callQuadHeader;
+		copyFirst31BytesOfIdIntoByteArray(func, hashMe, 1);
+		copyFirst31BytesOfIdIntoByteArray(param, hashMe, 1+31);
+		if(!isCallPair){
+			copyFirst31BytesOfIdIntoByteArray(stack, hashMe, 1+31*2);
+			copyFirst31BytesOfIdIntoByteArray(cacheKey, hashMe, 1+31*3);
+		}
+		byte[] hash = sha3_256(hashMe); //ignore the first 8 and last 1 bytes
+		return id(
+			firstLong(func, param, isParentsFunc, stack, cacheKey),
+			MathUtil.readLongFromByteArray(hash, 8),
+			MathUtil.readLongFromByteArray(hash, 16),
+			(MathUtil.readLongFromByteArray(hash, 24)&0xffffffffffffff00L)|(padLastByte&0xff)
+		);		
+	}
+	
+	/**
+	Uint2 Id of Id of id, so is Id of literal 256 bits of subtract 1 from that uint2. Normal IDs have 0 here. Id of id (aka Id of a cbt256) has 1 here. Id of id of id of id has 3 here. Id of id of id of id of id has 0 here and twice as much storage as 2 of literal 128 bits.
+		Id is always halted, deterministic, cacheKeyIsNull, stackfuncisnonnull, and stackparamisnonnull,
+			even when the thing it points at differs there. Id must still have those bits,
+			since its the id of a cbt256 (which may be interpreted as an id or not),
+			so always check this idOfIdOfId... bits before the other bits in the long header.
+	uint4 curriesleft (and is halted) or nothalted. 0 means nothalted.
+		Unless is idOfIdOfId... cuz then its always halted.
+	Uint5 (pair (pair (pair x))).
+	4 bits for literalCbtSize, cbt1 to cbt128. 1111 means its something else.
+	2 bits stackfuncisnonnull stackparamisnonnull.
+	1 bit cachekeyisnonnull.
+	1 bit isdeterministic.
+	1 bit for iscbt.
+	1 bit does bize have more digits.
+	43 up to 1 terabyte bize (bitstring size lowest digits).
+	*/
+	public static long firstLong(Id func, Id param, boolean isParentsFunc, Id stack, Id cacheKey){
+		long ret = 0;
+		boolean isCallPair = stack == null && cacheKey == null;
+		//can be cbt256 as 2 cbt128 (first and last 128 bits), or if idOfId>0 (then its same 256 bits except idOfId is 1 less)
+		boolean isCbt256 = log2OfLiteralCbtSizeElse15(func.a)==7 && log2OfLiteralCbtSizeElse15(param.a)==7;
+		if(isCbt256 && idOfIdDepth(func.b)!=maxIdOfIdDepth) {
+			return func.b+(1L<<shiftIdOfId); //id is a cbt256, and is id of a cbt256 with all the same bits except idOfId+1
+		}
+		//nothing to change in long ret: int idOfCbt256ThatFitsInId_depth = 0;
+		//Universal func always takes 9 params.
+		int curriesLeftF = curriesLeft(func.a);
+		int curriesLeftP = curriesLeft(param.a);
+		int curriesLeft = curriesLeftF-1;
+		if(curriesLeftF == 0 || curriesLeftP == 0){
+			//If either child is evaling, then parent is evaling
+			curriesLeft = 0;
+			//FIXME how does curriesLeft get set to the higher number? Maybe need more bits in id for that?
+		}
+		ret |= (((long)curriesLeft)<<shiftCurriesLeft);
+		//FIXME infloop between Pair creating id, but id func checking if a child is pair for this optimization.
+		int pairOfPairDepth = TODO;
+		if(pairId.equals(func)){
+			TODO pairOfPair+1 unless its already as deep as it gets.
+		}
+		ret |= (((long)pairOfPairDepth)<<shiftPairOfPair);
+		
+		TODO implement whats in comment of this func.
+		return ret;
+	}
+]
+
 Ran those testcases 2020-7-6 and got this output, which says they're very slow cuz v3 doesnt have any optimizations yet (such as hardware strictfp double math instead of computing the bits of doubles only as lambdas)...
 
 Starting testBootIsT
