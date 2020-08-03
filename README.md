@@ -8,7 +8,7 @@ I plan to use this in my AI research and other experiments.
 occamsfuncerV3s test cases: https://github.com/benrayfield/occamsfuncer/blob/master/immutable/occamsfuncer/ocfn3s/spec/sparseTuringMachine/test/TestOcfn3SparseTuringMachine.java
 
 UPDATE 2020-8-3, code not here yet but working on[
-The default id type is 248 bits, supports unlimited size bitstrings (such as a googol bits) but only efficiently supports bitstrings up to 2^43-1 bits (terabyte) and up to about 2^80 objects in the peer to peer network since it has 92 bits of security against finding any collision (uses 23 bytes of sha3_256 of its 2-4 child ids: func, param, optional:stack, optional:cacheKey).
+The default id type is 248 bits, supports unlimited size bitstrings (such as a googol bits) but only efficiently supports bitstrings up to 2^43-1 bits (terabyte) and unlimited objects in the peer to peer network since it has 92 bits of security against finding any collision (uses 23 bytes of sha3_256 of its 2-4 child ids: func, param, optional:stack, optional:cacheKey). Expandable at runtime to multiple id types tuned for different purposes used simultaneously, and every id maker function can create id of itself and all other id maker functions and all of eachothers parts which will form a formal-verification system to verify and strengthen its own security and tune between security, low-lag, scalability, and other properties of computing.
 
 	public static Id id(Id func, Id param, boolean isParentsFunc, Id stack, Id cacheKey){
 		boolean isCallPair = stack == null && cacheKey == null; //if true, 1 sha3-256 cycle instead of 2
