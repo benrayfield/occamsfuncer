@@ -88,32 +88,57 @@ Optional: (VM_nondet x) -> This is where plugins and memory and compute statisti
 	patterns such as a digitalSignature of a certain publicKey which signed (pair y z) and its solving for that publicKey and y.
 
 (IsLeaf u) -> T
+
 (IsLeaf ^) -> F
+
 (L u) -> I
+
 (R u) -> u
+
 (u u (u u) u u u u u u u u u u u) is T.
+
 (u u (u u) u u (u u) u u u u u u u u) is F.
+
 (u u (u u) u u (u u) u u u u u u u u u) is I.
+
 (u u (u u) u (u u) u u u u u u u u) is S.
+
 (u u (u u) (u u) (u u) u u u u u u u u) is Pair.
+
 (u u (u u) (u u) (u u) u u u u u u u u n o) is Pair of n and o.
+
 (u u (u u) (u u) (u u) u u u u u u u u (u u (u u) u (u u) u u u u u u u u) (u u (u u) u u u u u u u u u u u)) is (Pair S T) aka iota.
+
 (Pair S T) is the iota lambda aka Lf.f(Lx.Ly.Lz.xz(yz))(Lq.Li.q).
+
 (iota (iota (iota iota))) -> T.
+
 (iota (iota (iota (iota iota)))) -> S.
+
 (iota iota "image/jpeg") -> "image/jpeg".
+
 (L iota) -> (Pair S).
+
 (R iota) -> T.
+
 (L iota (R iota)) -> iota. 
+
 (L x (R x)) -> x, for any x. For example, (L L (R L)) -> L, and (L u (R u)) -> u, and (L "image/jpeg" (R "image/jpeg")) -> "image/jpeg".
+
 (L "image/jpeg") -> a complete binary tree of pairs of pairs... of T and F of the bits of utf8 of "image/jp" as its powOf2 aligned.
 Bitstrings are padded with T then 0 or more of F until the next powOf2 number of bits but in practice will be stored in concat of 1 or more arrays.
 If you want things displayed as string vs raw bits, or as double vs 64 raw bits, etc, then use typeval which is for such semantics.
+
 (Typeval "image/jpeg" <bytesOfJpg>).
+
 (L (Typeval "image/jpeg" <bytesOfJpg>)) -> (Typeval "image/jpeg").
+
 (L (Typeval "image/jpeg")) -> Typeval.
+
 (R (Typeval "image/jpeg")) -> "image/jpeg".
+
 (R (Typeval "image/jpeg" <bytesOfJpg>)) -> <bytesOfJpg>.
+
 (Typeval "double[]" <bitstringOfDoubleArray>).
 
 Optional: The semantic is, if the first param of Typeval is a bitstring (complete binary tree of pairs of T and F,
