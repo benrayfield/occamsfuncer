@@ -95,6 +95,7 @@ Optional: (VM_nondet x) -> This is where plugins and memory and compute statisti
 
 (R u) -> u
 
+FIXME some of these are wrong. I reordered the opcodes after writing this, but dont plan to reorder them again[
 (u u (u u) u u u u u u u u u u u) is T.
 
 (u u (u u) u u (u u) u u u u u u u u) is F.
@@ -108,6 +109,7 @@ Optional: (VM_nondet x) -> This is where plugins and memory and compute statisti
 (u u (u u) (u u) (u u) u u u u u u u u n o) is Pair of n and o.
 
 (u u (u u) (u u) (u u) u u u u u u u u (u u (u u) u (u u) u u u u u u u u) (u u (u u) u u u u u u u u u u u)) is (Pair S T) aka iota.
+]
 
 (Pair S T) is the iota lambda aka Lf.f(Lx.Ly.Lz.xz(yz))(Lq.Li.q).
 
