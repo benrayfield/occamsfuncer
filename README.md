@@ -129,17 +129,18 @@ Optional: (VM_nondet x) -> This is where plugins and memory and compute statisti
 Bitstrings are padded with T then 0 or more of F until the next powOf2 number of bits but in practice will be stored in concat of 1 or more arrays.
 If you want things displayed as string vs raw bits, or as double vs 64 raw bits, etc, then use typeval which is for such semantics.
 
-(Typeval "image/jpeg" <bytesOfJpg>).
+(Typeval "image/jpeg" {bytesOfJpg}).
 
-(L (Typeval "image/jpeg" <bytesOfJpg>)) -> (Typeval "image/jpeg").
+(L (Typeval "image/jpeg" {bytesOfJpg})) -> (Typeval "image/jpeg").
 
 (L (Typeval "image/jpeg")) -> Typeval.
 
 (R (Typeval "image/jpeg")) -> "image/jpeg".
 
-(R (Typeval "image/jpeg" <bytesOfJpg>)) -> <bytesOfJpg>.
+(R (Typeval "image/jpeg" {bytesOfJpg})) -> {bytesOfJpg}.
 
-(Typeval "double[]" <bitstringOfDoubleArray>).
+(Typeval "double[]" {bitstringOfDoubleArray}).
+	
 
 Optional: The semantic is, if the first param of Typeval is a bitstring (complete binary tree of pairs of T and F,
 with at least 1 T where padding starts) and is also valid UTF8, then its displayed as a string.
