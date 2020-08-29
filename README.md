@@ -5,7 +5,7 @@ Occamsfuncer is a tiny piece of math that can act on itself in an infinite numbe
 
 I plan to use this in my AI research and other experiments.
 
-THE SPEC (IMPLEMENTED IN OcfnUtil.step, which I interpret as a complete enough spec now that it has proven that (equals equals equals)->T and has the basics of lisp such as cons car cdr isNil)[
+THE SPEC (IMPLEMENTED IN https://github.com/benrayfield/occamsfuncer/blob/master/occamsfuncer/spec/OcfnUtil.java OcfnUtil.step, which I interpret as a complete enough spec now that it has proven that (equals equals equals)->T and has the basics of lisp such as cons car cdr isNil)[
 This completely defines the occamsfuncer universal function of 15 params (including an infinite area, 1-15 params,
 reserved for future expansion such as VM internals or forks of occamsfuncer, branching on the first param),
 which is a universal lambda function (combinator) and a pattern calculus function,
