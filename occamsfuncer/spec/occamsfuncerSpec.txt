@@ -1,0 +1,158 @@
+This completely defines the occamsfuncer universal function of 15 params (including an infinite area, 1-15 params,
+reserved for future expansion such as VM internals or forks of occamsfuncer, branching on the first param),
+which is a universal lambda function (combinator) and a pattern calculus function,
+from which all possible functions can be created and potentially any system mounted.
+The system is represented (as abstract math, but may be implemented more efficient ways)
+as an immutable binary forest, where all paths lead to the same leaf/u.
+That leaf is the universal function, so lets call it u. Everything in the system is made of combos of u.
+Binary forest nodes can be found/added by choosing any 2 nodes (which may be the same node) as its 2 childs,
+which calls one on the other and returns itself if it doesnt have enough params to eval yet or
+returns something else or never returns,
+or in a constraint area (first param is (u u) for VM internals) only returns itself if the constraint is proven.
+Those childs are called its Func/L and its Param/R, as its a binary forest of call pairs.
+A specific binary forest node, based only on the forest shape reachable from it,
+is either halted or (a snapshot of) evaling,
+and to represent evaling states you need 4 childs [func param stack cacheKey] and 2 bits [isHalted, isParentsFunc],
+where isHalted is a cache of all its childs recursively also being halted, and isParentsFunc
+defines if self is parentNode.func or [parentNode.param or has no stack] (since its possible for those to equal),
+which are called callQuads (instead of callPairs) which always step (like in a debugger) to next callQuad in bigO(1),
+which will be demoed in the java code of this spec but are outside the scope of the universal function itself.
+It takes 1-15 curried params, which are all made of combos of u.
+
+The first param is protocol.
+If the first param is u, it takes exactly 15 params and is the main turingComplete logic.
+If the first param is not u (^), by default it infinite loops before returning from the first curry,
+and could be upgraded to be an infinite space of a variety of other systems for possible future expansion... (continued farther below).
+
+If the first param is u, the next 4 params choose 1 of 16 opcodes,
+as each of those params is [leaf (u) or anything except leaf (^)] (a leafbit).
+
+The 0th param is always u. Lets call it and the 15 params: u b c d e f g h i j k l m n o p.
+Dont confuse those with F/False and I/IdentityFunc.
+
+Lets call "anything except u" "^".
+Lets call "anything" "*".  
+
+(u ^) -> infiniteLoop, except when used for VM internals andOr forks of occamsfuncer. For future expansion.
+
+The 16 ops:
+op0 (u u u u u f g h i j k l m n o p) -> infiniteLoop (such as (S I I (S I I)) in strictMode, else (VM_nondet (pair (u u u u u f g h i j k l m n o) p)) as a way to request things from the occamsfuncer VM. //nondet
+op1  (u u u u u ^ g h i j k l m n o p) -> (n (pair (u u u u u ^ g h i j k l m n o) p)) //bigCall1, (p)
+op2  (u u u u ^ u g h i j k l m n o p) -> (m (pair (u u u u ^ u g h i j k l m n o) p)) //bigCall2, (o p)
+op3  (u u u u ^ ^ g h i j k l m n o p) -> (l (pair (u u u u ^ ^ g h i j k l m n o) p)) //bigCall3, (n o p), aka (... k/comment l/funcBody m/context n o p)
+op4  (u u u ^ u u g h i j k l m n o p) -> (k (pair (u u u ^ u u g h i j k l m n o) p)) //bigCall4, a lambda of 4 params (m n o p) where the k/funcBody param can get those params
+op5  (u u u ^ u ^ g h i j k l m n o p) -> (j (pair (u u u ^ u ^ g h i j k l m n o) p)) //bigCall5, a lambda of 5 params (l m n o p) where the j/funcBody param can get those params
+op6  (u u u ^ ^ u g h i j k l m n o p) -> (i (pair (u u u ^ ^ u g h i j k l m n o) p)) //bigCall6, (k l m n o p), aka (... h/comment i/funcBody j/context k l m n o p)
+op7  (u u u ^ ^ ^ g h i j k l m n o p) -> (h (pair (u u u ^ ^ ^ g h i j k l m n o) p)) //bigCall7, (j k l m n o p)
+op8  (u u ^ u u u g h i j k l m n o p) -> o //T, the K in SKI Lambda Calculus
+op9  (u u ^ u u ^ g h i j k l m n o p) -> p //FI, does False and IdentityFunc depending on number of curries
+op10 (u u ^ u ^ u g h i j k l m n o p) -> (VM_L p) //L, get left child, its func, where (L x (R x)) equals x for all possible x
+op11 (u u ^ u ^ ^ g h i j k l m n o p) -> (VM_R p) //R, get right child, its param, where (L x (R x)) equals x for all possible x
+op12 (u u ^ ^ u u g h i j k l m n o p) -> (VM_IsLeaf p) aka [T if p is u, else F] //IsLeaf
+op13 (u u ^ ^ u ^ g h i j k l m n o p) -> (n p (o p)) //S, as in SKI Lambda Calculus
+op14 (u u ^ ^ ^ u g h i j k l m n o p) -> (p n o) //Pair, such as (Pair n o) is halted and (Pair n o T)->n and (Pair n o F)->o
+op15 (u u ^ ^ ^ ^ g h i j k l m n o p) -> infiniteLoop (such as (S I I (S I I)) //Typeval, a semantic such as for type/n is "image/jpeg" and val/o is bitstring of that image, ignoring p. Any objects, not just strings and bitstrings.
+
+(VM_L x) -> left/func child of x in binary forest if x is not u, else I/IdentityFunc.
+(VM_R x) -> right/param child of x in binary forest if x is not u, else u.
+(VM_IsLeaf x) -> T if x is u, else F.
+Optional: VM_isStrict -> T or F depending if running in strictMode/isDeterministic. Non-strict-mode can choose to become strictMode at a point in stack which is
+	enforced everywhere higher in stack until returning to same place in stack, but strictMode cant choose to become non-strict-mode. 
+Optional: (VM_nondet x) -> This is where plugins and memory and compute statistics are hooked in, such as the spend op limits how much memory
+	and compute cycles a call higher on stack can use and it may further limit it to calls it makes, or the solve call where (solve x)
+	returns any y where (x y)->u else never halts and (solve x) is used for computers in peer to peer network to query eachother for simple
+	patterns such as a digitalSignature of a certain publicKey which signed (pair y z) and its solving for that publicKey and y.
+
+(IsLeaf u) -> T
+(IsLeaf ^) -> F
+(L u) -> I
+(R u) -> u
+(u u (u u) u u u u u u u u u u u) is T.
+(u u (u u) u u (u u) u u u u u u u u) is F.
+(u u (u u) u u (u u) u u u u u u u u u) is I.
+(u u (u u) u (u u) u u u u u u u u) is S.
+(u u (u u) (u u) (u u) u u u u u u u u) is Pair.
+(u u (u u) (u u) (u u) u u u u u u u u n o) is Pair of n and o.
+(u u (u u) (u u) (u u) u u u u u u u u (u u (u u) u (u u) u u u u u u u u) (u u (u u) u u u u u u u u u u u)) is (Pair S T) aka iota.
+(Pair S T) is the iota lambda aka Lf.f(Lx.Ly.Lz.xz(yz))(Lq.Li.q).
+(iota (iota (iota iota))) -> T.
+(iota (iota (iota (iota iota)))) -> S.
+(iota iota "image/jpeg") -> "image/jpeg".
+(L iota) -> (Pair S).
+(R iota) -> T.
+(L iota (R iota)) -> iota. 
+(L x (R x)) -> x, for any x. For example, (L L (R L)) -> L, and (L u (R u)) -> u, and (L "image/jpeg" (R "image/jpeg")) -> "image/jpeg".
+(L "image/jpeg") -> a complete binary tree of pairs of pairs... of T and F of the bits of utf8 of "image/jp" as its powOf2 aligned.
+Bitstrings are padded with T then 0 or more of F until the next powOf2 number of bits but in practice will be stored in concat of 1 or more arrays.
+If you want things displayed as string vs raw bits, or as double vs 64 raw bits, etc, then use typeval which is for such semantics.
+(Typeval "image/jpeg" <bytesOfJpg>).
+(L (Typeval "image/jpeg" <bytesOfJpg>)) -> (Typeval "image/jpeg").
+(L (Typeval "image/jpeg")) -> Typeval.
+(R (Typeval "image/jpeg")) -> "image/jpeg".
+(R (Typeval "image/jpeg" <bytesOfJpg>)) -> <bytesOfJpg>.
+(Typeval "double[]" <bitstringOfDoubleArray>).
+
+Optional: The semantic is, if the first param of Typeval is a bitstring (complete binary tree of pairs of T and F,
+with at least 1 T where padding starts) and is also valid UTF8, then its displayed as a string.
+Other things would need to be in a typeval if you want to say they are a string or image/jpeg or or any existing contentType/mediaType.
+This is optional cuz technically the universal function doesnt know about any of this but user level code can
+choose to look at it, using L and R (and derived equals function etc) recursively, and react based on what it sees any chosen way,
+so you might have multiple interpretations of what is and isnt a valid jpg file or if the spec for jpg is ambiguous
+about the low bits of precision of pixel color or lossy wave compression etc, then each of those possibilities
+can be a separate unambiguous function which, given any function, returns a function (if it ever halts),
+some of those functions being bitstrings such as of an int[1024][1024] block of pixels or an int being a voxel or whatever.
+
+Optional: There is a suggested place for a comment param (can be anything) and a context/cx param (pair salt treemap),
+but those are outside the scope of this spec and can be implemented as combos of u if you like,
+but they are described here cuz the spec was designed to make it easy to use the system various ways similar to that
+and exactly which of those possible ways is left to user level code (what functions are built from combos of u),
+which would be implemented by deriving (from combos of u) 2 functions: (setComment x newComment) and (getComment x),
+keeping in mind that everything is immutable so you can only forkEdit things without modifying the things themselves.
+That suggested place for comment is just before the last param used on the right side of ->
+such as the the T func takes 2 params so T-with-comment takes 3 params, comment going just before those 2,
+and comment is ignored, or the S func takes 3 params so S-with-comment takes 4 params and ignores comment,
+and in bigCall1 to bigCall7 comment goes just before funcBody (before: n m l k j i or h).
+The context/cx param only exists in bigCall1 to bigCall7, is the first param of their 2-8 params
+and would normally be automatically handled for forking the salt param in (pair salt treemap)
+for use with the nondet op such as wallet and spend calls to recursively allocate compute resources,
+request solutions to turing-complete queries across the network to peers, etc,
+in the simplest case an ed25519 digital signature on a 256 bit id of (pair "whats 2+2?" "4")
+would mean that publicKey answered "4" to the question of "whats 2+2?",
+but in practice there will be more info in the things signed such as utcnano time, ids of other peers, whole functions, etc.
+
+Optional: If the first param is not u, by default it infinite loops before returning from the first curry,
+and could be upgraded to be an infinite space for possible future expansion,
+with first param being namespace/protocol/modelOfComputing/etc,
+such as a sparse bloomFilter accumulating/caching true statements about the possible forests of data structures
+implementing the stack and debugger steps etc [func, param, stack, cacheKey, isHalted, isParentsFunc, etc],
+or such as various turingComplete models of computing being interchangible with eachother.
+The only rule for mounting things into the protocol param is they must be stateless,
+so if you want to mount a mutable system you have to statelessly refer to var values each at a time,
+such as (I call it utcnano) int64 number of nanoseconds since year 1970 UTC,
+or accumulate true statements about digitalSignatures each signing an ever expanding set of nodes in the system.
+
+
+------------------------------
+The following is old and has some params in the wrong place,
+but need it to explain the comment and context/cx which are SUGGESTED ways to use the universalFunc/u.
+U's behaviors are not modified by this. This is something you can do with combos of u.
+
+FIXME MOVE THEM ALL OVER 1 PARAM, AS FIRST PARAM IS NAMESPACE/BLOOMFILTER/ETC. FIRST PARAM IS LEAF/. FOR THESE 16 OPS BELOW,
+	EXCEPT IT GETS 1 LESS PARAM AT THE END, SO BIGCALL/FUNCBODY GETS cx THEN 1-7 PARAMS (INSTEAD OF 1-8).
+	THAT LEAVES AN OPCODE FOR TYPEVAL.
+	(nond .       .        .  . . . . . . /       p) //external pluginRoot (in Nondet.java) gets the p param ONLY. Put this in bigCall.
+	(s    .       .        .  . . . . / x y       z)
+	(pair .       .        .  . . . . / x y       z)
+	//(pair .       .        .  . . ..(..)type val ignore) //OLD: typeval, when comment of pair is (..). Still does same thing as pair (but is not optimizable by pairOfPairDepth), but its a semantic meaning to look for things like "image/jpeg" as type and bytes of jpg in val or other combos which dont all have to be bitstrings.
+	(t    .       .        .  . . . . . / y       z)
+	(typv .       .        .  . . . . / ty val ignore) //example: ty is "image/jpeg" and val is cbtBitstring of that jpg content
+	(op8  comment funcThatInfloopsForEveryPossibleParam_with_comment_OfLeafOfLeaf cx p p p p p p p ignore) //general datastruct
+	(op8  comment funcbody cx p p p p p p p       p)
+	(op9  . comment funcbody cx p p p p p p       p)
+	(op10 . . comment funcbody cx p p p p p       p)
+	(op11 . . . comment funcbody cx p p p p       p)
+	(op12 . . . . comment funcbody cx p p p       p)
+	(op13 . . . . . comment funcbody cx p p       p)
+	(op14 . . . . . . comment funcbody cx p       p)
+	(op15 . . . . . . . comment funcbody cx       p)
+		actually op9..op15, cuz typeval, and theres only 1-7 normal params of bigcall cuz first param is namespace/bloomfilter/etc.
