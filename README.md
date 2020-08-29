@@ -182,6 +182,168 @@ FIXME MOVE THEM ALL OVER 1 PARAM, AS FIRST PARAM IS NAMESPACE/BLOOMFILTER/ETC. F
 		actually op9..op15, cuz typeval, and theres only 1-7 normal params of bigcall cuz first param is namespace/bloomfilter/etc.
 ]
 
+TEST CASES RUN 2020-8-29[
+Starting testBootIsT
+### test pass: bootIsT T
+### test pass: !bootIsT F
+### test pass: !bootIsT I
+### test pass: !bootIsT u
+### test pass: !bootIsT uu
+### test pass: !bootIsT op0
+### test pass: !bootIsT op1
+### test pass: !bootIsT op2
+Starting testTF
+### testEqq pass: (T N).func()->T
+### testEqq pass: (T N).param()->N
+### testEqq pass: (T N u)->N
+### testEqq pass: (T N P)->N
+### testEqq pass: (F N).func()->F
+### testEqq pass: (F N).param()->N
+### testEqq pass: (F N u)->u
+### testEqq pass: (F N P)->P
+Starting testPair
+### testEqq pass: (pair N) is halted
+### testEqq pass: (pair N u) is halted
+### testEqq pass: (pair N u T)->N
+### testEqq pass: (pair N u F)->u
+Starting testIota
+iota = ((P S) T)
+(iota iota) -> ((S T)(T T))
+### testEqq pass: (iota iota)->(S T (T T))
+### testEqq pass: (iota iota N) cuz iota iota is an identityFunc
+### testEqq pass: get T from iota
+### testEqq pass: get S from iota
+Tests pass: testIota
+Starting testIsHalted
+### test pass: isHalted . 0params
+### test pass: isHalted . 1params
+### test pass: isHalted . 2params
+### test pass: isHalted . 3params
+### test pass: isHalted . 4params
+### test pass: isHalted . 5params
+### test pass: isHalted . 6params
+### test pass: isHalted . 7params
+### test pass: isHalted . 8params
+### test pass: isHalted . 9params
+### test pass: isHalted . 10params
+### test pass: isHalted . 11params
+### test pass: isHalted . 12params
+### test pass: isHalted . 13params
+### test pass: isHalted . 14params
+### test pass: isHalted (..(..))
+### test pass: isHalted should be false . 15params
+### test pass: isHalted should be false (remember, universalFunc always curries 15 params, so any more are lazy after that 15 returns which is also lazy) . 11params
+Starting testLeaf
+### testEqq pass: (L Leaf)
+### testEqq pass: (R leaf)
+### testEqq pass: (L Leaf) 2
+### testEqq pass: (R leaf) 2
+Starting testSTLR
+### test pass: st.L()==S
+### test pass: st.R()==T
+### test pass: st.L()==S 2
+### test pass: st.R()==T 2
+Starting testLRQuine
+### testEqq pass: step (..) becomes halted on (..)
+### testEqq pass: testLRQuine_.
+### testEqq pass: testLRQuine_(..)
+### testEqq pass: testLRQuine_L
+### testEqq pass: testLRQuine_R
+Starting testIdentityFuncs
+### test pass: leaf.L()==I
+### test pass: leaf.R()==leaf
+### test pass: stt.f(I)==I
+### test pass: stt.f(T)==T
+### test pass: stt.f(F)==F
+### test pass: I.f(stt)==stt
+### test pass: I.f(T)==T
+Starting testConsCarCdr. Nil is leaf/theUniversalFunction. isNil is the isLeaf op.
+### testEqq pass: testConsCarCdr_1
+### testEqq pass: testConsCarCdr_2
+### testEqq pass: testConsCarCdr_3
+### testEqq pass: testConsCarCdr_4
+### testEqq pass: isNil_nil
+### testEqq pass: isNil_[list_N_A_L]
+Starting testBigCallParams
+### testEqq pass: lambda7.p15
+### testEqq pass: lambda7.p14
+### testEqq pass: lambda7.p13
+### testEqq pass: lambda7.p12
+### testEqq pass: lambda7.p11
+### testEqq pass: lambda7.p10
+### testEqq pass: lambda7.p9
+### testEqq pass: lambda7.p8
+### testEqq pass: lambda7.p7
+### testEqq pass: lambda7.p6
+### testEqq pass: lambda7.p5
+### testEqq pass: lambda7.p4
+### testEqq pass: lambda7.p3
+### testEqq pass: lambda7.p2
+### testEqq pass: lambda7.p1
+### testEqq pass: lambda5.p9
+### testEqq pass: lambda6.p8
+### testEqq pass: lambda7 create pair from 2 params
+Starting testLazig
+### testEqq pass: lazigA
+### testEqq pass: lazigAN
+### testEqq pass: lazigANP
+### testEqq pass: lazigPAN
+Starting testIfElse
+### testEqq pass: e(ifElse,T,I,I)
+### testEqq pass: e(ifElse,T,t(N),t(P))
+### testEqq pass: e(ifElse,F,t(N),t(P))
+### testEqq pass: e(ifElse,T,I,.) -> (I .) -> .
+### testEqq pass: e(ifElse,F,I,.) -> (. .)
+### testEqq pass: (tttt(u) N) -> (T (T (T u)))
+### testEqq pass: ifElse T thenConst L
+### testEqq pass: ifElse F thenConst R
+### testEqq pass: ifElse I thenConst L cuz param of the IF is T so I gets T
+### testEqq pass: ifElse I thenConst R cuz param of the IF is F so I gets F
+### testEqq pass: ifElse car thenConst L cuz param of the IF is (P T F) so car gets T
+### testEqq pass: ifElse car then I, car gets T which chooses then(I), and the I called on (P T F) returns (P T F)
+### testEqq pass: ifElse cdr then I, cdr gets F which chooses thenT(P,I,I), and the thenT(P,I,I) called on e(P,T,F) returns (P (P T F) (P T F))
+Starting testLogic
+### testEqq pass: and F F
+### testEqq pass: and F T
+### testEqq pass: and T F
+### testEqq pass: and T T
+### testEqq pass: or F F
+### testEqq pass: or F T
+### testEqq pass: or T F
+### testEqq pass: or T T
+### testEqq pass: xor F F
+### testEqq pass: xor F T
+### testEqq pass: xor T F
+### testEqq pass: xor T T
+### testEqq pass: minorityBit F F F
+### testEqq pass: minorityBit F F T
+### testEqq pass: minorityBit F T F
+### testEqq pass: minorityBit F T T
+### testEqq pass: minorityBit T F F
+### testEqq pass: minorityBit T F T
+### testEqq pass: minorityBit T T F
+### testEqq pass: minorityBit T T T
+Starting testEquals - The universalFunc being a patternCalculusFunc allows it to do this which lambdaFuncs cant cuz its a subset of possible lambdaFuncs thats a universal subset but also a subset that allows it to know patternCalculus things that it couldnt know outside that subset cuz it wouldnt know which are in or not in the subset, except that in this system its always in that subset. Its important to understand that the equals func is implemented as a pure sparse turing machine and does not use any implementing system's == or .equals operators etc except other implementations can do that as an optimization as long as it always gets the exact same result as the sparse turing machine.
+### testEqq pass: (equals . .)
+### testEqq pass: (equals . (..))
+### testEqq pass: (equals (..) .)
+### testEqq pass: (equals (..) (..))
+### testEqq pass: (equals ((..).) ((..).))
+### testEqq pass: (equals (.(..)) (.(..)))
+### testEqq pass: (equals ((..)(..)) ((..)(..)))
+### testEqq pass: (equals (..) ((..).))
+### testEqq pass: (equals ((..).) (..))
+### testEqq pass: (equals car car)
+### testEqq pass: (equals car cdr)
+### testEqq pass: (equals equals equals)
+### testEqq pass: (equals car equals)
+steps=89789
+seconds=0.061151800000000006
+stepsPerSec=1468296.9266644644
+objectsInCachePerSec=255658.86858604322
+In other implementations (not this spec), this will be optimized to make full use of GPU but CPU will often be many times slower than other programs that use CPU cuz of unusual cache needs.
+]
+
 
 
 OLD: test cases: https://github.com/benrayfield/occamsfuncer/blob/master/immutable/occamsfuncer/ocfn3s/spec/sparseTuringMachine/test/TestOcfn3SparseTuringMachine.java
