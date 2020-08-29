@@ -182,7 +182,7 @@ FIXME MOVE THEM ALL OVER 1 PARAM, AS FIRST PARAM IS NAMESPACE/BLOOMFILTER/ETC. F
 		actually op9..op15, cuz typeval, and theres only 1-7 normal params of bigcall cuz first param is namespace/bloomfilter/etc.
 ]
 
-TEST CASES RUN 2020-8-29[
+TEST CASES https://github.com/benrayfield/occamsfuncer/blob/master/occamsfuncer/spec/TestSpec.java RUN 2020-8-29[
 Starting testBootIsT
 ### test pass: bootIsT T
 ### test pass: !bootIsT F
