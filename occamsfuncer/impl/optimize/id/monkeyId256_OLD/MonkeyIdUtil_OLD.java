@@ -1,5 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package occamsfuncer.impl.optimize.id.monkeyId256;
+package occamsfuncer.impl.optimize.id.monkeyId256_OLD;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -46,7 +46,7 @@ Could use (T x) as marking the leaf, such as (pair (T T) (T F)) is the cbt2 of 1
 and (pair (T someObject) (T F)) is the cbtOfObjects of [someObject F]...
 No, I dont want that complexity. Cbt is just for bits.
 */
-public class MonkeyIdUtil{
+public class MonkeyIdUtil_OLD{
 	
 	/*
 

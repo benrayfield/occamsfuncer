@@ -11,24 +11,19 @@ var occamsfuncerSpec = function(param){
 	//TODO
 };
 
-var NewFn = function(binaryId, func, param, stack, cacheKey, blobPtr, blobContent){
+var NewFn = function(binaryId, func, param, stack, cacheKey){
 	this.I = binaryId; //Uint32Array(8) with first 3 ints filled in as as int32 header then zigzag64. last 5 ints are 0 until filled in. TODO put bit somewhere to say if has been filled in or not, since they could actually all be 0s.
-	this.L = func; //immutable
-	this.R = param; //immutable
-	this.S = stack; //immutable
-	this.C = cacheKey; //immutable
-	this.B = blob; //immutable
-	this.BB = blobContent; //mutable cache. usually null
+	this.L = func;
+	this.R = param;
+	this.S = stack;
+	this.C = cacheKey;
 	//generate something like λ8NPQ4XYZxabcdfJKLhjkmopSzTW9BCEGHqtuJ0246vyz from this.I/binaryId after filling in the last 5 ints of it if not already filled in.
 	this.toString = function(){
 		TODO λ8NPQ4XYZxabcdfJKLhjkmopSzTW9BCEGHqtuJ0246vyz base58 of 256 bit MonkeyId. save it in this.idStr if not already saved. return from that cache next time.
 		that will cause lazy hashing. also save Uint32Array(8)
 	};
-	
-	TODO how to make this callable like a func and return step(this,param)? Check javascript parts like .prototype etc.
 };
 
-/*
 //func L['λ8NPQ4XYZxabcdfJKLhjkmopSzTW9BCEGHqtuJ0246vyz']
 //never null
 var L = {};
@@ -52,7 +47,6 @@ var B = {};
 //int32 header H['λ8NPQ4XYZxabcdfJKLhjkmopSzTW9BCEGHqtuJ0246vyz']
 //never null
 var H = {};
-*/
 
 //TODO zigzag64, maybe in 2 int32 parts?
 

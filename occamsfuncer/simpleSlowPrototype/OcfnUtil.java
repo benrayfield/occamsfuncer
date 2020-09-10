@@ -1,7 +1,7 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package occamsfuncer.spec;
+package occamsfuncer.simpleSlowPrototype;
 import occamsfuncer.fn;
-import static occamsfuncer.spec.Log.*;
+import static occamsfuncer.simpleSlowPrototype.Log.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class OcfnUtil{
 	}
 	
 	public static fn lazyCall(fn func, fn param, fn cacheKey){
-		if(!canCall(func,param)) throw new Error("Cant call ("+func+" "+param+")");
+		if(!canCall(func,param)) throw new Error("Cant call ("+func+" "+param+"). Call stackBottom(func) on stackBottom(param) instead (not truncateToStackBottom. stackBottom(fn) is in some earlier fork of occamsfuncer, which just backs out of the recursion without changing whats to be calculated until gets to lazyEval at bottom of stack, then you can call 2 such lazyEvals on eachother to get another lazyEval.");
 		fn stack = null;
 		fn l = L(func);
 		fn ll = L(l);
@@ -204,6 +204,310 @@ public class OcfnUtil{
 		return step(evalingState,true);
 	}
 	
+	/** true if cacheVal(any)!=null, which calls this.
+	<isZeroKelvin,func,param,return> caching: <?todoChooseADesign?,c.cacheKey.L,c.cacheKey.R,(c.L c.R)>
+	*/
+	public static boolean hasCacheVal(fn any){
+		//This is part of the code from step(...)
+		return any.isHaltedAbove() && any.cacheKey() != null;
+	}
+	
+	/** <isZeroKelvin,func,param,return> caching: <?todoChooseADesign?,c.cacheKey.L,c.cacheKey.R,(c.L c.R)>.
+	If fn represents a <func,param,returnAkaCacheval> then returns returnAkaCacheval, else returns null.
+	You may at any time CacheFuncParamReturn.put(any, cacheVal(any)) if both are nonnull, which step(...) already does
+	so this func is for research purposes of redesigning step to do the same universalFunc but to take a second fn as param
+	which would be used instead of CacheFuncParamReturn.get.
+	CacheFuncParamReturn would still have a Map of that cache but the caller of step would use CacheFuncParamReturn
+	instead of step calling it directly. The benefit of that is it makes selfEmulation easier
+	and might sync better in p2p network, but probably p2p network will only use callpairs (func param) which are always halted,
+	instead of callquads (func param stack cacheKey isHalted isParentsFunc) which are the calculations between callpairs.
+	Callpairs are callquads whose stack and cacheKey are null and isHalted is true and isParentsFunc is false.
+	If isDone(x) then it returns itself so cacheKey==x and cacheVal==x,
+	so such a cache would be the statement (L x (R x))->x which is always true so no need to cache it,
+	so CacheFuncParamReturn does not allow halted cacheKey.
+	*/
+	public static fn cacheVal(fn any){
+		//This is part of the code from step(...)
+		if(hasCacheVal(any)){
+			return isStackBottom(any) ? any : truncateToStackBottom(any);
+		}
+		return null; //either represents <(L any),(R any),any> which is trivially true, or does not represent a <func,param,return>
+	}
+	
+	/*
+	(fn,fn)->fn which are all bigO(1) and can do debuggerStepInto or debuggerStepOver_ifCorrectCache.
+	VERY IMPORTANT CUZ THIS SIMPLIFIES fn.java to do EVERYTHING as (fn,fn)->fn which are all bigO(1) like debuggerStepInto or debuggerStepOver_ifCorrectCache.
+	TODO add 2 bits in callquad which are only used to say its (STEP thisWithThose2BitsOff) or (LAZYCALL thisWithThose2BitsOff),
+	(UPDATE: no, just use normal call and check if left is one of those callquad opcodes that starts with (. (..)),
+	and allow any call up to 5 params of those where params are . or (..) but the one (fn,fn)->fn callquad step func goes to REFUSE_TO_DO_THAT_OP if past),
+	(along with the existing 2 bits of isHalted and isParentsFunc and maybe isLeaf),
+	so gamewebedges are all (callquad,callquad)->callquad. Only those gamewebedges curry 2.
+	Other gamewebedges only curry 1 so dont need those bits.
+	Those gamewebEdges will be somewhere in (. (..) ...have up to 16 opcodes here where first param is (..),
+		leaving other possible first params (than . and (..) for future expansion)).
+	CacheFuncParamReturn will still have to do dedup but <isDeterministic,func,param,return> caching will be done by these gamewebedges.
+	GamewebEdges:
+	* (callQuadL_orJustUseTheSameLFuncMaybe fn)
+	* (callQuadR_orJustUseTheSameRFuncMaybe fn)
+	* (callQuadStack fn)
+	* (callQuadCacheKey fn)
+	* (callQuadIsLeaf_orJustUseTheSameIsleafFuncMaybe fn)
+	* (callQuadIsParentsFunc fn)
+	* (callQuadIsParentsParam fn)
+	* (callQuadIsHalted fn)
+	* (callQuadHasCacheVal fn)
+	* (truncateToStackBottom fn)
+	* (stackDown fn) //repeat until stack==null if want to call 2 lazys on eachother.
+	* ((step fn) fn) //now can do eval with very few steps if have cache fns so can debugStepOver vs debugStepInto
+	* ((lazyCall fn) fn) -> theLazyCall else a gamewebEdge meaning callNotAllowedCuzNotStackBottoms
+	These only exist at callquad level which are for evaling and halted instead of something that lambdas can call, except using nondet for reflection.
+	...
+	OLD:
+	TODO do all expensive ops, and all calls of nondet, as caller of step creates a fn possibleCache of the <func,param,return>
+	of those calculations to do, and pays for it with NondetNode.gasNow, before calling step.
+	Step is always deterministic, given the inputs, but step doesnt check if possibleCache was derived deterministicly or nondeterministicly,
+	so its only a deterministic transition.
+	FIXME since <func,param,return> caching will be represented in fn,
+	and need it to be <isDeterministic,func,param,return>, need to store that bit in fn but only the fns used as such cache,
+	not in any halted fns. Since I'm still planning to keep NondetNode.isDeterministic,
+	and wanted to keep it out of the fns, this might be hard to design, but probably it can be done
+	since its doing the same thing as the other step func which calls CacheFuncParamReturn directly and has isDeterministic param of step func.
+	GAMEWEB-EDGES (having more params that normal gamewebedges so maybe they're not called that anymore?):
+	* truncateToStackBottom(fn)
+	* stackDown(fn) //repeat until stack==null if want to call 2 lazys on eachother.
+	* step(fn,fn) //now can do eval with very few steps if have cache fns so can debugStepOver vs debugStepInto
+	* lazyCall(fn,fn) -> theLazyCall else ERROR if !canCall(fn,fn)
+		//I want to somehow get rid of that disallowed combo, which stackBottom (not bigO(1)) or afterEval (is bigO(1)) could do.
+	I might want to merge all these into a single func of (callQuad,callQuad)->callQuad,
+		and to do that I'd need a few of these gamewebedges to be special callquads, maybe storing a few bits of extra data per callquad to say which op it is
+		such as an op that curries the first of a lazyCall,
+		or maybe allow creating PAIR of any 2 callquads even if they're lazy its a lazy pair, and all these funcs that take 2 params act on a pair?
+		No cuz would still need to choose which of these funcs.
+	
+	/** same as step(fn,boolean) but doesnt call or add to CacheFuncParamReturn, which caller may do with the param and return values.
+	FIXME test this.
+	possibleCache can be null to not use cache this step.
+	possibleCache must contain the nondet call's result if it is to be made at all???
+	possibleCache can be CacheFuncParamReturn.getCacheFn(truncateToStackBottom(evalingState))???
+	If hasCacheVal(the returned fn) then can put that into CacheFuncParamReturn as CacheFuncParamReturn.put(ret.cacheKey(), truncateToStackBottom(ret)),
+		but TODO if it were stored directly instead of having to put it, it would be just CacheFuncParamReturn.put(ret).
+	FIXME could this way of storing cache in fn by creating a fn, cause infiniteloop in CacheFuncParamReturn?
+	TODO optimize, choose if this is a better way to do it, than the step func which calls CacheFuncParamReturn directly,
+	cuz this way is slower but also seems more directly related to the math of the system design.
+	*
+	public static fn step(fn evalingState, fn possibleCache){
+		countSteps_todoRemoveThisVar++;
+		if(lgStep) lg("start step: "+evalingState);
+		if(evalingState.isDone()){
+			if(Log.lgNoOp) lg("Why are you calling step on an isDone? "+evalingState);
+			return evalingState;
+		}
+		fn ret = null;
+		fn allCurriesExceptLast = L(evalingState), lastParam = R(evalingState);
+		if(evalingState.isHaltedAbove()){
+			//Usually a nonleaf, but if n isLeaf, it will be here, even though leaf.func is identityFunc and leaf.param is leaf.
+			if(isStackBottom(evalingState)){
+				if(evalingState.cacheKey() != null){
+					if(lgStep){
+						fn val = evalingState;
+						lg("SKIP_CUZ_fn_possibleCache Write cache (end), key="+evalingState.cacheKey());
+						lg("SKIP_CUZ_fn_possibleCache Write cache (end), val="+val);
+					}
+					//CacheFuncParamReturn.put(evalingState.cacheKey(), val);
+				}
+				ret = evalingState;
+			}else{ //return down the stack. This is either L/func or R/param child of its parent (1 lower on stack).
+				if(evalingState.cacheKey() != null){
+					if(lgStep){
+						fn val = truncateToStackBottom(evalingState);
+						lg("SKIP_CUZ_fn_possibleCache Write cache (mid), key="+evalingState.cacheKey());
+						lg("SKIP_CUZ_fn_possibleCache Write cache (mid), val="+val);
+					}
+					//CacheFuncParamReturn.put(evalingState.cacheKey(), val);
+				}
+				if(evalingState.isParentsFunc()){
+					boolean isHalted = false;
+					boolean isParentsFunc = evalingState.stack().isParentsFunc();
+					fn func = truncateToStackBottom(evalingState);
+					fn param = evalingState.stack().param();
+					fn stack = evalingState.stack().stack();
+					fn cacheKey = evalingState.stack().cacheKey();
+					ret = node(isHalted, isParentsFunc, func, param, stack, cacheKey);
+				}else{ //n.isParentsParam
+					boolean isHalted = false;
+					boolean isParentsFunc = evalingState.stack().isParentsFunc();
+					fn func = evalingState.stack().func();
+					fn param = truncateToStackBottom(evalingState);
+					fn stack = evalingState.stack().stack();
+					fn cacheKey = evalingState.stack().cacheKey();
+					ret = node(isHalted, isParentsFunc, func, param, stack, cacheKey);
+				}
+			}
+		}else if(!allCurriesExceptLast.isHaltedAbove()){ //recurse into L(n)
+			boolean isHalted = false;
+			boolean isParentsFunc = true;
+			fn func = allCurriesExceptLast.func();
+			fn param = allCurriesExceptLast.param();
+			fn stack = evalingState;
+			fn cacheKey = allCurriesExceptLast.cacheKey(); //FIXME should this be null?
+			ret = node(isHalted, isParentsFunc, func, param, stack, cacheKey);
+		}else if(!lastParam.isHaltedAbove()){ //recurse into R(n)
+			boolean isHalted = false;
+			boolean isParentsFunc = false;
+			fn func = lastParam.func();
+			fn param = lastParam.param();
+			fn stack = evalingState;
+			fn cacheKey = lastParam.cacheKey(); //FIXME should this be null?
+			ret = node(isHalted, isParentsFunc, func, param, stack, cacheKey);
+		}else{ //do the main logic here instead of recursing into func, param, or going up stack
+			
+			//if(cacheFuncParamReturn){
+			if(cacheFuncParamReturn && possibleCache != null){
+				//About to eval (haltedX haltedY) which itself is not halted, but first check <func,param,return> cache
+				//with the normed form as if its a stackBottom.
+				fn truncateToStackBottom = truncateToStackBottom(evalingState);
+				//fn cachedEval = CacheFuncParamReturn.get(truncateToStackBottom);
+				if(truncateToStackBottom == possibleCache.cacheKey()){ //could instead check if their Ls and Rs equal, faster than truncateToStackBottom
+					fn cacheVal = cacheVal(possibleCache);
+					if(cacheVal != null){
+						if(lgStep) lg("Returning from fn possibleCache. Before restack: "+cacheVal);
+						ret = setStack(cacheVal, evalingState.stack(), evalingState.isParentsFunc());
+						if(lgStep) lg("Returning from fn possibleCache: "+ret);
+						return ret; //FIXME move the code below the IF into ELSE so ret isnt returned until end of func.
+					}
+				}else{
+					if(lgStep) lg("possibleCache.cacheKey() is not the call happening here so not using it");
+				}
+				//TODO update this comment, was written for a different universalFunc:
+				//Must also put in CacheFuncParamReturn after it returns.
+				//Thats just an optimization, but without it, it would take years to multiply 2 longs, something that normally takes 10 nanoseconds.
+				//With that optimization, its BigO is the same as a RandomAccessMachine,
+				//still a big constant cost, but with other optimizations I expect it to be competitive in the real world
+				//as a number crunching software using GPU grids and just barely fast enough for CPU-like uses cuz of unusual caching needs.
+				//throw new Error("FIXME must also put in CacheFuncParamReturn after it returns (use Node.cacheKey, so not every time something return, such as not in the ((xz)(yz)) steps (which can recurse endlessly) of (S x y z) but right after (whatXZReturns whatYZReturns) returns, map cacheKey to that, for example.");
+			}
+			
+			//In practical implementations, a node will know most of this stuff cached recursively from its L,
+			//such as which of 16 ops it is, number of curries left before eval, and a pointer to its funcBody if its a bigCall,
+			//so it wont have to read all 15 params here.
+			fn list = evalingState;
+			fn p = R(list);
+			list = L(list);
+			fn o = R(list);
+			list = L(list);
+			fn n = R(list);
+			list = L(list);
+			fn m = R(list);
+			list = L(list);
+			fn l = R(list);
+			list = L(list);
+			fn k = R(list);
+			list = L(list);
+			fn j = R(list);
+			list = L(list);
+			fn i = R(list);
+			list = L(list);
+			fn h = R(list);
+			list = L(list);
+			fn g = R(list);
+			list = L(list);
+			fn f = R(list);
+			list = L(list);
+			fn e = R(list);
+			list = L(list);
+			fn d = R(list);
+			list = L(list);
+			fn c = R(list);
+			list = L(list);
+			fn b = R(list);
+			fn maybeLeaf = L(list);
+			if(!maybeLeaf.isLeaf()){
+				//Example: (..)
+				//Nothing to do except mark that theres nothing to do so caller knows to do the next thing.
+				ret = setIsHalted(evalingState, true);
+			}else{
+				
+				if(evalingState.cacheKey() == null){
+					//FIXME I dont know if this is the right cacheKey logic
+					evalingState = setCacheKey(evalingState, truncateToStackBottom(evalingState));
+					if(lgStep) lg("After setCacheKey: "+evalingState);
+				}
+
+				
+				//The main logic of the 15 param universalFunc
+				
+				int fourBitOpcode = ((c==u)?0:8)|((d==u)?0:4)|((e==u)?0:2)|((f==u)?0:1);
+				fourBitOpcode &= 0xf; //has no effect on logic but might help JVM optimize the switch
+				switch(fourBitOpcode){
+				case 0: //op0 (u u u u u f g h i j k l m n o p) -> infiniteLoop (such as (S I I (S I I)) in strictMode, else (VM_nondet (pair (u u u u u f g h i j k l m n o) p)) as a way to request things from the occamsfuncer VM. //nondet
+					if(isDeterministic){
+						ret = lazyInfiniteLoop;
+					}else{
+						//FIXME remove isDeterministic param and use possibleCache to contain the nondet call (similar to Bloom.Var)???
+						//FIXME how is this step func supposed to know the cost of the nondet op, stored in NondetNode.gasNow which points at fn???
+						
+						//ret = Nondet.call(lastParam); //ignore all params except last
+						ret = Nondet.call(P.f(allCurriesExceptLast).f(lastParam)); //can do it either way with this, can still get lastParam out of it.
+					}
+				case 1: //op1  (u u u u u ^ g h i j k l m n o p) -> (n (pair (u u u u u ^ g h i j k l m n o) p)) //bigCall1, (p)<br>
+					//In practical implementations, will create the pair call already halted since we know it halts, using cp func like in ocfn2.
+					ret = n.f(P.f(allCurriesExceptLast).f(lastParam));
+				break; case 2: //op2  (u u u u ^ u g h i j k l m n o p) -> (m (pair (u u u u ^ u g h i j k l m n o) p)) //bigCall2, (o p)<br>
+					ret = m.f(P.f(allCurriesExceptLast).f(lastParam));
+				break; case 3: //op3  (u u u u ^ ^ g h i j k l m n o p) -> (l (pair (u u u u ^ ^ g h i j k l m n o) p)) //bigCall3, (n o p), aka (... k/comment l/funcBody m/context n o p)<br>
+					ret = l.f(P.f(allCurriesExceptLast).f(lastParam));
+				break; case 4: //op4  (u u u ^ u u g h i j k l m n o p) -> (k (pair (u u u ^ u u g h i j k l m n o) p)) //bigCall4, a lambda of 4 params (m n o p) where the k/funcBody param can get those params<br>
+					ret = k.f(P.f(allCurriesExceptLast).f(lastParam));
+				break; case 5: //op5  (u u u ^ u ^ g h i j k l m n o p) -> (j (pair (u u u ^ u ^ g h i j k l m n o) p)) //bigCall5, a lambda of 5 params (l m n o p) where the j/funcBody param can get those params<br>
+					ret = j.f(P.f(allCurriesExceptLast).f(lastParam));
+				break; case 6: //op6  (u u u ^ ^ u g h i j k l m n o p) -> (i (pair (u u u ^ ^ u g h i j k l m n o) p)) //bigCall6, (k l m n o p), aka (... h/comment i/funcBody j/context k l m n o p)<br>
+					ret = i.f(P.f(allCurriesExceptLast).f(lastParam));
+				break; case 7: //op7  (u u u ^ ^ ^ g h i j k l m n o p) -> (h (pair (u u u ^ ^ ^ g h i j k l m n o) p)) //bigCall7, (j k l m n o p)<br>
+					ret = h.f(P.f(allCurriesExceptLast).f(lastParam));
+				break; case 8: //op8  (u u ^ u u u g h i j k l m n o p) -> o //T, the K in SKI Lambda Calculus
+					ret = o;
+				break; case 9: //op9  (u u ^ u u ^ g h i j k l m n o p) -> p //FI, does False and IdentityFunc depending on number of curries
+					ret = p;
+				break; case 10: //op10 (u u ^ u ^ u g h i j k l m n o p) -> (VM_L p) //L, get left child, its func, where (L x (R x)) equals x for all possible x
+					ret = L(p);
+				break; case 11: //op11 (u u ^ u ^ ^ g h i j k l m n o p) -> (VM_R p) //R, get right child, its param, where (L x (R x)) equals x for all possible x
+					ret = R(p);
+				break; case 12: //op12 (u u ^ ^ u u g h i j k l m n o p) -> (VM_IsLeaf p) aka [T if p is u, else F] //IsLeaf
+					ret = (p==u)?T:F;
+				break; case 13: //op13 (u u ^ ^ u ^ g h i j k l m n o p) -> (n p (o p)) //S, as in SKI Lambda Calculus
+					ret = n.f(p).f(o.f(p));
+				break; case 14: //op14 (u u ^ ^ ^ u g h i j k l m n o p) -> (p n o) //Pair, such as (Pair n o) is halted and (Pair n o T)->n and (Pair n o F)->o
+					ret = p.f(n).f(o);
+				break; case 15: //op15 (u u ^ ^ ^ ^ g h i j k l m n o p) -> infiniteLoop (such as (S I I (S I I)) //Typeval, a semantic such as for type/n is "image/jpeg" and val/o is bitstring of that image, ignoring p. Any objects, not just strings and bitstrings.
+					ret = lazyInfiniteLoop;
+				}
+			}
+			if(!ret.isHaltedAbove() && L(ret).isHaltedAbove() && R(ret).isHaltedAbove()){
+				ret = setCacheKey(ret, truncateToStackBottom(ret));
+			}
+			if(evalingState.stack() != null){
+				ret = node(ret.isHaltedAbove(), evalingState.isParentsFunc(),
+					ret.func(), ret.param(), evalingState.stack(), evalingState.cacheKey()); //put back into stack 
+			}
+		}
+		if(lgStep) lg("step returning "+ret);
+		testForSimpleErrorsInAnyNodeInVM(ret);
+		return ret;
+	}
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public static long countSteps_todoRemoveThisVar;
 	
 	/** See occamsfuncerSpec.txt for the 16 opcodes. As of 2020-8-17 I'm still making small adjustments to them but will finalize the spec soon.
@@ -211,32 +515,22 @@ public class OcfnUtil{
 	public static fn step(fn evalingState, boolean isDeterministic){
 		countSteps_todoRemoveThisVar++;
 		if(lgStep) lg("start step: "+evalingState);
+		if(evalingState.isDone()){
+			if(Log.lgNoOp) lg("Why are you calling step on an isDone? "+evalingState);
+			return evalingState;
+		}
 		fn ret = null;
 		fn allCurriesExceptLast = L(evalingState), lastParam = R(evalingState);
 		if(evalingState.isHaltedAbove()){
 			//Usually a nonleaf, but if n isLeaf, it will be here, even though leaf.func is identityFunc and leaf.param is leaf.
 			if(isStackBottom(evalingState)){
-				
-				
-				
-				
-				
-				
 				if(evalingState.cacheKey() != null){
 					fn val = evalingState;
-					//fn val = truncateToStackBottom(evalingState);
 					if(lgStep) lg("Write cache (end), key="+evalingState.cacheKey());
 					if(lgStep) lg("Write cache (end), val="+val);
 					CacheFuncParamReturn.put(evalingState.cacheKey(), val);
-					//ret = val;
-				}//else{
-				//	ret = evalingState;
-				//}
+				}
 				ret = evalingState;
-				
-				
-				//FIXME
-				
 			}else{ //return down the stack. This is either L/func or R/param child of its parent (1 lower on stack).
 				if(evalingState.cacheKey() != null){
 					fn val = truncateToStackBottom(evalingState);
@@ -247,7 +541,6 @@ public class OcfnUtil{
 				if(evalingState.isParentsFunc()){
 					boolean isHalted = false;
 					boolean isParentsFunc = evalingState.stack().isParentsFunc();
-					//boolean isTruncating = TODO;
 					fn func = truncateToStackBottom(evalingState);
 					fn param = evalingState.stack().param();
 					fn stack = evalingState.stack().stack();
@@ -256,7 +549,6 @@ public class OcfnUtil{
 				}else{ //n.isParentsParam
 					boolean isHalted = false;
 					boolean isParentsFunc = evalingState.stack().isParentsFunc();
-					//boolean isTruncating = TODO;
 					fn func = evalingState.stack().func();
 					fn param = truncateToStackBottom(evalingState);
 					fn stack = evalingState.stack().stack();
@@ -290,7 +582,7 @@ public class OcfnUtil{
 				if(cachedEval != null){
 					if(lgStep) lg("Returning from cache. Before restack: "+cachedEval);
 					//error: ret = setStack(cachedEval, evalingState.cacheKey(), evalingState.isParentsFunc());
-					error: ret = setStack(cachedEval, evalingState.stack(), evalingState.isParentsFunc());
+					ret = setStack(cachedEval, evalingState.stack(), evalingState.isParentsFunc());
 					if(lgStep) lg("Returning from cache: "+ret);
 					return ret; //FIXME move the code below the IF into ELSE so ret isnt returned until end of func.
 				}
@@ -536,8 +828,14 @@ public class OcfnUtil{
 		return isStackBottom(x) && isStackBottom(y);
 	}
 	
-	public static fn op(int fourBitOpcode){
-		return bootF(u, u, ((fourBitOpcode&8)==0)?u:uu, ((fourBitOpcode&4)==0)?u:uu, ((fourBitOpcode&2)==0)?u:uu, ((fourBitOpcode&1)==0)?u:uu);
+
+	/** The normal ops are 0-15. The metaOps are 16-31 (unsure if will fill that range or leave some for future expansion).
+	The first param is . for normal ops, (..) for metaOps, and may be any other value for future expansion.
+	MetaOps are deterministic reflection of certain standardized VM ops, including step, lazyCall, cacheKey.
+	*/
+	public static fn op(int fiveBitOpcode){
+		if(fiveBitOpcode < 0 || fiveBitOpcode > 31) throw new Error("Invalid op: "+fiveBitOpcode);
+		return bootF(u, ((fiveBitOpcode&16)==0)?u:uu, ((fiveBitOpcode&8)==0)?u:uu, ((fiveBitOpcode&4)==0)?u:uu, ((fiveBitOpcode&2)==0)?u:uu, ((fiveBitOpcode&1)==0)?u:uu);
 	}
 	
 	/** 1-7 params, not including comment and context */
@@ -990,5 +1288,129 @@ public class OcfnUtil{
 		}
 		p[15] = R; //get lastParam from (pair allCurriesExceptLast lastParam)
 	}
+	
+	//TODO add a child to callquad that tells if its callpair vs callquad/meta.
+	
+	//TODO implement meta ops in step func, and upgrade the step func to be (fn,fn)->fn when both are meta ops.
+	
+	//TODO choose an order
+	
+	/** The lazyCall and step ops are the only 2 metaOps that take more than 1 param (2 params each). Might become multiple step calls depending on DedupLevel.
+	((lazyCall x) y), returns metaNil if x.stack != null || y.stack != null, else returns the lazy callQuad of them.
+	*/
+	public static final fn lazyCall = op(22); //FIXME should this pad leafs up to 15-params params?
+	
+	/**  The lazyCall and step ops are the only 2 metaOps that take more than 1 param (2 params each). Might become multiple step calls depending on DedupLevel.
+	((step callquadAsEvalingState) callquadAsCache)
+	calls equals (which is optimized to bigO(1) if == else is deep big cost amortized to constant cost but large constant)
+	to check if callquadAsCache is the cache its looking for, and if it is, uses its OcfnUtil.cacheVal(fn).
+	*/
+	public static final fn step = op(23); //FIXME should this pad leafs up to 15-params params?
+	/*TODO  /*Cuz oof the need for step to chck equality of cach
+	I might want 2 or 3 step funcs, 1 for each of the top 2 DedupLevels (those with ids shareable across p2p network)
+	and maybe also the third DedupLevel (dedupPerCallquadOrPtrIntoBloblazy) which would make
+	it something-similar-to-or-maybe-is nondeterministic but thats how the caching is normally done.
+	I can have more opcode space  if needed but prob
+	*/
+	
+	/** true if its a halted callpair, else is a metaOp or callquad (or possible future expansion of other first params than . or (..)). *
+	public static final fn isCallPair = op(16); //FIXME should this pad leafs up to 15-params params?
+	
+	/** aka isDeterministic. true if has only been affected by things that can be derived from the universalFunc,
+	false if theres any nondet or bloom.var aka arbitrary making up of values for calls
+	that as long as those only give at most 1 value for every possible call every time it will still work consistently
+	but is no longer zeroKelvin aka only 1 possible state so 0 entropy, where entropy is log of number of possible states
+	and temperature is closely related to entropy somehow (TODO look more into that to figure out if this is an accurate name).
+	*
+	public static final fn isZeroKelvin = op(17); //FIXME should this pad leafs up to 15-params params?
+	
+	/** returned when calling a metaOp on some combo that isnt allowed, like ((lazyEval x) y) where x andOr y are not stackBottoms.
+	This is the deterministic result of such ops, not throwing, and not failing, just what its supposed to do.
+	(metaNil anything)->metaNil.
+	*
+	public static final fn metaNil = op(18); //FIXME should this pad leafs up to 15-params params?
+	
+	public static final fn isCallPair = op(19); //FIXME should this pad leafs up to 15-params params?
+	
+	/** asCallPair and asCallQuad translate between 2 sides of the same (..) forest, each with as many childs as callquad, read by isCallPair. *
+	public static final fn asCallPair = op(20); //FIXME should this pad leafs up to 15-params params?
+	
+	/** asCallPair and asCallQuad translate between 2 sides of the same (..) forest, each with as many childs as callquad, read by isCallPair.
+	the meta form of a callPair, else metaNil if !isDone
+	*
+	public static final fn asCallQuad = op(21); //FIXME should this pad leafs up to 15-params params?
+	
+	public static final fn cacheKey = op(24); //FIXME should this pad leafs up to 15-params params?
+	
+	public static final fn stack = op(25); //FIXME should this pad leafs up to 15-params params?
+	
+	/** get param's stackFunc else metaNil if it doesnt have that *
+	public static final fn stackFunc = op(26); //FIXME should this pad leafs up to 15-params params?
+	
+	/** get param's stackParam else metaNil if it doesnt have that *
+	public static final fn stackParam = op(27); //FIXME should this pad leafs up to 15-params params?
+	
+	/** repeat this to get to a stackBottom, aka canCall(fn,fn) on 2 stackBottoms even if they're lazyEvals,
+	but we cant have stackBottom as an op cuz its not bigO(1) cuz its a var size loop of calling stackDown.
+	Can have it as a callPair that calls stackDown in such a loop.
+	*
+	public static final fn stackDown = op(28); //FIXME should this pad leafs up to 15-params params?
+	
+	/** get param's isParentsFunc *
+	public static final fn isParentsFunc = op(29); //FIXME should this pad leafs up to 15-params params?
+	
+	/** get param's isParentsParam *
+	public static final fn isParentsParam = op(30); //FIXME should this pad leafs up to 15-params params?
+	
+	/** if param lacks cacheKey this is T, else F *
+	public static final fn isCacheKeyNull = op(31); //FIXME should this pad leafs up to 15-params params?
+	
+	/*TODO some of those meta ops are deriveable from combos of callpairs and fewer ops.
+	Probably need to add meta ops for a few things forget. read the docs i wrote recently in phone, mindmap, etc,
+	then copy that here.
+	*/
+	
+	/** see OcfnUtil.cacheVal(fn) the value of fn.cacheKey *
+	public static final fn hasCacheVal = TODO is this just truncateToStackBottom?;
+	public static final fn truncateToStackBottom = TODO?;
+	*/
+			
+	
+	/** true if have proven, and choose to use (instead of cacheMiss metaop
+	forkEditing this to false, or not cacheHit metaOp forkEditing this to true else some
+	constant whose isUseCacheHit is false):
+	*
+	public static final fn isUseCacheHit;
+	public static final fn cacheHit;
+	public static final fn cacheMiss;
+	public static final fn step;
+	public static final fn stepIn;
+	public static final fn stepOver;
+	quote from fn.java 2020-9-9[
+	SOLUTION:
+		There will be these 2 metaOps, one of which must check forest shape equality
+		and is constant cost if everything is instant hashed but in practice
+		there will be lazy dedup so some parts will trigger lazyEval of dedup,
+		but nondeterministic code can ask if they're known to be equal vs unknown if equal vs nonequal.
+		The important part is that every (fn,fn)->fn halts in average constant time.
+		The 2 new metaOps are...
+		cacheHit //step would do debugStepOver
+		cacheMiss //step would do debugStepInto
+		I'm undecided which of these should be merged: [cacheHit cacheMiss step stepIn stepOver].
+		This design requires another bit (isUseCacheHit) child of all forest nodes, thats 1 only if its proven they are a cacheHit.
+		A cacheHit is a certain (TODO choose a datastruct) combo of evalingState and possibleCache.
+		cacheMiss forkEdits that datastruct's isUseCacheHit to false.
+		cacheHit forkEdits that datastruct's isUseCacheHit to true IF that .equals
+			ELSE returns some constant whose isUseCacheHit is false.
+			WARNING: the cacheHit metaOp has average constant cost but
+	]
+	
+	TODO testcases where callpairs call step, lazyCall, asCallPair, asCallQuad, stackDown, cacheKey, stack, etc.
+	
+	TODO after merging the bloomfilter ideas and meta ops into fn,
+	remove Bloom.java and some of the other stuff in occamsfuncer._todoOrganizeThese, but keep the comments.
+	Its important comment in Bloom.java.
+	*/
 
 }
+

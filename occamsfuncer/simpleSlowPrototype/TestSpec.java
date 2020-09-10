@@ -1,7 +1,7 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package occamsfuncer.spec;
-import static occamsfuncer.spec.OcfnUtil.*;
-import static occamsfuncer.spec.Log.*;
+package occamsfuncer.simpleSlowPrototype;
+import static occamsfuncer.simpleSlowPrototype.Log.*;
+import static occamsfuncer.simpleSlowPrototype.OcfnUtil.*;
 
 //import static immutable.util.TestUtil.*;
 import java.util.Arrays;
@@ -697,6 +697,12 @@ public class TestSpec{
 			testIfElse();
 			testLogic();
 			testEquals();
+			
+			/*TODO testcases where callpairs call step, lazyCall, asCallPair, asCallQuad, stackDown, cacheKey, stack, etc.
+			All existing testcases will be the same. The meta ops only add behaviors.
+			Its most important to use a FPR <isDeterministic,func,param,return> which is a callquad (see OcfnUtil.cacheVal(fn) the value of fn.cacheKey)
+			deterministicly from callpairs, a combo of a few of those.
+			*/
 			
 			/*testIFInBigcall();
 			testChurchEncodingOfArithmetic();

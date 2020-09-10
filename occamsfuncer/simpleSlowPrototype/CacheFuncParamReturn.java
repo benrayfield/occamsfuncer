@@ -1,12 +1,28 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package occamsfuncer.spec;
-import static occamsfuncer.spec.OcfnUtil.*;
+package occamsfuncer.simpleSlowPrototype;
+import static occamsfuncer.simpleSlowPrototype.OcfnUtil.*;
+
 import java.util.WeakHashMap;
 
 import occamsfuncer.fn;
 
 public class CacheFuncParamReturn{
 	private CacheFuncParamReturn(){}
+	
+	/*CacheFuncParamReturn should be reduced to only doing dedup but not <isDeterministic,func,param,return> (fpr as callquad, see OcfnUtil.cacheVal(fn)),
+	and the rest will be done by fn possibleCache param as in OcfnUtil.step(fn,fn)
+	but redesigning past that see the meta ops fn OcfnUtil.lazyCall and fn OcfnUtil.step etc.
+	*/
+	
+	/*TODO??? redesign CacheFuncParamReturn to use OcfnUtil.cacheVal(fn), to use fn as <func,param,return>,
+	so caller of OcfnUtil.step(fn evalingState,fn possibleCache) would get possibleCache from here.
+	The translation is, possibleCache==OcfnUtil.setCacheKey(map.get(cacheKey),cacheKey).
+	
+	Returns null if not cached.
+	*/
+	public static fn getCacheFn(fn cacheKey){
+		return OcfnUtil.setCacheKey(map.get(cacheKey),cacheKey);
+	}
 	
 	/*
 	FIXME either do this (TODO below) asap or prove that if java garbcol is always continuous that it wont lose any cache items

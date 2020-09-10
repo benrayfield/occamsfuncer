@@ -1,7 +1,7 @@
 /** Ben F Rayfield offers this software opensource MIT license */
 package occamsfuncer.impl.fn;
-import occamsfuncer.fn;
-import occamsfuncer.fn.Compiled;
+import java.util.Set;
+import occamsfuncer.*;
 
 public class NondetNode implements fn{
 	
@@ -36,10 +36,6 @@ public class NondetNode implements fn{
 		this.detStack = detStack;
 	}
 
-	public fn apply(fn x){
-		throw new Error("TODO");
-	}
-
 	public fn f(fn param){
 		throw new Error("TODO");
 	}
@@ -64,14 +60,6 @@ public class NondetNode implements fn{
 		throw new Error("TODO");
 	}
 
-	public void setCompiled(Compiled c){
-		throw new Error("TODO");
-	}
-
-	public Compiled getCompiled(){
-		throw new Error("TODO");
-	}
-
 	public boolean isLeaf(){
 		throw new Error("TODO");
 	}
@@ -89,6 +77,82 @@ public class NondetNode implements fn{
 	}
 
 	public boolean isParentsParam(){
+		throw new Error("TODO");
+	}
+
+	public void setCompiled(Compiled c){
+		throw new UnsupportedOperationException("NondetNode probably shouldnt have Compiled??? Only Call etc should.");
+	}
+
+	public Compiled getCompiled() {
+		throw new UnsupportedOperationException("NondetNode probably shouldnt have Compiled??? Only Call etc should.");
+	}
+
+	public DedupLevel dedupLevel(){
+		return DedupLevel.allowAnyDup;
+	}
+
+	public fn setDedupLevel(DedupLevel d){
+		throw new Error("TODO");
+	}
+
+	public Set<fn> twins(){
+		throw new Error("TODO");
+	}
+
+	public Object unwrap(){
+		throw new Error("TODO");
+	}
+
+	public long zigzag(){
+		throw new Error("TODO");
+	}
+
+	public boolean isMeta(){
+		throw new Error("TODO");
+	}
+
+	public boolean bitAt(long bitIndex){
+		throw new Error("TODO");
+	}
+
+	public byte byteAt(long bitIndex){
+		throw new Error("TODO");
+	}
+
+	public short shortAt(long bitIndex){
+		throw new Error("TODO");
+	}
+
+	public char charAt(long bitIndex){
+		throw new Error("TODO");
+	}
+
+	public int intAt(long bitIndex){
+		throw new Error("TODO");
+	}
+
+	public long longAt(long bitIndex){
+		throw new Error("TODO");
+	}
+
+	public float floatAt(long bitIndex){
+		throw new Error("TODO");
+	}
+
+	public double doubleAt(long bitIndex){
+		throw new Error("TODO");
+	}
+
+	public long bize(){
+		throw new Error("TODO");
+	}
+
+	public boolean isCbt(){
+		throw new Error("TODO");
+	}
+
+	public boolean isBitstring(){
 		throw new Error("TODO");
 	}
 

@@ -1,5 +1,6 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package occamsfuncer.spec;
+package occamsfuncer.simpleSlowPrototype;
+import java.util.Set;
 import occamsfuncer.fn;
 
 public final class Node implements fn{
@@ -182,6 +183,77 @@ public final class Node implements fn{
 
 	public Compiled getCompiled(){
 		throw new UnsupportedOperationException("Spec doesnt support optimizations other than whats needed for step func to be BigO(1).");
+	}
+
+	/** null means dont know of any equal forest shapes as this node. If nonnull the set would have to include this Node */
+	public Set<fn> twins(){
+		return null;
+	}
+
+	/** dont use this optimization in this simpleSlowPrototype/spec implementation */
+	public Object unwrap(){
+		return null;
+	}
+
+	public long zigzag(){
+		throw new Error("TODO return 1 if isCbt (ptr at root of this tree of bits), else return 0 (not a ptr into a blob). Ptr into a blob would be > 1, but dont do that optimization in this implementation.");
+	}
+
+	public DedupLevel dedupLevel(){
+		return DedupLevel.dedupPerCallQuad;
+	}
+
+	public fn setDedupLevel(DedupLevel d){
+		if(d == dedupLevel()) return this;
+		throw new Error("TODO");
+	}
+
+	public boolean isMeta(){
+		throw new Error("TODO for future metaOp expansion");
+	}
+
+	public boolean bitAt(long bitIndex){
+		throw new Error("TODO cbt");
+	}
+
+	public byte byteAt(long bitIndex){
+		throw new Error("TODO cbt");
+	}
+
+	public short shortAt(long bitIndex){
+		throw new Error("TODO cbt");
+	}
+
+	public char charAt(long bitIndex){
+		throw new Error("TODO cbt");
+	}
+
+	public int intAt(long bitIndex){
+		throw new Error("TODO cbt");
+	}
+
+	public long longAt(long bitIndex){
+		throw new Error("TODO cbt");
+	}
+	
+	public float floatAt(long bitIndex){
+		return Float.intBitsToFloat(intAt(bitIndex));
+	}
+
+	public double doubleAt(long bitIndex){
+		return Double.longBitsToDouble(longAt(bitIndex));
+	}
+	
+	public long bize(){
+		throw new Error("TODO cbt");
+	}
+
+	public boolean isCbt() {
+		throw new Error("TODO cbt");
+	}
+
+	public boolean isBitstring(){
+		throw new Error("TODO cbt");
 	}
 
 }

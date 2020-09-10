@@ -1,5 +1,5 @@
 /** Ben F Rayfield offers this software opensource MIT license */
-package occamsfuncer.spec;
+package occamsfuncer.simpleSlowPrototype;
 import java.util.function.UnaryOperator;
 import occamsfuncer.fn;
 
