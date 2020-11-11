@@ -1,5 +1,5 @@
 
-import static occamsfuncer.impl.optimize.id.IdField.*;
+import static immutable.occamsfuncer.impl.optimize.id.IdField.*;
 
 import java.util.Arrays;
 import java.util.Collections;
