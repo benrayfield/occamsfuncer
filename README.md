@@ -1,5 +1,5 @@
 # occamsfuncer
-a kind of number, an extremely optimizable and scalable universal lambda function meant for number crunching, AI research, and low lag massively multiplayer games that players can redesign into new game types in turingComplete ways by hotswap/forkEditing per bit, per function call pair, etc. Similar to Unlambda, Iota, Jot, Urbit, Ethereum, Ipfs.
+a kind of 512 bit number, an extremely optimizable and scalable universal lambda function for number crunching, AI research, and low lag massively multiplayer games that players can redesign into new game types in turingComplete ways by hotswap/forkEditing per bit, per function call pair, etc. Similar to Unlambda, Iota, Jot, Urbit, Ethereum, Ipfs.
 
 EDIT: testcases at https://github.com/benrayfield/occamsfuncer/blob/master/immutable/occamsfuncer/simpleSlowPrototype/TestSpec.java TODO fix broken links below and rewrite this disorganized text.
 
