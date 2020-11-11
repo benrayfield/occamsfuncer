@@ -117,7 +117,7 @@ The suggested kind of id (TODO), is IPFS compatable though would be very slow on
 
 === VARARG LAMBDAS ===
 
-UPDATE: always 15 params, 7 of which are any lambda of 1-7 params, and if you want more params you derive a function that adds them to a linkedlist and when the linkedlist gets big enough uses it, or just use a linkedlist directly.
+UPDATE: always 15 params. 7 of the 16 opcodes are any lambda of 1-7 params, and if you want more params you derive a function that adds them to a linkedlist and when the linkedlist gets big enough uses it, or just use a linkedlist directly.
 
 OLD...
 
