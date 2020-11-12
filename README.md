@@ -35,6 +35,14 @@ such as in
 		
 		testLRQuine(R);
 		
+		testLRQuine(Equals());
+		
+		testLRQuine(P.e(Equals()).e(L));
+		
+		testLRQuine(P.e(L).e(Equals()));
+		
+		testLRQuine(P.e(Equals().e(Equals())));
+		
 		//TODO more calls of testLRQuine
 		
 	}
