@@ -17,6 +17,10 @@ Target audiences (TODO after its finished):
 
 -- security researchers
 
+-- scientists
+
+-- for the parallel redundantly computed operation of potentially dangerous machines and formal verification
+
 
 Unusual features or common software problems occamsfuncer will solve (TODO some of these havent been built yet):
 
