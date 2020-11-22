@@ -7,21 +7,34 @@ a kind of lazyEvaled shareable 512 bit number (is a working turingComplete syste
 TODO rewrite disorganized pages below (and its not gpu optimized yet, etc (see lazycl))...
 
 Target audiences (TODO after its finished):
+
 -- everyone age 5 and up, for the simpler uses, as drag-and-droppable functions become part of the internet as easily as memes spread, copy/pasteable and you drag a function onto a function to create or find a function, which may do anything such as draw a mustache on whatever picture its dragged to, or may be a game or a bot or a sentence or a popup menu or a musical instrument or could be anything. You cant break it, and it cant break anything else. You cant even crash the browser tab with it using an infinite loop. The space of all possible functions and turing completeness available everywhere by drag-and-drop, even if you dont know which drag-and-drops would do advanced things.
+
 -- AI researchers and number crunchers (such as 3 implementations working together across internet at gaming-low-lag, one in java, one in javascript, one in python, for example, cuz most AI softwares are in python, but prototyping in java for now). Number crunching by lwjgl opencl and GPU.js, for example, is planned, and webasm and javassist for CPU compiling.
+
 -- game designers
+
 -- security researchers
 
 
 Unusual features or common software problems occamsfuncer will solve (TODO some of these havent been built yet):
+
 -- Exponentially threadable. The main kind of controlFlow is λx.λy.λz.((xz)(yz)) which can compute (xz) and (yz) in parallel (but often does not cuz of caching) then call what one returns on what the other returns. No writeLocking cuz immutable.
+
 -- Solves the "too many cooks in one kitchen" problem, and increases Dunbars Number, by everything being immutable down and only changes by forkEdit, down to individual bits or function call pairs and including possible states of a stack and pieces of cache. If code works, then it works forever. Nothing anyone can do to dependencies or which systems connect to which other systems can change the behaviors of any code. The dependencies of a function x are (L x) and (R x), and forall x: (L x (R x)) equals x, down to the universal function (u), and (L u) equals identityFunction and (R u) equals u so (L u (R u)) equals u. Nothing ever changes, but "updates" can be derived by calling functions on functions to create/find functions. If 2 people create the same function, they deterministicly have the same id.
+
 -- Run a file and its on the screen instantly. Avoids manual setup like the plague, so can deploy to end user computers. If its possible to do something automatically, it will be. Plugins are expected to use common access to the hardware the following reusable ways. Expected manual setup is: [allow it thru firewall]. It should port forward thru NAT automatically using UPNP. It should get access to GPU without admin permission, using opencl driver thats already on most computers. It should get access to speakers and microphones thru JSoundCard. It should get access to game controllers thru browser gamepad api, webcam thru browser, phone gyroscope and multitouchscreen thru browser, to localhost server.
+
 -- REWRITE: in the nondeterministic layer (above the deterministic layer) it always halts in some chosen max time such as .03 second or 1 second or .00001 second. That could be done in the deterministic layer but much slower. The nondeterministic layer can make deterministic calls with a max compute/memory cost so if it does return then its the deterministic result, but if it gives up early then thats nondeterministic and so is anything which depends on if it gave up early or not on that.
+
 -- REWRITE: Scientific-Method can be used cuz immutable functions
+
 -- All calculations can be verified by replaying the function call which led to them, with every bit the same even if its done in different operating systems and different kinds of gpus. If they cant compute exactly what the universal function says, it retreats to int math emulating float math in gpus, then if needed it retreats to cpu then if needed retreats to interpreted mode for those parts, and in any case the result has the same id (for all possible kinds of id you might derive). Before using a hardware opcode, such as float64 multiply, its exact bits must be derived by combos of the universal function (such as IEEE754 ops, or any opcode in any digital system can fit in), and at runtime may be optimized to use that hardware op whenever that function is called or the merging of multiple optimizations recursively.
+
 -- Anonymous functions created by anonymous functions have a global id and can be saved on harddrive or shared across internet, even in the middle of a calculation that has not halted yet.
+
 -- REWRITE: high security of data-integrity of the forest shape but not necessarily of preventing read access so for that you might want to derive your preferred kinds of crypto as combos of the universal function.
+
 -- 
 -- 
 -- REWRITE: You cant break it, and it cant break anything else.
@@ -37,25 +50,35 @@ Unusual features or common software problems occamsfuncer will solve (TODO some 
 --
 --
 --
+
 -- REWRITE: debugStepInto or debugStepOver_with_cacheKey
+
 -- 
 -- REWRITE: cant change dependencies that breaks things which use them, but can forkEdit dependencies.
+
 -- 
 -- 
 -- REWRITE: Continuous-Integration on microsecond scale.
+
 -- REWRITE: Dependencies are never wrongly matched, cuz they fit together as a sparse turing machine.
+
 -- 
 
 
 
 Problems occamsfuncer makes worse (TODO some of these havent been built yet):
+
 -- branching is many times more expensive in generated CPU code cuz of unusual cache needs but generated GPU code (in lazycl) will run as fast as usual.
 
 
 Other things about occamsfuncer (TODO some of these havent been built yet):
+
 -- REWRITE: drag and drop func onto func to find/create func. Visual. Usable like toys or serious tools.
+
 -- REWRITE: func param stack cacheKey isLeaf isParentsFuncElseIsParentsParam isHalted
+
 -- REWRITE: the 16 or 32 opcodes, the nondet space, and the first param being something other than u or (u u) as a place for possible future expansion, and the requirement to eval to (S I I (S I I)) aka infiniteLoop if such things are called from determinism layer.
+
 --
 --
 --
