@@ -19,7 +19,7 @@ Target audiences (TODO after its finished):
 
 -- scientists
 
--- for the parallel redundantly computed operation of potentially dangerous machines and formal verification
+-- for the parallel redundantly computed operation of potentially dangerous machines and formal verification, in the same peer to peer networks and turing complete drag-and-drop space as 5 year olds drawing mustaches on cat memes.
 
 
 Unusual features or common software problems occamsfuncer will solve (TODO some of these havent been built yet):
