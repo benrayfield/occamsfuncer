@@ -29,7 +29,7 @@ Target audiences (TODO after its finished):
 
 -- researchers of number theory
 
--- researchers of thermodynamic time and possible ways for peer to peer networks to use multiple existing time servers to more precisely agree on the UTC time in units of int64 nanoseconds since year 1970.0 for example using conditional-probability of multiple conflicting data sources and other possible ways to tune math based on number of possible states of what peers are likely doing.
+-- researchers of thermodynamic time and possible ways for peer to peer networks to use multiple existing time servers to more precisely agree on the UTC time in units of int64 nanoseconds since year 1970.0 for example using conditional-probability of multiple conflicting data sources and other possible ways to tune math based on number of possible states of what peers are likely doing, and similarly for the reduction of lag in games.
 
 -- for the parallel redundantly computed operation of potentially dangerous machines (such as robots, antimatter bottles, dyson rings, graygoo, as its a very tiny piece of universal logic (15 parameters, 16 opcodes defined in first 5, constant cost per compute step forward) and can redesign its own kinds of addressing) and formal verification, in the same peer to peer networks and turing complete drag-and-drop space as 5 year olds drawing mustaches on cat memes.
 
