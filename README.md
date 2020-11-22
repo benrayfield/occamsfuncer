@@ -1,5 +1,5 @@
 # occamsfuncer
-a kind of lazyEvaled shareable 512 bit number (is a working turingComplete system but TODO has not yet derived its main 512 bit form yet), an extremely optimizable and scalable universal lambda function for number crunching, AI research, low lag massively multiplayer games players redesign into new game types in turingComplete ways by hotswap/forkEdit per bit, per function call pair, etc. Similar to Unlambda Iota Jot Urbit Ethereum Ipfs 
+a kind of lazyEvaled shareable 512 bit number (is a working turingComplete system with testcases up to a derived equals function verifying that it equals itself, but TODO has not yet derived its main 512 bit form yet), an extremely optimizable and scalable universal lambda function for number crunching, AI research, low lag massively multiplayer games players redesign into new game types in turingComplete ways by hotswap/forkEdit per bit, per function call pair, etc. Similar to Unlambda Iota Jot Urbit Ethereum Ipfs 
 
 TODO rewrite disorganized pages below (and its not gpu optimized yet, etc (see lazycl))...
 
