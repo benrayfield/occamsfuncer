@@ -21,6 +21,8 @@ Target audiences (TODO after its finished):
 
 -- researchers of how to create stronger pseudorandom numbers or P vs NP
 
+-- researchers of turingComplete gameTheory
+
 -- for the parallel redundantly computed operation of potentially dangerous machines (such as robots, antimatter bottles, dyson rings, graygoo, as its a very tiny piece of universal logic (15 parameters, 16 opcodes defined in first 5, constant cost per compute step forward) and can redesign its own kinds of addressing) and formal verification, in the same peer to peer networks and turing complete drag-and-drop space as 5 year olds drawing mustaches on cat memes.
 
 
