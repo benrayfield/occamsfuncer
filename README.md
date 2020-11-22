@@ -23,6 +23,14 @@ Target audiences (TODO after its finished):
 
 -- researchers of turingComplete gameTheory
 
+-- researchers of possible ways to homomorphicly compute NP logic ops such as nand or [NOT of] the maj op in sha2.
+
+-- researchers of sparse dimensional topology
+
+-- researchers of number theory
+
+-- researchers of thermodynamic time
+
 -- for the parallel redundantly computed operation of potentially dangerous machines (such as robots, antimatter bottles, dyson rings, graygoo, as its a very tiny piece of universal logic (15 parameters, 16 opcodes defined in first 5, constant cost per compute step forward) and can redesign its own kinds of addressing) and formal verification, in the same peer to peer networks and turing complete drag-and-drop space as 5 year olds drawing mustaches on cat memes.
 
 
