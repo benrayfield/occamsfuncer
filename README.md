@@ -13,27 +13,6 @@ Target audiences (TODO after its finished):
 
 -- AI researchers and number crunchers (such as 3 implementations working together across internet at gaming-low-lag, one in java, one in javascript, one in python, for example, cuz most AI softwares are in python, but prototyping in java for now). Number crunching by lwjgl opencl and GPU.js, for example, is planned, and webasm and javassist for CPU compiling.
 
--- game designers
-
--- security researchers
-
--- scientists
-
--- researchers of how to create stronger pseudorandom numbers or P vs NP
-
--- researchers of turingComplete gameTheory
-
--- researchers of possible ways to homomorphicly compute NP logic ops such as nand or [NOT of] the maj op in sha2.
-
--- researchers of sparse dimensional topology
-
--- researchers of number theory
-
--- researchers of thermodynamic time and possible ways for peer to peer networks to use multiple existing time servers to more precisely agree on the UTC time in units of int64 nanoseconds since year 1970.0 for example using conditional-probability of multiple conflicting data sources and other possible ways to tune math based on number of possible states of what peers are likely doing, but probably more efficient would be if there is a radio broadcast like I've heard some cheap clocks automatically set themself by that, but even if so, same applies to the intersection of n such broadcasts and gametheory of what each may broadcast for every possible incoming wave or even a bunch of tiny FPGAs with a cheap infrared light and sensor of that which you might put all over your body and the room around to know relative distances by some frequency is observed how much stronger than some other and perform the service of every node knowing the 3d coordinates of every other node so you wouldnt need a mouse keyboard etc... but thats all speculation at this point. and similarly for the reduction of lag in games. I am curious about can the conversion of electric energy to heat, conditional on some function of streaming incoming signal, apply a small force on time powered by the difference in entropy of basically turning a toaster to heat slower or faster but in some lower lag form of the amplifying of entropy like in music we amplify sound.
-
--- for the parallel redundantly computed operation of potentially dangerous machines (such as robots, antimatter bottles, dyson rings, graygoo, as its a very tiny piece of universal logic (15 parameters, 16 opcodes defined in first 5, constant cost per compute step forward) and can redesign its own kinds of addressing) and formal verification, in the same peer to peer networks and turing complete drag-and-drop space as 5 year olds drawing mustaches on cat memes. Such a well regulated antimatter storage facility might earn back a percent of their costs by selling the realtime control of the movement and vibrating reshaping, within formally-verified limits of safety, that any schmuck on the internet can, for 20 seconds, move the antimatter around and see it on some video-like sensor at low resolution, in exchange for their payment of money exceeding on average the energy cost of causing such movement of the antimatter within proven safe limits. I would seriously someday like to see a 5 year old moving antimatter and a bunch of relevant experts explaining why its astronomically unlikely that anything could go wrong.
-
-
 Unusual features or common software problems occamsfuncer will solve (TODO some of these havent been built yet):
 
 -- Exponentially threadable. The main kind of controlFlow is λx.λy.λz.((xz)(yz)) which can compute (xz) and (yz) in parallel (but often does not cuz of caching) then call what one returns on what the other returns. No writeLocking cuz immutable.
