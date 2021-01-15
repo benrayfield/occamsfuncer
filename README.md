@@ -1,6 +1,8 @@
 # occamsfuncer
 a kind of lazyEvaled shareable 512 bit number (is a working turingComplete system with testcases up to a derived equals function verifying that it equals itself, but TODO has not yet derived its main 512 bit form yet), an extremely optimizable and scalable universal lambda function for number crunching, AI research, low lag massively multiplayer games players redesign into new game types in turingComplete ways by hotswap/forkEdit per bit, per function call pair, etc. Similar to Unlambda Iota Jot Urbit Ethereum Ipfs
 
+UPDATE: I've found a simpler universal function (6 params instead of 15, with vararg lambdas, and comes with a new kind of set-theory that solves russell's paradox etc) amd am pursuing it in https://github.com/benrayfield/wikibinator which will be some of the unlimited number of axioms in https://github.com/benrayfield/axiomforest and that axiom forest could also include occamsfuncer and various other universal functions and systems after I get wikibinator working in it as a proofOfConcept.
+
 <img src=https://raw.githubusercontent.com/benrayfield/occamsfuncer/master/data/occamsfuncer/pics/DragTree%202020-11-11.png>\
 (pic explained farther below, where you see it again)
 
